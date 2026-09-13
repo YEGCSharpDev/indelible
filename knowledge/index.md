@@ -16,6 +16,8 @@ Welcome to the Indelible OKF (Open Knowledge Format) knowledge base. This direct
 - **Components:** Deep dives into individual sub-systems.
   - [Backend](/knowledge/components/backend.md)
   - [Web Frontend](/knowledge/components/web.md)
-  - [Mobile & Extension](/knowledge/components/mobile_extension.md)
+  - [Mobile](/knowledge/components/mobile.md)
+
+> Note: The browser extension, Obsidian plugin, and website components have been removed from this fork to streamline the repository to the core application, mobile apps, and Docker generation logic.
 - **Workflows:** How to develop and contribute.
   - [Development Workflow](/knowledge/workflows/development.md)
