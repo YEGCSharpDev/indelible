@@ -2,6 +2,9 @@
 
 # Indelible
 
+> [!NOTE]
+> This is a trimmed fork of the original Indelible repository. The marketing website, browser extension, and Obsidian plugin components have been removed to focus entirely on the core application, mobile apps, and Docker deployment logic.
+
 Open-source, self-hosted read-it-later and knowledge archiver. Articles,
 newsletters, PDFs, and EPUBs are captured in full and stored in your own
 library, permanently. Links rot; your library does not.
@@ -17,9 +20,9 @@ library, permanently. Links rot; your library does not.
   everything you have saved.
 - **Mila, an optional AI assistant.** Ask questions across your library and
   summarize long reads, using your own provider key.
-- **Content in, from anywhere.** Browser extension, personal email-in
+- **Content in, from anywhere.** Personal email-in
   addresses, RSS feeds, and file uploads.
-- **Your tools, connected.** Sync to Obsidian and Notion.
+- **Your tools, connected.** Sync to Notion.
 
 <img alt="Four Indelible screens: the Home dashboard, full-text and semantic search, Collections, and the RSS feed" src="https://assets.useindelible.com/readme/wall.webp" width="100%" />
 
@@ -64,28 +67,17 @@ docker compose up -d --build
 | Client | Where |
 | --- | --- |
 | Web | Served by `ind-api`, no separate deployment |
-| Browser extension | [Chrome and Edge](https://chromewebstore.google.com/detail/indelible/jidilhjojlgndbpeooeeceohmkedooef), [Firefox](https://addons.mozilla.org/en-GB/firefox/addon/indelible/), or [source](extension/) |
 | Mobile | `mobile/` (Android and iOS, Kotlin Multiplatform) |
-| Obsidian plugin | `obsidian/` |
 
 Android and iOS are one Kotlin Multiplatform codebase, sharing the library and
 reading position with the web.
 
 <img alt="Three Indelible phone screens: the daily home view, an article being highlighted with the native selection toolbar, and saving a URL" src="https://assets.useindelible.com/readme/phones.webp" width="100%" />
 
-The extension saves the page you are on and archives its full text at save
-time, without leaving the tab. Highlights travel both ways: text you mark on
-the live page shows up in the reader, and highlights made in the reader are
-re-anchored onto the original page when you open the extension there again.
-Notes attach to a saved page from the extension, or to an individual highlight
-in the web app.
-
-<img alt="The Indelible browser extension toolbar injected over an article it has just saved, with a highlight in the page text" src="https://assets.useindelible.com/readme/extension.webp" width="100%" />
-
 ## Documentation
 
 Full documentation, including every configuration variable, lives at
-[useindelible.com](https://useindelible.com). The source is in `website/`.
+[useindelible.com](https://useindelible.com).
 
 ## Contributing
 

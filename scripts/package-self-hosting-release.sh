@@ -23,11 +23,11 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 version="${release_tag#v}"
 
 mkdir "$output_dir"
-cp "$repo_root/website/public/quickstart/docker-compose.yml" "$output_dir/docker-compose.yml"
+cp "$repo_root/docker/quickstart/docker-compose.yml" "$output_dir/docker-compose.yml"
 sed "s/^INDELIBLE_VERSION=latest$/INDELIBLE_VERSION=$version/" \
-  "$repo_root/website/public/quickstart/env.example" > "$output_dir/example.env"
+  "$repo_root/docker/quickstart/env.example" > "$output_dir/example.env"
 sed "s/^RELEASE_TAG=latest$/RELEASE_TAG=$release_tag/" \
-  "$repo_root/website/public/quickstart/install.sh" > "$output_dir/install.sh"
+  "$repo_root/docker/quickstart/install.sh" > "$output_dir/install.sh"
 chmod +x "$output_dir/install.sh"
 
 grep -qx "INDELIBLE_VERSION=$version" "$output_dir/example.env"
