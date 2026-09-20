@@ -8,6 +8,7 @@
 		| 'integrations'
 		| 'notion'
 		| 'obsidian'
+		| 'miniflux'
 		| 'feed'
 		| 'archival'
 		| 'mila'
@@ -115,6 +116,15 @@
 		--hero-blob-b: var(--hero-obsidian-blob-b);
 		--hero-blob-c: var(--hero-obsidian-blob-c);
 		--hero-edge: var(--hero-obsidian-edge);
+	}
+
+	.hero[data-variant='miniflux'] {
+		--hero-from: var(--hero-miniflux-from);
+		--hero-to: var(--hero-miniflux-to);
+		--hero-blob-a: var(--hero-miniflux-blob-a);
+		--hero-blob-b: var(--hero-miniflux-blob-b);
+		--hero-blob-c: var(--hero-miniflux-blob-c);
+		--hero-edge: var(--hero-miniflux-edge);
 	}
 
 	.hero[data-variant='feed'] {

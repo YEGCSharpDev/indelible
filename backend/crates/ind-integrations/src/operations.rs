@@ -565,4 +565,26 @@ impl IntegrationOperations for IntegrationOperationsService {
                 .await
         })
     }
+
+    fn setup_miniflux_connection(
+        &self,
+        user_id: UserId,
+        url: String,
+        api_key: String,
+    ) -> BoxFuture<'_, Result<ind_domain::IntegrationConnection, AppError>> {
+        Box::pin(async move {
+            let config = serde_json::json!({
+                "url": url,
+                "api_key": api_key,
+            });
+            self.connection_repo
+                .upsert_by_user_provider(
+                    user_id,
+                    ind_domain::IntegrationProvider::Miniflux,
+                    config,
+                    "connected",
+                )
+                .await
+        })
+    }
 }

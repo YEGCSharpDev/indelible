@@ -65,6 +65,15 @@ impl IntegrationSyncService {
                 })
                 .expect("NotionSyncConnectionJob is serializable"),
             ),
+            IntegrationProvider::Miniflux => (
+                job_types::INTEGRATION_MINIFLUX_SYNC_CONNECTION,
+                serde_json::to_value(ind_domain::MinifluxSyncConnectionJob {
+                    connection_id: connection.id,
+                    user_id,
+                    requested_by_user: true,
+                })
+                .expect("MinifluxSyncConnectionJob is serializable"),
+            ),
             provider => {
                 return Err(AppError::Domain(DomainError::Validation {
                     field: "provider".to_string(),

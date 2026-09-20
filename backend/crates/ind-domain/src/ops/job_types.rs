@@ -19,3 +19,5 @@ pub const INTEGRATION_OBSIDIAN_SYNC_CONNECTION: &str = "integration.obsidian.syn
 pub const INTEGRATION_NOTION_EXPORT_DOCUMENT: &str = "integration.notion.export_document";
 pub const INTEGRATION_NOTION_SYNC_CONNECTION: &str = "integration.notion.sync_connection";
 pub const IMPORT_READWISE: &str = "import.readwise";
+pub const INTEGRATION_MINIFLUX_SYNC_CONNECTION: &str = "integration.miniflux.sync_connection";
+pub const INTEGRATION_MINIFLUX_PUSH_READ_STATE: &str = "integration.miniflux.push_read_state";

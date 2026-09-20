@@ -41,6 +41,7 @@
 		isOauthProviderAvailable,
 		notionHubStatus,
 		obsidianHubStatus,
+		minifluxHubStatus,
 		sevenDayDelta,
 		sevenDayItems,
 		type ImportSlot,
@@ -84,8 +85,10 @@
 	const notionConnection = $derived(findConnection('notion'));
 	const notionAvailable = $derived(isOauthProviderAvailable(availableOauthProviders, 'notion'));
 	const obsidianConnection = $derived(findConnection('obsidian'));
+	const minifluxConnection = $derived(findConnection('miniflux'));
 	const notionStatus = $derived(notionHubStatus(notionConnection));
 	const obsidianStatus = $derived(obsidianHubStatus(obsidianConnection));
+	const minifluxStatus = $derived(minifluxHubStatus(minifluxConnection));
 	const ringCounts = $derived(connectionRingCounts(connections));
 	const ringDash = $derived(connectionRingDash(ringCounts));
 	const heroState = $derived<'populated' | 'empty'>(
@@ -177,6 +180,10 @@
 		void goto(resolve('/preferences/integrations/obsidian'));
 	}
 
+	function openMinifluxDetail() {
+		void goto(resolve('/preferences/integrations/miniflux'));
+	}
+
 	async function handleSync(connectionId: string) {
 		syncStateByConnection = { ...syncStateByConnection, [connectionId]: 'pending' };
 		syncErrorByConnection = { ...syncErrorByConnection, [connectionId]: '' };
@@ -220,7 +227,8 @@
 		const map: Record<string, string> = {
 			notion: 'Notion',
 			obsidian: 'Obsidian',
-			email_ingest: 'Email Forwarding'
+			email_ingest: 'Email Forwarding',
+			miniflux: 'Miniflux'
 		};
 		return map[connection.provider] ?? connection.provider;
 	}
@@ -417,8 +425,10 @@
 			{extStore}
 			{notionConnection}
 			{obsidianConnection}
+			{minifluxConnection}
 			{notionStatus}
 			{obsidianStatus}
+			{minifluxStatus}
 			{syncStateByConnection}
 			{syncErrorByConnection}
 			{notionConnectError}
@@ -427,6 +437,7 @@
 			onStartNotion={startNotionAuthorization}
 			onOpenNotion={openNotionDetail}
 			onOpenObsidian={openObsidianDetail}
+			onOpenMiniflux={openMinifluxDetail}
 			onSync={handleSync}
 			onDisconnect={openDisconnectDialog}
 		/>
