@@ -107,6 +107,18 @@ export function obsidianHubStatus(
 	return { labelKey: 'integrations_hub_status_connected', variant: 'active', check: true };
 }
 
+export function minifluxHubStatus(
+	connection: IntegrationConnectionDto | null | undefined
+): HubConnectionStatus {
+	if (!connection) return { labelKey: 'integrations_hub_status_not_connected', variant: 'coming' };
+	const state = deriveConnectionState(connection);
+	if (state === 'syncing')
+		return { labelKey: 'integrations_hub_status_syncing', variant: 'syncing', pulse: true };
+	if (state === 'failed')
+		return { labelKey: 'integrations_hub_status_needs_attention', variant: 'attention' };
+	return { labelKey: 'integrations_hub_status_connected', variant: 'active', check: true };
+}
+
 export function notionDatabaseLabel(
 	connection: IntegrationConnectionDto | undefined
 ): string | null {

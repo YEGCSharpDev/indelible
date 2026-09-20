@@ -172,3 +172,16 @@ pub struct ReadwiseImportJob {
     pub archive_zip_key: Option<String>,
     pub opml_key: Option<String>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MinifluxSyncConnectionJob {
+    pub connection_id: IntegrationConnectionId,
+    pub user_id: UserId,
+    pub requested_by_user: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MinifluxPushReadStateJob {
+    pub user_id: UserId,
+    pub document_id: DocumentId,
+}

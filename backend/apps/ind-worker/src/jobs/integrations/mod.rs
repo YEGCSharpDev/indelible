@@ -1,6 +1,7 @@
 pub mod notion;
 mod obsidian;
 mod readwise;
+mod miniflux;
 
 use ind_application::error::AppError;
 use ind_domain::GenericJobEnvelope;
@@ -11,6 +12,8 @@ const HANDLED_JOB_TYPES: &[&str] = &[
     "integration.notion.export_document",
     "integration.obsidian.sync_connection",
     "integration.notion.sync_connection",
+    "integration.miniflux.sync_connection",
+    "integration.miniflux.push_read_state",
     "import.readwise",
 ];
 
@@ -79,6 +82,30 @@ pub async fn dispatch_envelope(
                     }
                 })?;
             obsidian::handle_sync_connection(ctx, job).await?;
+            Ok(Some(()))
+        }
+        "integration.miniflux.sync_connection" => {
+            let job: ind_domain::MinifluxSyncConnectionJob =
+                serde_json::from_value(envelope.payload).map_err(|e| {
+                    AppError::ExternalService {
+                        service: "miniflux".into(),
+                        message: format!("invalid sync_connection payload: {e}"),
+                    }
+                })?;
+            let worker = miniflux::MinifluxSyncWorker::new(ctx.pool.clone(), ctx.lifecycle.clone());
+            worker.run(job).await?;
+            Ok(Some(()))
+        }
+        "integration.miniflux.push_read_state" => {
+            let job: ind_domain::MinifluxPushReadStateJob =
+                serde_json::from_value(envelope.payload).map_err(|e| {
+                    AppError::ExternalService {
+                        service: "miniflux".into(),
+                        message: format!("invalid push_read_state payload: {e}"),
+                    }
+                })?;
+            let worker = miniflux::MinifluxSyncWorker::new(ctx.pool.clone(), ctx.lifecycle.clone());
+            worker.push_read_state(job).await?;
             Ok(Some(()))
         }
         "import.readwise" => {

@@ -46,6 +46,7 @@ pub(super) fn parse_provider(s: &str) -> Result<IntegrationProvider, AppError> {
         "logseq" => Ok(IntegrationProvider::Logseq),
         "browser_extension" => Ok(IntegrationProvider::BrowserExtension),
         "email_ingest" => Ok(IntegrationProvider::EmailIngest),
+        "miniflux" => Ok(IntegrationProvider::Miniflux),
         other => Err(AppError::Domain(DomainError::InvariantViolation {
             message: format!("invalid integration provider: {other}"),
         })),
@@ -59,5 +60,6 @@ pub(super) fn provider_to_str(provider: IntegrationProvider) -> &'static str {
         IntegrationProvider::Logseq => "logseq",
         IntegrationProvider::BrowserExtension => "browser_extension",
         IntegrationProvider::EmailIngest => "email_ingest",
+        IntegrationProvider::Miniflux => "miniflux",
     }
 }

@@ -218,8 +218,25 @@ impl LibraryService {
         id: LibraryEntryId,
         state: TriageState,
     ) -> Result<LibraryEntry, AppError> {
+        let mut effects = MutationSideEffects::none();
+        if state == TriageState::Archive {
+            // Enqueue a job to sync the read state back to integrations like Miniflux.
+            // The worker gracefully ignores documents that aren't from the integration.
+            if let Some(joined) = self.library.find_by_id(id, user_id).await? {
+                effects.outbox.push(crate::repos::lifecycle_outbox::OutboxEntry {
+                    job_type: ind_domain::job_types::INTEGRATION_MINIFLUX_PUSH_READ_STATE.into(),
+                    payload: serde_json::to_value(ind_domain::MinifluxPushReadStateJob {
+                        user_id,
+                        document_id: joined.document.id,
+                    })
+                    .expect("serializes"),
+                    dedupe_key: Some(format!("miniflux_push_read_state:{}", joined.document.id)),
+                    available_at: chrono::Utc::now(),
+                });
+            }
+        }
         self.library
-            .set_triage_state(id, user_id, state, MutationSideEffects::none())
+            .set_triage_state(id, user_id, state, effects)
             .await
     }
 

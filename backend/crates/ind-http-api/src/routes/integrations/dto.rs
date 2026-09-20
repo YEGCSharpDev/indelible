@@ -130,6 +130,9 @@ impl IntegrationConnectionConfigDto {
             IntegrationProvider::BrowserExtension => IntegrationConnectionConfigDto::Other {
                 provider_name: "browser_extension".to_string(),
             },
+            IntegrationProvider::Miniflux => IntegrationConnectionConfigDto::Other {
+                provider_name: "miniflux".to_string(),
+            },
         }
     }
 }

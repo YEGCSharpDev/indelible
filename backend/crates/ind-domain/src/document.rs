@@ -73,6 +73,7 @@ pub enum DocumentOriginType {
     ReadwiseImportItem,
     EmailMessage,
     ManualUpload,
+    MinifluxItem,
 }
 
 impl DocumentOriginType {
@@ -81,6 +82,7 @@ impl DocumentOriginType {
         "readwise_import_item",
         "email_message",
         "manual_upload",
+        "miniflux_item",
     ];
 
     pub fn as_str(self) -> &'static str {
@@ -89,6 +91,18 @@ impl DocumentOriginType {
             Self::ReadwiseImportItem => "readwise_import_item",
             Self::EmailMessage => "email_message",
             Self::ManualUpload => "manual_upload",
+            Self::MinifluxItem => "miniflux_item",
+        }
+    }
+
+    pub fn parse(s: &str) -> Option<Self> {
+        match s {
+            "feed_source_entry" => Some(Self::FeedSourceEntry),
+            "readwise_import_item" => Some(Self::ReadwiseImportItem),
+            "email_message" => Some(Self::EmailMessage),
+            "manual_upload" => Some(Self::ManualUpload),
+            "miniflux_item" => Some(Self::MinifluxItem),
+            _ => None,
         }
     }
 }
@@ -108,6 +122,7 @@ impl FromStr for DocumentOriginType {
             "readwise_import_item" => Ok(Self::ReadwiseImportItem),
             "email_message" => Ok(Self::EmailMessage),
             "manual_upload" => Ok(Self::ManualUpload),
+            "miniflux_item" => Ok(Self::MinifluxItem),
             other => Err(format!("invalid document origin type: {other}")),
         }
     }

@@ -4,6 +4,7 @@ mod auth;
 mod connections;
 mod notion;
 mod obsidian;
+mod miniflux;
 
 use axum::Router;
 use axum::routing::{delete, get, post};
@@ -26,6 +27,9 @@ pub use dto::{
     NotionSettingsDto, ObsidianPreviewRequest, ObsidianPreviewResponse, ObsidianSettingsDto,
     SyncIntegrationResponse, UpdateNotionExportItemsRequest, UpdateNotionSettingsRequest,
     UpdateObsidianSettingsRequest,
+};
+pub use miniflux::{
+    __path_connect_miniflux, connect_miniflux, ConnectMinifluxRequest,
 };
 pub use notion::{
     __path_get_notion_settings, __path_list_notion_export_items, __path_refresh_notion_export_item,
@@ -75,5 +79,9 @@ pub fn integration_routes(_rate_limiters: RateLimiters) -> Router<AppState> {
         .route(
             "/api/v1/integrations/obsidian/setup",
             post(setup_obsidian_connection),
+        )
+        .route(
+            "/api/v1/integrations/miniflux/connect",
+            post(connect_miniflux),
         )
 }

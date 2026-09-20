@@ -18,8 +18,10 @@
 		extStore: StoreLink;
 		notionConnection: IntegrationConnectionDto | undefined;
 		obsidianConnection: IntegrationConnectionDto | undefined;
+		minifluxConnection: IntegrationConnectionDto | undefined;
 		notionStatus: HubConnectionStatus;
 		obsidianStatus: HubConnectionStatus;
+		minifluxStatus: HubConnectionStatus;
 		syncStateByConnection: Record<string, SyncState>;
 		syncErrorByConnection: Record<string, string>;
 		notionConnectError: string | null;
@@ -28,6 +30,7 @@
 		onStartNotion: () => void;
 		onOpenNotion: () => void;
 		onOpenObsidian: () => void;
+		onOpenMiniflux: () => void;
 		onSync: (connectionId: string) => void;
 		onDisconnect: (connection: IntegrationConnectionDto) => void;
 	}
@@ -42,8 +45,10 @@
 		extStore,
 		notionConnection,
 		obsidianConnection,
+		minifluxConnection,
 		notionStatus,
 		obsidianStatus,
+		minifluxStatus,
 		syncStateByConnection,
 		syncErrorByConnection,
 		notionConnectError,
@@ -52,6 +57,7 @@
 		onStartNotion,
 		onOpenNotion,
 		onOpenObsidian,
+		onOpenMiniflux,
 		onSync,
 		onDisconnect
 	}: Props = $props();
@@ -264,6 +270,59 @@
 								type="button"
 								class="btn ghost compact danger"
 								onclick={() => onDisconnect(obsidianConnection)}
+							>
+								{$t('integrations_disconnect')}
+							</button>
+						{/if}
+					{/snippet}
+				</IntegrationConnectionCard>
+
+				<IntegrationConnectionCard
+					title="Miniflux"
+					tagline="Sync reading state and articles"
+					statusLabel={$t(minifluxStatus.labelKey)}
+					statusVariant={minifluxStatus.variant}
+					statusCheck={minifluxStatus.check}
+					testId="miniflux-connection-card"
+				>
+					{#snippet body()}
+						<div class="moment">
+							{#if minifluxConnection?.last_sync_at}
+								<div class="moment-stat">
+									{$t('integrations_hub_last_sync_time', {
+										values: { time: relativeTime(minifluxConnection.last_sync_at) ?? '' }
+									})}
+								</div>
+							{:else if minifluxConnection}
+								<div class="moment-muted">Not synced yet</div>
+							{:else}
+								<div class="moment-muted">
+									Connect your Miniflux server
+								</div>
+							{/if}
+						</div>
+					{/snippet}
+					{#snippet actions()}
+						<button type="button" class="btn ghost compact" onclick={onOpenMiniflux}>
+							{minifluxConnection
+								? $t('integrations_hub_manage')
+								: 'Connect'}
+						</button>
+						{#if minifluxConnection}
+							<button
+								type="button"
+								class="btn ghost compact"
+								onclick={() => onSync(minifluxConnection.id)}
+								disabled={syncStateByConnection[minifluxConnection.id] === 'pending'}
+							>
+								{syncStateByConnection[minifluxConnection.id] === 'pending'
+									? 'Syncing...'
+									: $t('integrations_hub_force_resync')}
+							</button>
+							<button
+								type="button"
+								class="btn ghost compact danger"
+								onclick={() => onDisconnect(minifluxConnection)}
 							>
 								{$t('integrations_disconnect')}
 							</button>

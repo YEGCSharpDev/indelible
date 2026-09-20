@@ -231,6 +231,13 @@ pub trait IntegrationOperations: Send + Sync {
         &self,
         user_id: UserId,
     ) -> BoxFuture<'_, Result<IntegrationConnection, AppError>>;
+
+    fn setup_miniflux_connection(
+        &self,
+        user_id: UserId,
+        url: String,
+        api_key: String,
+    ) -> BoxFuture<'_, Result<IntegrationConnection, AppError>>;
 }
 
 pub trait ExportOperations: Send + Sync {
