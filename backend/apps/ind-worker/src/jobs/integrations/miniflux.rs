@@ -4,8 +4,11 @@ use serde::Deserialize;
 use ind_application::AppError;
 use ind_application::repos::integration_connection::IntegrationConnectionRepository;
 use ind_application::repos::document_lifecycle::{DocumentLifecycle, MaterializeIdentity, SaveToLibraryRequest, MaterializeOrigin};
-use ind_domain::{MinifluxSyncConnectionJob, IntegrationProvider, ContentSource, NewUrlDocument, DocumentType, DocumentOriginType, deterministic_origin_id};
-use ind_persistence::repos::PgIntegrationConnectionRepository;
+use ind_application::repos::tag::TagRepository;
+use ind_application::repos::event::MutationSideEffects;
+use ind_application::repos::library::LibraryRepository;
+use ind_domain::{MinifluxSyncConnectionJob, IntegrationProvider, ContentSource, NewUrlDocument, DocumentType, DocumentOriginType, deterministic_origin_id, TagSource, TriageState, LibraryEntryId};
+use ind_persistence::repos::{PgIntegrationConnectionRepository, PgTagRepository, PgLibraryRepository};
 use sqlx::PgPool;
 
 #[allow(dead_code)]
@@ -16,15 +19,29 @@ struct MinifluxResponse {
 }
 
 #[derive(Debug, Deserialize)]
+struct MinifluxFeedCategory {
+    title: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct MinifluxFeed {
+    category: Option<MinifluxFeedCategory>,
+}
+
+#[derive(Debug, Deserialize)]
 struct MinifluxEntry {
     id: i32,
     title: String,
     url: String,
+    tags: Option<Vec<String>>,
+    feed: Option<MinifluxFeed>,
 }
 
 pub struct MinifluxSyncWorker {
     pool: PgPool,
     connection_repo: Arc<dyn IntegrationConnectionRepository>,
+    tag_repo: Arc<dyn TagRepository>,
+    library: Arc<dyn LibraryRepository>,
     lifecycle: Arc<dyn DocumentLifecycle>,
 }
 
@@ -32,7 +49,9 @@ impl MinifluxSyncWorker {
     pub fn new(pool: PgPool, lifecycle: Arc<dyn DocumentLifecycle>) -> Self {
         Self { 
             pool: pool.clone(),
-            connection_repo: Arc::new(PgIntegrationConnectionRepository::new(pool)),
+            connection_repo: Arc::new(PgIntegrationConnectionRepository::new(pool.clone())),
+            tag_repo: Arc::new(PgTagRepository::new(pool.clone())),
+            library: Arc::new(PgLibraryRepository::new(pool)),
             lifecycle,
         }
     }
@@ -72,7 +91,7 @@ impl MinifluxSyncWorker {
 
         let client = reqwest::Client::new();
         let res = client
-            .get(format!("{}/v1/entries?status=unread", url.trim_end_matches('/')))
+            .get(format!("{}/v1/entries?status=unread&limit=10000", url.trim_end_matches('/')))
             .header("X-Auth-Token", api_key)
             .send()
             .await
@@ -101,7 +120,7 @@ impl MinifluxSyncWorker {
 
         tracing::info!("Found {} unread Miniflux entries", data.entries.len());
 
-        for entry in data.entries {
+        for entry in &data.entries {
             // For testing, we just log and ingest as library entries.
             // We use origin id to prevent duplicates.
             let origin_id = deterministic_origin_id(
@@ -147,6 +166,47 @@ impl MinifluxSyncWorker {
                 Ok(outcome) => {
                     tracing::info!("Saved Miniflux entry {} to library (document {})", entry.id, outcome.document.id);
                     
+                    // Extract tags and categories
+                    let mut names_to_import = Vec::new();
+                    if let Some(feed) = &entry.feed {
+                        if let Some(category) = &feed.category {
+                            if !category.title.trim().is_empty() {
+                                names_to_import.push(category.title.trim().to_string());
+                            }
+                        }
+                    }
+                    if let Some(tags) = &entry.tags {
+                        for tag in tags {
+                            if !tag.trim().is_empty() {
+                                names_to_import.push(tag.trim().to_string());
+                            }
+                        }
+                    }
+
+                    // Deduplicate tag names
+                    names_to_import.sort();
+                    names_to_import.dedup();
+
+                    let mut tag_ids = Vec::new();
+                    for name in names_to_import {
+                        match self.tag_repo.find_or_create_by_name(job.user_id, &name).await {
+                            Ok(tag) => tag_ids.push(tag.id),
+                            Err(e) => tracing::error!("Failed to find or create tag '{}': {}", name, e),
+                        }
+                    }
+
+                    if !tag_ids.is_empty() {
+                        if let Err(e) = self.tag_repo.replace_for_library_entry_with_source(
+                            job.user_id,
+                            outcome.entry.id,
+                            &tag_ids,
+                            TagSource::Import,
+                            MutationSideEffects::none(),
+                        ).await {
+                            tracing::error!("Failed to attach tags to library entry: {}", e);
+                        }
+                    }
+
                     // Store the mapping so we can push read states back later
                     let _ = sqlx::query(
                         "INSERT INTO miniflux_sync_map (user_id, document_id, miniflux_id) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING"
@@ -160,6 +220,36 @@ impl MinifluxSyncWorker {
                 Err(e) => {
                     tracing::error!("Failed to save Miniflux entry {}: {}", entry.id, e);
                 }
+            }
+        }
+
+        let unread_ids: std::collections::HashSet<i32> = data.entries.iter().map(|e| e.id).collect();
+
+        let rows = sqlx::query(
+            r#"
+            SELECT l.id as library_entry_id, m.miniflux_id 
+            FROM library_entries l
+            JOIN miniflux_sync_map m ON l.document_id = m.document_id AND l.user_id = m.user_id
+            WHERE l.user_id = $1 AND l.triage_state IN ('Inbox', 'Later')
+            "#
+        )
+        .bind(job.user_id.into_uuid())
+        .fetch_all(&self.pool)
+        .await
+        .unwrap_or_default();
+
+        for row in rows {
+            let miniflux_id: i32 = sqlx::Row::get(&row, "miniflux_id");
+            let library_entry_id: uuid::Uuid = sqlx::Row::get(&row, "library_entry_id");
+
+            if !unread_ids.contains(&miniflux_id) {
+                tracing::info!("Miniflux document {} is no longer unread, archiving library entry {}", miniflux_id, library_entry_id);
+                let _ = self.library.set_triage_state(
+                    LibraryEntryId::from_uuid(library_entry_id),
+                    job.user_id,
+                    TriageState::Archive,
+                    MutationSideEffects::none()
+                ).await;
             }
         }
 
