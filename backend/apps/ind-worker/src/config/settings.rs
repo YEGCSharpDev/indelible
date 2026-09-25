@@ -1,4 +1,3 @@
-use ind_domain::MilaPlatformDefaults;
 use ind_persistence::storage::{S3Config, S3ConfigError};
 use secrecy::SecretString;
 use serde::Deserialize;
@@ -37,7 +36,6 @@ pub struct WorkerConfig {
     pub trash_cleanup: TrashCleanupSettings,
     #[serde(default)]
     pub feed_retention_cleanup: FeedRetentionCleanupSettings,
-    pub mila: MilaPlatformDefaults,
     #[serde(default)]
     pub email_ingest: EmailIngestWorkerSettings,
     #[serde(default)]

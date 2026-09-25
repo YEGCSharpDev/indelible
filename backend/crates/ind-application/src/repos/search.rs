@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::error::AppError;
 use ind_domain::{
-    ContentVector, DocumentId, RecentSearch, RecentSearchId, SearchDocument, SearchEntityCard,
+    DocumentId, RecentSearch, RecentSearchId, SearchDocument, SearchEntityCard,
     SearchEntityChip, SearchHit, SearchIndexedHighlight, UserId,
 };
 use uuid::Uuid;
@@ -81,10 +81,6 @@ pub trait SearchRepository: Send + Sync {
         document_id: DocumentId,
     ) -> Result<(), AppError>;
 
-    async fn upsert_content_vector(
-        &self,
-        vector: &ContentVector,
-    ) -> Result<ContentVector, AppError>;
 
     async fn search_fts(&self, query: &SearchFtsQuery) -> Result<Vec<SearchHit>, AppError>;
 

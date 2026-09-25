@@ -3,11 +3,10 @@ use std::time::Duration;
 
 use apalis::prelude::*;
 use apalis_postgres::{Config as ApalisConfig, PostgresStorage};
-use ind_application::repos::embedding_backfill::EmbeddingBackfillRepository;
 use ind_application::repos::search_reindex::SearchReindexRepository;
 use ind_domain::GenericJobEnvelope;
 use ind_persistence::repos::{
-    PgEmbeddingBackfillRepository, PgOutboxHandoff, PgSearchReindexRepository,
+    PgOutboxHandoff, PgSearchReindexRepository,
 };
 use secrecy::{ExposeSecret, SecretString};
 
@@ -49,19 +48,6 @@ pub async fn run() -> anyhow::Result<()> {
         .with_poll_interval(apalis_poll_strategy);
     let handoff = Arc::new(PgOutboxHandoff::new(pool.clone(), apalis_config.clone()));
     let repos = Repositories::new(&pool);
-    let pg_embedding_backfill_repo = Arc::new(PgEmbeddingBackfillRepository::new(pool.clone()));
-    let reconciled_jobs = pg_embedding_backfill_repo
-        .reconcile_platform_defaults(&config.mila)
-        .await?;
-    if reconciled_jobs > 0 {
-        tracing::info!(
-            queued_jobs = reconciled_jobs,
-            embedding_model = %config.mila.embedding_model,
-            embedding_dim = config.mila.embedding_dim,
-            "queued Mila embedding reindex after platform default drift"
-        );
-    }
-    let embedding_backfill_repo: Arc<dyn EmbeddingBackfillRepository> = pg_embedding_backfill_repo;
     let search_reindex_repo: Arc<dyn SearchReindexRepository> =
         Arc::new(PgSearchReindexRepository::new(pool.clone()));
     let search_reindex = search_reindex_repo
@@ -82,7 +68,6 @@ pub async fn run() -> anyhow::Result<()> {
             &config,
             pool.clone(),
             &repos,
-            embedding_backfill_repo.clone(),
             search_reindex_repo,
         )
         .await?,
@@ -131,7 +116,6 @@ async fn build_context(
     config: &WorkerConfig,
     pool: sqlx::PgPool,
     repos: &Repositories,
-    embedding_backfill_repo: Arc<dyn EmbeddingBackfillRepository>,
     search_reindex_repo: Arc<dyn SearchReindexRepository>,
 ) -> anyhow::Result<WorkerContext> {
     let renderer = Arc::new(HttpRendererClient::new(
@@ -162,12 +146,10 @@ async fn build_context(
         renderer,
         object_storage,
         config.s3_bucket.clone(),
-        config.mila.clone(),
         config.egress_policy(),
         credential_cipher,
     )?
     .with_worker_id(worker_id)
-    .with_embedding_backfill_repo(embedding_backfill_repo)
     .with_search_reindex_repo(search_reindex_repo)
     .with_concurrency(
         ConcurrencyLimiter::new()

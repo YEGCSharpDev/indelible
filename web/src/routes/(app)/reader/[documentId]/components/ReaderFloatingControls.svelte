@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { ViewTab } from '$lib/components/reader/ViewTabs.svelte';
-	import TtsController from '$lib/components/reader/TtsController.svelte';
 	import TypographyPopover from '$lib/components/reader/TypographyPopover.svelte';
 	import FocusMode from '$lib/components/reader/FocusMode.svelte';
 
@@ -47,9 +46,6 @@
 	}: Props = $props();
 </script>
 
-{#if ttsOpen && activeTab === 'reader' && readableReady}
-	<TtsController {documentId} articleBodyEl={readerArticleBodyEl} />
-{/if}
 
 {#if showTypography && aaButtonEl}
 	<TypographyPopover anchorEl={aaButtonEl} onClose={onTypographyClose} />

@@ -29,7 +29,8 @@ suspend fun InMemoryTokenStorage.pendingQueueOwner(): PendingSaveQueueOwner? {
 
     val userId =
         try {
-            jwtPayloadJson.decodeFromString<JwtPayload>(String(Base64.getUrlDecoder().decode(payload)))
+            jwtPayloadJson
+                .decodeFromString<JwtPayload>(String(Base64.getUrlDecoder().decode(payload)))
                 .sub
                 ?.takeIf { it.isNotBlank() }
         } catch (_: Exception) {

@@ -10,9 +10,9 @@ use ind_http_api::{
     AppState, account_routes, archive_routes, asset_proxy_routes, auth_routes, collection_routes,
     document_routes, email_alias_routes, email_sender_routes, entity_routes, epub_routes,
     event_routes, export_routes, extension_routes, feed_delivery_routes, feed_routes,
-    highlight_routes, home_routes, import_routes, integration_routes, library_routes, mila_routes,
+    highlight_routes, home_routes, import_routes, integration_routes, library_routes, 
     onboarding_routes, rate_limited_auth_routes, scalar_ui, search_routes, settings_routes,
-    smart_list_routes, swagger_ui, tag_routes, token_routes, tts_routes, webhook_routes,
+    smart_list_routes, swagger_ui, tag_routes, token_routes,  webhook_routes,
 };
 use tower_http::cors::{AllowOrigin, CorsLayer};
 use tower_http::set_header::SetResponseHeaderLayer;
@@ -54,14 +54,12 @@ pub fn build(
         .merge(document_routes())
         .merge(home_routes())
         .merge(search_routes())
-        .merge(mila_routes())
         .merge(entity_routes())
         .merge(collection_routes())
         .merge(email_sender_routes())
         .merge(email_alias_routes())
         .merge(tag_routes())
         .merge(smart_list_routes())
-        .merge(tts_routes())
         .merge(integration_routes(rate_limiters))
         .merge(import_routes(max_import_upload_bytes))
         .merge(export_routes())

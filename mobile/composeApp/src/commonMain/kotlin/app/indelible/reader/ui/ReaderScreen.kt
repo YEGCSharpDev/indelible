@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import app.indelible.core.i18n.resolve
 import app.indelible.core.i18n.resolveString
-import app.indelible.mila.viewmodel.MilaChatViewModel
 import app.indelible.reader.model.DataPanel
 import app.indelible.reader.model.HighlightData
 import app.indelible.reader.model.TagData
@@ -35,8 +34,6 @@ import app.indelible.ui.platform.ImmersiveSystemBars
 fun ReaderScreen(
     viewModel: ReaderViewModel,
     onNavigateBack: () -> Unit,
-    milaViewModelProvider: (title: String) -> MilaChatViewModel,
-    onNavigateToAiSettings: () -> Unit,
     onNavigateToItem: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -55,9 +52,6 @@ fun ReaderScreen(
     var scrollToPercent by remember { mutableStateOf<Float?>(null) }
     var anchorScroll by remember { mutableStateOf<AnchorScrollRequest?>(null) }
     val chromeState = remember { ReaderChromeState() }
-    // The in-reader Mila session is created on first open and kept alive (even while
-    // the drawer is closed) so the conversation persists for the rest of the read.
-    var milaStarted by remember { mutableStateOf(false) }
 
     val chromeSuppressed =
         isChromeSuppressed(
@@ -100,9 +94,6 @@ fun ReaderScreen(
         if (activePanel == DataPanel.NOTE || activePanel == DataPanel.INFO) {
             viewModel.loadTagsForPicker { availableTags = it }
         }
-        if (activePanel == DataPanel.MILA) {
-            milaStarted = true
-        }
     }
 
     Scaffold(
@@ -123,15 +114,12 @@ fun ReaderScreen(
                     selectedText = selectedText,
                     tappedHighlight = tappedHighlight,
                     tagSheetHighlightId = tagSheetHighlightId,
-                    milaStarted = milaStarted,
                     scrollToPercent = scrollToPercent,
                     anchorScroll = anchorScroll,
                     isDarkMode = isDarkMode,
                     snackbarHostState = snackbarHostState,
                     coroutineScope = coroutineScope,
                     viewModel = viewModel,
-                    milaViewModelProvider = milaViewModelProvider,
-                    onNavigateToAiSettings = onNavigateToAiSettings,
                     onNavigateToItem = onNavigateToItem,
                     // Selecting text or tapping a highlight is a deliberate reach for the
                     // chrome. Wiring reveal here gives iOS a second path that does not

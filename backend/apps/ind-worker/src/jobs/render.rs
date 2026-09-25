@@ -34,12 +34,6 @@ pub async fn dispatch_generic_job(
     }
 
     let ai_search = ctx.ai_search_jobs();
-    if crate::jobs::ai::dispatch_generic_job(&ai_search, envelope.clone())
-        .await?
-        .is_some()
-    {
-        return Ok(());
-    }
 
     if crate::jobs::search::dispatch_generic_job(&ai_search, envelope.clone())
         .await?

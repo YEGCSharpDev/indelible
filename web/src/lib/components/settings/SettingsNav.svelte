@@ -10,7 +10,6 @@
 		| '/preferences/feed-management'
 		| '/preferences/email'
 		| '/preferences/archival'
-		| '/preferences/ai'
 		| '/preferences/developer';
 
 	type IconKey =
@@ -33,7 +32,6 @@
 		{ labelKey: 'settings_feed_management', href: '/preferences/feed-management', icon: 'feed' },
 		{ labelKey: 'settings_email', href: '/preferences/email', icon: 'email' },
 		{ labelKey: 'settings_archival', href: '/preferences/archival', icon: 'archival' },
-		{ labelKey: 'settings_ai', href: '/preferences/ai', icon: 'mila' },
 		{ labelKey: 'settings_developer', href: '/preferences/developer', icon: 'developer' }
 	];
 
@@ -86,12 +84,6 @@
 								<rect x="3" y="3" width="18" height="6" rx="1.5" />
 								<path d="M5 9v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9" />
 								<path d="M10 13h4" />
-							</svg>
-						{:else if item.icon === 'mila'}
-							<svg viewBox="0 0 24 24">
-								<path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z" />
-								<path d="M19 13l.75 2.25L22 16l-2.25.75L19 19l-.75-2.25L16 16l2.25-.75z" />
-								<path d="M5 17l.5 1.5L7 19l-1.5.5L5 21l-.5-1.5L3 19l1.5-.5z" />
 							</svg>
 						{:else if item.icon === 'developer'}
 							<svg viewBox="0 0 24 24">

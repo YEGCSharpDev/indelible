@@ -19,7 +19,6 @@ test-helpers = []
 
 [dependencies]
 mimalloc = { workspace = true }
-ind-ai = { workspace = true }
 ind-auth = { workspace = true }
 ind-config = { workspace = true }
 ind-domain = { workspace = true }

@@ -1,0 +1,55 @@
+"use strict";
+const no_external_svelte_imports_1 = require("./rules/no-external-svelte-imports");
+const no_external_svelte_exports_1 = require("./rules/no-external-svelte-exports");
+const no_external_rune_calls_1 = require("./rules/no-external-rune-calls");
+const no_effect_outside_components_1 = require("./rules/no-effect-outside-components");
+const no_props_outside_components_1 = require("./rules/no-props-outside-components");
+const no_direct_rune_assign_1 = require("./rules/no-direct-rune-assign");
+const no_initialized_rune_exports_1 = require("./rules/no-initialized-rune-exports");
+const no_initialized_rune_return_1 = require("./rules/no-initialized-rune-return");
+const require_extensions_1 = require("./rules/require-extensions");
+const rules = {
+    'no-external-svelte-imports': no_external_svelte_imports_1.rule,
+    'no-external-svelte-exports': no_external_svelte_exports_1.rule,
+    'no-external-rune-calls': no_external_rune_calls_1.rule,
+    'no-effect-outside-components': no_effect_outside_components_1.rule,
+    'no-props-outside-components': no_props_outside_components_1.rule,
+    'no-direct-rune-assign': no_direct_rune_assign_1.rule,
+    'no-initialized-rune-exports': no_initialized_rune_exports_1.rule,
+    'no-initialized-rune-return': no_initialized_rune_return_1.rule,
+    'require-extensions': require_extensions_1.rule,
+};
+const recommendedRules = {
+    'svelte-runes/no-direct-rune-assign': 'error',
+    'svelte-runes/no-external-rune-calls': 'error',
+    'svelte-runes/no-external-svelte-exports': 'error',
+    'svelte-runes/no-external-svelte-imports': 'error',
+    'svelte-runes/no-props-outside-components': 'error',
+    'svelte-runes/no-initialized-rune-exports': 'error',
+    'svelte-runes/no-initialized-rune-return': 'error',
+    'svelte-runes/require-extensions': 'error',
+};
+const allRules = {
+    'svelte-runes/no-direct-rune-assign': 'error',
+    'svelte-runes/no-external-rune-calls': 'error',
+    'svelte-runes/no-external-svelte-exports': 'error',
+    'svelte-runes/no-external-svelte-imports': 'error',
+    'svelte-runes/no-props-outside-components': 'error',
+    'svelte-runes/no-initialized-rune-exports': 'error',
+    'svelte-runes/no-initialized-rune-return': 'error',
+    'svelte-runes/require-extensions': 'error',
+    'svelte-runes/no-effect-outside-components': 'error',
+};
+const plugin = {
+    rules,
+    configs: {
+        recommended: {
+            rules: recommendedRules,
+        },
+        all: {
+            rules: allRules,
+        },
+    },
+};
+module.exports = plugin;
+//# sourceMappingURL=index.js.map

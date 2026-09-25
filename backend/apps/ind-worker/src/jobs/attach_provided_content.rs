@@ -10,7 +10,6 @@ use ind_domain::{
 };
 
 use crate::context::CaptureJobDeps;
-use crate::jobs::ai::enqueue_document_embed_if_engaged;
 use crate::jobs::reading_metrics::{apply_reading_metrics, word_count_from_html};
 use crate::jobs::search::enqueue_search_reindex_document;
 
@@ -79,7 +78,6 @@ pub async fn handle_attach_provided_content(
             }
         }
         enqueue_search_reindex_document(ctx, job.document_id).await?;
-        enqueue_document_embed_if_engaged(ctx, job.user_id, job.document_id).await?;
         ind_application::handlers::article_toc::apply_article_toc(
             ctx.object_storage.as_deref(),
             ctx.document_asset_repo.as_ref(),

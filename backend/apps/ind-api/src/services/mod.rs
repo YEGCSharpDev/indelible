@@ -3,15 +3,14 @@ use std::sync::Arc;
 mod app_config;
 mod email;
 mod integrations;
-mod mila;
+
 pub(crate) mod repositories;
 mod storage;
-mod tts;
+
 
 use crate::config::ServerConfig;
 use ind_application::ports::{
     CollectionOperations, EntityOperations, FeedOperations, HighlightOperations, HomeOperations,
-    MilaActionRetryPort, MilaChatPort, MilaConfigPort, MilaPromptPresetPort, MilaSessionPort,
     SearchOperations, SmartListOperations, TagOperations,
 };
 use ind_auth::oauth::{OAuthConfigInput, build_oauth_config};
@@ -235,21 +234,6 @@ pub async fn build_with_overrides(
         )))
     };
 
-    let mila_adapter =
-        mila::build_mila_ops(config, &pool, storage.clone(), outbox_repo.clone(), &repos)?;
-    let mut mila_config_ops: Option<Arc<dyn MilaConfigPort>> = None;
-    let mut mila_prompt_preset_ops: Option<Arc<dyn MilaPromptPresetPort>> = None;
-    let mut mila_session_ops: Option<Arc<dyn MilaSessionPort>> = None;
-    let mut mila_chat_ops: Option<Arc<dyn MilaChatPort>> = None;
-    let mut mila_action_retry_ops: Option<Arc<dyn MilaActionRetryPort>> = None;
-    if let Some(mila) = mila_adapter {
-        mila_config_ops = Some(mila.clone());
-        mila_prompt_preset_ops = Some(mila.clone());
-        mila_session_ops = Some(mila.clone());
-        mila_chat_ops = Some(mila.clone());
-        mila_action_retry_ops = Some(mila);
-    }
-
     let entity_ops: Option<Arc<dyn EntityOperations>> = {
         let entity_repo = Arc::new(PgEntityRepository::new(pool.clone()))
             as Arc<dyn ind_application::repos::entity::EntityRepository>;
@@ -285,7 +269,6 @@ pub async fn build_with_overrides(
     let email_sender_ops = email_services.sender_ops;
     let email_alias_ops = email_services.alias_ops;
 
-    let tts_ops = tts::build_tts_ops(config, &pool, storage.as_ref(), &repos);
 
     let integration_services = integrations::build_integration_services(
         config,
@@ -400,11 +383,6 @@ pub async fn build_with_overrides(
         article_toc_ops,
         home_ops,
         search_ops,
-        mila_config_ops,
-        mila_prompt_preset_ops,
-        mila_session_ops,
-        mila_chat_ops,
-        mila_action_retry_ops,
         entity_ops,
         email_ingest_ops,
         email_ingest_provider,
@@ -413,7 +391,6 @@ pub async fn build_with_overrides(
         collection_ops,
         tag_ops,
         smart_list_ops,
-        tts_ops,
         integration_ops,
         import_ops,
         export_ops,

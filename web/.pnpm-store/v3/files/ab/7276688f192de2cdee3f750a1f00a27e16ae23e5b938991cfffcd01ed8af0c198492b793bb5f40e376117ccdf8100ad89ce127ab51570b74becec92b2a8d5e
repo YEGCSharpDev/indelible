@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getPropertyValueIdentifier = void 0;
+function getPropertyValueIdentifier(node) {
+    if (node.shorthand && node.key.type === 'Identifier') {
+        return node.key;
+    }
+    if (node.value.type === 'Identifier') {
+        return node.value;
+    }
+    return null;
+}
+exports.getPropertyValueIdentifier = getPropertyValueIdentifier;
+//# sourceMappingURL=getPropertyValueIdentifier.js.map

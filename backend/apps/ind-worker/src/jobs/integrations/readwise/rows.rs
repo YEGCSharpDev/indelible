@@ -22,7 +22,6 @@ use super::parse::{
 };
 use super::types::{ProcessCsvOutcome, ProcessRowResult, ReadwiseCsvRow, RowDiagnostics, ZipEntry};
 use crate::context::IntegrationJobDeps;
-use crate::jobs::ai::enqueue_document_embed_if_engaged;
 use crate::jobs::search::enqueue_search_reindex_document;
 
 /// Deterministic `document_origins` key for a no-URL Readwise row (TASK-236). Idempotency derives
@@ -364,7 +363,6 @@ async fn attach_provided_content(
         };
     if readable {
         enqueue_search_reindex_document(ctx, document_id).await?;
-        enqueue_document_embed_if_engaged(ctx, user_id, document_id).await?;
         return Ok((1, 1));
     }
     Ok((0, 0))

@@ -1,0 +1,7 @@
+    let prepared_content_provider: Arc<dyn PreparedContentProvider> = Arc::new(
+        ind_application::services::content::AssetBackedPreparedContentProvider::new(
+            Arc::new(ind_persistence::repos::PgDocumentRepository::new(pool.clone())),
+            Arc::new(ind_persistence::repos::PgDocumentAssetRepository::new(pool.clone())),
+            storage.cloned(),
+        )
+    );

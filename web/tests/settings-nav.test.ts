@@ -37,7 +37,6 @@ describe('SettingsNav', () => {
 			'Integrations',
 			'Feed Management',
 			'Archival',
-			'Mila & AI',
 			'Developer'
 		];
 
@@ -55,7 +54,6 @@ describe('SettingsNav', () => {
 			Integrations: '/preferences/integrations',
 			'Feed Management': '/preferences/feed-management',
 			Archival: '/preferences/archival',
-			'Mila & AI': '/preferences/ai',
 			Developer: '/preferences/developer'
 		};
 

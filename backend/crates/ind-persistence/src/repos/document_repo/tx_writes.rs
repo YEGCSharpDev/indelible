@@ -238,6 +238,7 @@ pub(crate) async fn record_origin_tx(
     }
 }
 
+#[allow(dead_code)]
 pub(crate) async fn select_document_by_id(
     tx: &mut PgTx<'_>,
     user_id: UserId,

@@ -46,8 +46,7 @@ class ArticleTocParityTest {
         }
         """.trimIndent()
 
-    private fun statusOnlyJson(status: String) =
-        """{"status": "$status", "truncated": false, "entries": []}"""
+    private fun statusOnlyJson(status: String) = """{"status": "$status", "truncated": false, "entries": []}"""
 
     private suspend fun newClient(engine: MockEngine): ApiClient {
         val tokenStorage = InMemoryTokenStorage()

@@ -1,0 +1,4 @@
+import { Rule } from 'eslint';
+export declare function getPropertyValueIdentifier(node: Extract<Rule.Node, {
+    type: 'Property';
+}>): import("estree").Identifier | null;

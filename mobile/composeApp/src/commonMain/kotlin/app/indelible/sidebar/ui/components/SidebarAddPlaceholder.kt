@@ -66,8 +66,7 @@ fun SidebarAddPlaceholder(
                                     ),
                             ),
                     )
-                }
-                .clip(IndelibleShape.lg)
+                }.clip(IndelibleShape.lg)
                 .clickable(onClick = onClick)
                 .padding(horizontal = IndelibleSpacing.step12, vertical = IndelibleSpacing.step10),
         verticalAlignment = Alignment.CenterVertically,

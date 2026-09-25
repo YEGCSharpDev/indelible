@@ -1,0 +1,38 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.rule = exports.messageId = void 0;
+const constants_1 = require("../constants");
+exports.messageId = 'noEffectOutsideComponents';
+exports.rule = {
+    meta: {
+        type: 'problem',
+        docs: {
+            description: 'disallow usage of the $effect rune outside of .svelte files',
+            category: 'Possible Errors',
+        },
+        messages: {
+            [exports.messageId]: '$effect rune should only allowed within .svelte component files',
+        },
+        schema: [],
+    },
+    create: (context) => {
+        // only run this rule on .svelte.js or .svelte.ts files
+        const fileName = context.filename;
+        const isSvelteJsOrTsFile = [constants_1.SVELTE_JS_FILE_EXTENSION, constants_1.SVELTE_TS_FILE_EXTENSION].some((extension) => fileName.endsWith(extension));
+        if (!isSvelteJsOrTsFile) {
+            return {};
+        }
+        return {
+            Identifier(node) {
+                if (node.name === constants_1.EFFECT_RUNE) {
+                    context.report({
+                        node,
+                        messageId: exports.messageId,
+                    });
+                }
+            },
+        };
+    },
+};
+exports.default = exports.rule;
+//# sourceMappingURL=no-effect-outside-components.js.map

@@ -46,29 +46,6 @@ impl Default for TestAppOptions {
     }
 }
 
-pub fn test_mila_defaults() -> ind_domain::MilaPlatformDefaults {
-    ind_domain::MilaPlatformDefaults {
-        chat_api_base: "http://localhost:0".into(),
-        chat_model: "test-chat".into(),
-        embedding_api_base: "http://localhost:0".into(),
-        embedding_model: "test-embedding".into(),
-        embedding_dim: 768,
-        model_context_window: 16_000,
-        summary_max_output_tokens: 1024,
-        tags_max_output_tokens: 1024,
-        entities_max_output_tokens: 2000,
-        chat_max_output_tokens: 1024,
-        chat_context_pct: 70,
-        chunk_size: 512,
-        chunk_overlap: 64,
-        top_k: 5,
-        cross_item_top_k: 10,
-        cross_item_max_per_item: 3,
-        enabled: false,
-        supports_structured_output: true,
-        supports_reasoning_effort: true,
-    }
-}
 
 fn test_config(base_url: &str, options: &TestAppOptions) -> ind_api::config::ServerConfig {
     let frontend_url = options.frontend_url.as_deref().unwrap_or(base_url);
@@ -90,7 +67,6 @@ fn test_config(base_url: &str, options: &TestAppOptions) -> ind_api::config::Ser
             "asset_serving_mode": options.asset_serving_mode,
             "asset_cookie_secret": TEST_ASSET_COOKIE_SECRET_HEX
         },
-        "mila": test_mila_defaults(),
         "tts": {"enabled": true, "use_mock_adapter": true, "deployment": "self_hosted"},
         "rate_limit": {
             "login": {"requests": 1000, "window_secs": 60},

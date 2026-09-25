@@ -9,7 +9,6 @@ members = [
     "crates/ind-persistence",
     "crates/ind-auth",
     "crates/ind-search",
-    "crates/ind-ai",
     "crates/ind-html",
     "crates/ind-egress",
     "crates/ind-ingest",
@@ -49,7 +48,6 @@ ind-application = { path = "crates/ind-application" }
 ind-persistence = { path = "crates/ind-persistence" }
 ind-auth = { path = "crates/ind-auth" }
 ind-search = { path = "crates/ind-search" }
-ind-ai = { path = "crates/ind-ai" }
 ind-html = { path = "crates/ind-html" }
 ind-egress = { path = "crates/ind-egress" }
 ind-ingest = { path = "crates/ind-ingest" }

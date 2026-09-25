@@ -103,8 +103,7 @@ class JvmPendingSaveRepositoryTest {
             assertEquals(emptyList(), repository.drainAll())
         }
 
-    private fun isolatedPreferences(): Preferences =
-        Preferences.userRoot().node("indelible-test-${UUID.randomUUID()}")
+    private fun isolatedPreferences(): Preferences = Preferences.userRoot().node("indelible-test-${UUID.randomUUID()}")
 
     private suspend fun withIsolatedPreferences(block: suspend (Preferences) -> Unit) {
         val preferences = isolatedPreferences()

@@ -13,12 +13,14 @@ fun main() =
     application {
         val tokenState = remember { InMemoryTokenStorage() }
         val userPreferencesStorage = remember { JvmUserPreferencesStorage() }
-        val pendingSaveRepository = remember(tokenState) {
-            JvmPendingSaveRepository { tokenState.pendingQueueOwner() }
-        }
-        val tokenStorage = remember(tokenState, pendingSaveRepository) {
-            JvmTokenStorage(tokenState, pendingSaveRepository)
-        }
+        val pendingSaveRepository =
+            remember(tokenState) {
+                JvmPendingSaveRepository { tokenState.pendingQueueOwner() }
+            }
+        val tokenStorage =
+            remember(tokenState, pendingSaveRepository) {
+                JvmTokenStorage(tokenState, pendingSaveRepository)
+            }
 
         Window(
             onCloseRequest = ::exitApplication,

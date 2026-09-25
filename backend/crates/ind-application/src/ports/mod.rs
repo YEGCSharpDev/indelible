@@ -1,4 +1,3 @@
-pub mod ai;
 pub mod auth;
 pub mod content;
 pub mod egress;
@@ -7,16 +6,7 @@ pub mod html_extractor;
 pub mod http_fetcher;
 pub mod integration;
 pub mod opml_parser;
-pub mod tts_adapter;
 
-pub use crate::services::tts::TtsResolvedChunk;
-pub use ai::{
-    CreateMilaPromptPresetRequest, CreateMilaSessionRequest, MilaActionRetryPort, MilaChatPort,
-    MilaConfigPort, MilaPromptPresetPort, MilaProviderTestResult, MilaSessionPort,
-    MilaStreamOutputStream, MilaStreamRequest, RetryMilaDocumentAction, TestMilaConfigRequest,
-    TtsOperations, UpdateMilaConfigRequest, UpdateMilaPromptPresetRequest,
-    UpsertPlaybackStateInput,
-};
 pub use auth::{
     AccountOperations, ApiTokenOperations, AuthError, AuthOperations, AuthPortError,
     ChangePasswordRequest, DeleteAccountRequest, ExtensionAuthOperations, ExtensionTokenResult,
@@ -52,7 +42,3 @@ pub use integration::{
     ObsidianRunCreate, ReadwiseImportUpload, WebhookOperations,
 };
 pub use opml_parser::{OpmlParseError, OpmlParser};
-pub use tts_adapter::{
-    TtsAdapter, TtsAdapterError, TtsDesignRequest, TtsDesignResult, TtsSynthesisRequest,
-    TtsSynthesisResult,
-};

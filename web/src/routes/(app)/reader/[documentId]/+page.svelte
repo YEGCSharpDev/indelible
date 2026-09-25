@@ -23,7 +23,6 @@
 	import { applyTheme, getSavedTheme } from '$lib/styles/theme';
 	import { t } from '$lib/i18n';
 	import { setDocumentTitle } from '$lib/stores/page-title.svelte';
-	import AiFailureNotice from './components/AiFailureNotice.svelte';
 	import ReaderErrorState from './components/ReaderErrorState.svelte';
 	import ReaderCompactDetail from './components/ReaderCompactDetail.svelte';
 	import ReaderLoadingState from './components/ReaderLoadingState.svelte';
@@ -557,8 +556,6 @@
 </script>
 
 {#if aiFailure}
-	<AiFailureNotice
-		failure={aiFailure}
 		status={aiRetryStatus}
 		onRetry={() => void retryMilaAction()}
 		onDismiss={() => {
@@ -628,9 +625,6 @@
 					void progressSaver?.flush();
 					activeTab = tab;
 				}}
-				onTtsToggle={resolvedActiveTab === 'reader' && readableReady && !transcriptUnavailable
-					? () => (ttsOpen = !ttsOpen)
-					: undefined}
 				onRetryReader={retryReader}
 				onProgressScroll={handleProgressScroll}
 				onArticlePdfProgress={handleArticlePdfProgress}

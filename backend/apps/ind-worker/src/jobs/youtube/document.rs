@@ -17,7 +17,6 @@ use super::player::{
 use super::transcript::fetch_transcript;
 use super::truncate_chars;
 use crate::context::CaptureJobDeps;
-use crate::jobs::ai::enqueue_document_embed_if_engaged;
 use crate::jobs::search::enqueue_search_reindex_document;
 
 pub async fn handle_youtube_ingest_document(
@@ -205,7 +204,6 @@ pub async fn handle_youtube_ingest_document(
         .await?;
 
     enqueue_search_reindex_document(ctx, job.document_id).await?;
-    enqueue_document_embed_if_engaged(ctx, job.user_id, job.document_id).await?;
     Ok(())
 }
 

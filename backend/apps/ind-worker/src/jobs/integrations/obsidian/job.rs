@@ -95,7 +95,6 @@ async fn build_run(
         Arc::new(AssetBackedPreparedContentProvider::new(
             ctx.document_repo.clone(),
             ctx.document_asset_repo.clone(),
-            ctx.mila_config_repo.clone(),
             ctx.object_storage.clone(),
         ))
     });

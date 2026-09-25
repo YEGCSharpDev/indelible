@@ -6,7 +6,6 @@ use bytes::Bytes;
 use ind_application::AppError;
 use ind_application::repos::document::DocumentRepository;
 use ind_application::repos::document_asset::DocumentAssetRepository;
-use ind_application::repos::mila_config::MilaConfigRepository;
 use ind_application::repos::prepared_content::PreparedContentProvider;
 use ind_application::storage::ObjectStorage;
 use ind_application::text::ChunkingConfig;
@@ -31,7 +30,6 @@ pub(super) struct HandlerContext<'a> {
 pub struct AssetBackedPreparedContentProvider {
     document_repo: Arc<dyn DocumentRepository>,
     document_asset_repo: Arc<dyn DocumentAssetRepository>,
-    mila_config_repo: Arc<dyn MilaConfigRepository>,
     object_storage: Option<Arc<dyn ObjectStorage>>,
 }
 
@@ -39,13 +37,11 @@ impl AssetBackedPreparedContentProvider {
     pub fn new(
         document_repo: Arc<dyn DocumentRepository>,
         document_asset_repo: Arc<dyn DocumentAssetRepository>,
-        mila_config_repo: Arc<dyn MilaConfigRepository>,
         object_storage: Option<Arc<dyn ObjectStorage>>,
     ) -> Self {
         Self {
             document_repo,
             document_asset_repo,
-            mila_config_repo,
             object_storage,
         }
     }
@@ -89,7 +85,6 @@ impl PreparedContentProvider for AssetBackedPreparedContentProvider {
             return Ok(None);
         };
 
-        let config = self.mila_config_repo.get_by_user(document.user_id).await?;
         let assets = self
             .document_asset_repo
             .find_by_document(document_id)
@@ -100,16 +95,10 @@ impl PreparedContentProvider for AssetBackedPreparedContentProvider {
             assets: &assets,
             asset_repo: self.document_asset_repo.as_ref(),
             object_storage: self.object_storage.as_ref(),
-            chunking: config
-                .as_ref()
-                .map(|config| ChunkingConfig {
-                    chunk_size: config.chunk_size.max(1) as usize,
-                    chunk_overlap: config.chunk_overlap.max(0) as usize,
-                })
-                .unwrap_or(ChunkingConfig {
-                    chunk_size: FALLBACK_CHUNK_SIZE,
-                    chunk_overlap: FALLBACK_CHUNK_OVERLAP,
-                }),
+            chunking: ChunkingConfig {
+                chunk_size: FALLBACK_CHUNK_SIZE,
+                chunk_overlap: FALLBACK_CHUNK_OVERLAP,
+            },
         };
 
         if let Some(result) = try_readable_html(&ctx).await? {

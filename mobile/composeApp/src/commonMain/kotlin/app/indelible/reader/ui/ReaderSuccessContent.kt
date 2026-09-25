@@ -20,13 +20,11 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
-import app.indelible.mila.viewmodel.MilaChatViewModel
 import app.indelible.reader.model.DataPanel
 import app.indelible.reader.model.HighlightColor
 import app.indelible.reader.model.HighlightData
@@ -35,7 +33,6 @@ import app.indelible.reader.model.TagData
 import app.indelible.reader.playback.PlaybackState
 import app.indelible.reader.ui.components.HighlightSheet
 import app.indelible.reader.ui.components.HighlightTagSheet
-import app.indelible.reader.ui.components.MilaReaderDrawer
 import app.indelible.reader.ui.components.ReaderBottomChrome
 import app.indelible.reader.ui.components.ReaderDock
 import app.indelible.reader.ui.components.ReaderDockPanels
@@ -74,15 +71,12 @@ internal fun ReaderSuccessContent(
     selectedText: SelectedTextInfo?,
     tappedHighlight: HighlightData?,
     tagSheetHighlightId: String?,
-    milaStarted: Boolean,
     scrollToPercent: Float?,
     anchorScroll: AnchorScrollRequest?,
     isDarkMode: Boolean,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
     viewModel: ReaderViewModel,
-    milaViewModelProvider: (title: String) -> MilaChatViewModel,
-    onNavigateToAiSettings: () -> Unit,
     onNavigateToItem: (String) -> Unit,
     onSelectedTextChanged: (SelectedTextInfo?) -> Unit,
     onTappedHighlightChanged: (HighlightData?) -> Unit,
@@ -311,18 +305,6 @@ internal fun ReaderSuccessContent(
                     viewModel.setHighlightTags(tagHighlight.id, tags)
                 },
                 onDismiss = { onTagSheetHighlightIdChanged(null) },
-            )
-        }
-
-        if (milaStarted) {
-            val milaViewModel = remember { milaViewModelProvider(state.item.title) }
-            MilaReaderDrawer(
-                visible = activePanel == DataPanel.MILA,
-                title = state.item.title,
-                viewModel = milaViewModel,
-                onDismiss = { viewModel.closePanel() },
-                onNavigateToAiSettings = onNavigateToAiSettings,
-                onNavigateToItem = onNavigateToItem,
             )
         }
     }

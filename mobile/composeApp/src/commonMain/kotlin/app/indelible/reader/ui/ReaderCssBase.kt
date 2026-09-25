@@ -132,6 +132,7 @@ internal fun buildReaderHighlightCss(
     highlightStyle: HighlightStyle,
 ): String {
     val fill = highlightStyle == HighlightStyle.FILL
+
     fun bg(color: String) = if (fill) color else "transparent"
     return """
 mark[data-highlight-id] {
@@ -158,5 +159,5 @@ mark.hl-purple { background: ${bg(palette.hlVBg)} !important; box-shadow: inset 
   width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0;
 }
 .hl-tag-label { color: var(--text-tertiary); }
-    """.trimIndent()
+        """.trimIndent()
 }

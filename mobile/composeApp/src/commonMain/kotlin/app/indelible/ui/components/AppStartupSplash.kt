@@ -47,9 +47,7 @@ fun StartupSplashGate(
 }
 
 @Composable
-fun AppStartupSplash(
-    modifier: Modifier = Modifier,
-) {
+fun AppStartupSplash(modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,

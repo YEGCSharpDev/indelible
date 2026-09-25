@@ -8,14 +8,12 @@ use ind_application::repos::export_cursor::ExportCursorRepository;
 use ind_application::repos::import_job::ImportJobRepository;
 use ind_application::repos::integration_connection::IntegrationConnectionRepository;
 use ind_application::repos::integration_oauth_token::IntegrationOAuthTokenRepository;
-use ind_application::repos::mila_config::{DefaultingMilaConfigRepository, MilaConfigRepository};
 use ind_application::repos::oauth_flow::OAuthFlowRepository;
 use ind_application::repos::prepared_content::PreparedContentProvider;
 use ind_application::storage::ObjectStorage;
 use ind_http_api::IntegrationOperations;
-use ind_ingest::AssetBackedPreparedContentProvider;
 use ind_persistence::repos::{
-    PgDocumentAssetRepository, PgDocumentRepository, PgImportJobRepository,
+    PgImportJobRepository,
     PgIntegrationOAuthTokenRepository, PgJobOutboxRepository, PgObsidianExportRepository,
     PgObsidianPreviewRepository, PgWebhookRepository,
 };
@@ -113,21 +111,15 @@ pub(super) fn build_integration_services(
         ));
 
     let export_summary_provider: Arc<dyn ExportSummaryProvider> =
-        Arc::new(StoredExportSummaryProvider::new(repos.ai_output.clone()));
+        Arc::new(StoredExportSummaryProvider::new());
 
-    let prepared_content_provider: Arc<dyn PreparedContentProvider> = {
-        let mila_repo: Arc<dyn MilaConfigRepository> = repos.mila_config.clone();
-        let defaulting_mila_repo = Arc::new(DefaultingMilaConfigRepository::new(
-            mila_repo,
-            config.mila.clone(),
-        )) as Arc<dyn MilaConfigRepository>;
-        Arc::new(AssetBackedPreparedContentProvider::new(
-            Arc::new(PgDocumentRepository::new(pool.clone())),
-            Arc::new(PgDocumentAssetRepository::new(pool.clone())),
-            defaulting_mila_repo,
+    let prepared_content_provider: Arc<dyn PreparedContentProvider> = Arc::new(
+        ind_ingest::AssetBackedPreparedContentProvider::new(
+            Arc::new(ind_persistence::repos::PgDocumentRepository::new(pool.clone())),
+            Arc::new(ind_persistence::repos::PgDocumentAssetRepository::new(pool.clone())),
             storage.cloned(),
-        ))
-    };
+        )
+    );
 
     if credential_cipher.is_none() {
         tracing::info!(

@@ -1,4 +1,3 @@
-pub mod ai;
 pub mod archive;
 pub mod auth;
 pub mod billing;
@@ -25,11 +24,9 @@ pub mod settings;
 pub mod smart_list;
 mod string_enum;
 pub mod tag;
-pub mod tts;
 pub mod user;
 pub mod webhook;
 
-pub use ai::*;
 pub use archive::*;
 pub use auth::*;
 pub use billing::*;
@@ -55,6 +52,5 @@ pub use search::*;
 pub use settings::*;
 pub use smart_list::*;
 pub use tag::*;
-pub use tts::*;
 pub use user::*;
 pub use webhook::*;

@@ -3,7 +3,6 @@ use secrecy::SecretString;
 use serde::Deserialize;
 
 use ind_application::asset_serving::AssetServingMode;
-use ind_domain::MilaPlatformDefaults;
 
 #[derive(Deserialize)]
 pub struct ServerConfig {
@@ -16,9 +15,7 @@ pub struct ServerConfig {
     #[serde(default)]
     pub oauth: OAuthSettings,
     pub storage: StorageSettings,
-    pub mila: MilaPlatformDefaults,
     #[serde(default)]
-    pub tts: TtsSettings,
     pub rate_limit: RateLimitSettings,
     #[serde(default)]
     pub email_ingest: EmailIngestSettings,
@@ -197,7 +194,7 @@ fn default_s3_force_path_style() -> bool {
     true
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Default, Deserialize)]
 pub struct RateLimitSettings {
     pub login: RateLimitEntry,
     pub registration: RateLimitEntry,
@@ -205,7 +202,7 @@ pub struct RateLimitSettings {
     pub user_api: RateLimitEntry,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Default, Deserialize)]
 pub struct RateLimitEntry {
     pub requests: u32,
     pub window_secs: u64,
@@ -254,47 +251,6 @@ pub struct IntegrationNotionOAuthSettings {
     pub client_id: Option<String>,
     pub client_secret: Option<SecretString>,
     pub redirect_url: Option<String>,
-}
-
-#[derive(Clone, Default, Deserialize)]
-pub struct TtsSettings {
-    #[serde(default)]
-    pub enabled: bool,
-    #[serde(default)]
-    pub hosted_managed_custom_persona: bool,
-    #[serde(default)]
-    pub use_mock_adapter: bool,
-    #[serde(default)]
-    pub deployment: DeploymentSetting,
-    #[serde(default)]
-    pub dashscope: TtsProviderSettings,
-    #[serde(default)]
-    pub unreal_speech: TtsProviderSettings,
-}
-
-#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "snake_case")]
-pub enum DeploymentSetting {
-    #[default]
-    Hosted,
-    SelfHosted,
-}
-
-impl From<DeploymentSetting> for ind_application::services::tts::Deployment {
-    fn from(value: DeploymentSetting) -> Self {
-        match value {
-            DeploymentSetting::Hosted => Self::Hosted,
-            DeploymentSetting::SelfHosted => Self::SelfHosted,
-        }
-    }
-}
-
-#[derive(Clone, Default, Deserialize)]
-pub struct TtsProviderSettings {
-    pub api_key: Option<SecretString>,
-    pub api_base: Option<String>,
-    #[serde(default)]
-    pub transcript_supported: bool,
 }
 
 fn default_oidc_provider_name() -> String {

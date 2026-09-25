@@ -191,6 +191,7 @@ pub(crate) async fn document_has_completed_readable_asset_tx(
 }
 
 /// Whether the user has an active (non-soft-deleted) library entry for the document.
+#[allow(dead_code)]
 pub(crate) async fn document_is_saved_tx(
     tx: &mut PgTx<'_>,
     user_id: UserId,

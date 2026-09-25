@@ -138,7 +138,7 @@ async fn harness(
     ));
 
     let export_summary = Arc::new(
-        ind_application::export_summary::StoredExportSummaryProvider::new(Arc::new(
+        ind_application::export_summary::StoredExportSummaryProvider::new()
             PgAiOutputRepository::new(pool.clone()),
         )),
     );

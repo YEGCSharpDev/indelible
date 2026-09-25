@@ -1,5 +1,4 @@
 use config::{Config, File, FileFormat};
-use ind_domain::ai::MILA_EMBEDDING_DIM;
 use secrecy::SecretString;
 use serde::Deserialize;
 
@@ -415,7 +414,6 @@ impl WorkerConfig {
                 env.get("MILA_EMBEDDING_API_BASE"),
             )?
             .set_override_option("mila.embedding_model", env.get("MILA_EMBEDDING_MODEL"))?
-            .set_override_option("mila.embedding_dim", parse_i64(env, "MILA_EMBEDDING_DIM"))?
             .set_override_option(
                 "mila.model_context_window",
                 parse_i64(env, "MILA_MODEL_CONTEXT_WINDOW"),
@@ -508,13 +506,6 @@ impl WorkerConfig {
             "integrations.notion.sync_max_concurrency",
             cfg.integrations.notion.sync_max_concurrency,
         )?;
-        if cfg.mila.embedding_dim != MILA_EMBEDDING_DIM {
-            anyhow::bail!(
-                "mila.embedding_dim must be {MILA_EMBEDDING_DIM}; pgvector storage is fixed at \
-                 {MILA_EMBEDDING_DIM} dimensions for this release"
-            );
-        }
-        cfg.mila.validate().map_err(|e| anyhow::anyhow!(e))?;
 
         if cfg.auto_heal.enabled {
             validate_positive_u64("auto_heal.interval_secs", cfg.auto_heal.interval_secs)?;

@@ -1,4 +1,3 @@
-mod chat;
 mod save;
 pub(crate) mod steps;
 
@@ -7,8 +6,8 @@ use sqlx::PgPool;
 use ind_application::AppError;
 use ind_application::repos::document_lifecycle::{
     DocumentLifecycle, MaterializeIdentity, MaterializeOutcome, MaterializeRequest,
-    MaterializeSideEffects, SaveToLibraryOutcome, SaveToLibraryRequest, StartDocumentChatOutcome,
-    StartDocumentChatRequest,
+    MaterializeSideEffects, SaveToLibraryOutcome, SaveToLibraryRequest, 
+    
 };
 use ind_domain::DocumentOriginType;
 
@@ -110,10 +109,4 @@ impl DocumentLifecycle for PgDocumentLifecycle {
         save::save_to_library(&self.pool, request).await
     }
 
-    async fn start_single_document_chat(
-        &self,
-        request: StartDocumentChatRequest,
-    ) -> Result<StartDocumentChatOutcome, AppError> {
-        chat::start_single_document_chat(&self.pool, request).await
-    }
 }

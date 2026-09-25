@@ -1,0 +1,51 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.rule = void 0;
+const constants_1 = require("../constants");
+const getImportSource_1 = require("../utils/getImportSource"); // Update the path accordingly
+const messageId = 'requireExtensions';
+exports.rule = {
+    meta: {
+        type: 'problem',
+        docs: {
+            description: 'Require using a full .svelte.js or .svelte.ts file extension, unless there is a component that exists as just .svelte.',
+            category: 'Stylistic Issues',
+        },
+        messages: {
+            [messageId]: 'Use a full .svelte.js or .svelte.ts file extension unless a .svelte file exists.',
+        },
+    },
+    create(context) {
+        return {
+            ImportDeclaration(node) {
+                if (node.source && node.source.value) {
+                    const importPath = node.source.value;
+                    if (typeof importPath !== 'string') {
+                        return;
+                    }
+                    if (!importPath.endsWith('.svelte')) {
+                        return;
+                    }
+                    const resolvedPath = (0, getImportSource_1.getImportSource)({ source: importPath, fileName: context.getFilename() });
+                    if (!resolvedPath) {
+                        return;
+                    }
+                    // If the resolved path ends with .svelte, then it's a valid component
+                    if (resolvedPath.match(constants_1.SVELTE_COMPONENT_PATTERN)) {
+                        return;
+                    }
+                    if (!resolvedPath.match(constants_1.SVELTE_JS_OR_TS_PATTERN) // TODO: determine if the file can/should be able to end with .svelte.ts
+                    ) {
+                        context.report({
+                            node: node.source,
+                            messageId,
+                            // fix by appending .js to the import path
+                            fix: (fixer) => fixer.replaceText(node.source, `'${importPath}.js'`),
+                        });
+                    }
+                }
+            },
+        };
+    },
+};
+//# sourceMappingURL=require-extensions.js.map

@@ -69,5 +69,5 @@ $artFilter
 body.immersive .chrome-veil {
   transform: translateY(-100%);
 }
-    """.trimIndent()
+        """.trimIndent()
 }

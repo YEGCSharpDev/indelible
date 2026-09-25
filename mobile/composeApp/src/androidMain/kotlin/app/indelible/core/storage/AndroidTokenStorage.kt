@@ -47,8 +47,7 @@ class AndroidTokenStorage(
         prefs.edit().putLong(KEY_EXPIRES_AT, epochSeconds).commit()
     }
 
-    override suspend fun getExpiresAt(): Long? =
-        if (prefs.contains(KEY_EXPIRES_AT)) prefs.getLong(KEY_EXPIRES_AT, 0L) else null
+    override suspend fun getExpiresAt(): Long? = if (prefs.contains(KEY_EXPIRES_AT)) prefs.getLong(KEY_EXPIRES_AT, 0L) else null
 
     override suspend fun savePendingOAuthFlow(flow: PendingOAuthFlow) {
         prefs.edit().putString(KEY_PENDING_OAUTH, Json.encodeToString(flow)).commit()

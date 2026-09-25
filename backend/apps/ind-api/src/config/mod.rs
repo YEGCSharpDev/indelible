@@ -6,7 +6,6 @@ use std::collections::HashSet;
 use url::Url;
 
 use ind_application::asset_serving::AssetServingMode;
-use ind_domain::ai::MILA_EMBEDDING_DIM;
 use ind_http_api::middleware::rate_limit::{RateLimitConfig, RateLimitRule};
 
 mod settings;
@@ -422,7 +421,6 @@ impl ServerConfig {
     }
 
     fn validate(&self, is_dev: bool) -> anyhow::Result<()> {
-        self.mila.validate().map_err(|e| anyhow::anyhow!(e))?;
 
         if !is_dev {
             let dev_csrf = "dev-csrf-secret-change-in-production";
@@ -522,12 +520,6 @@ impl ServerConfig {
             );
         }
 
-        if self.mila.embedding_dim != MILA_EMBEDDING_DIM {
-            anyhow::bail!(
-                "mila.embedding_dim must be {MILA_EMBEDDING_DIM}; pgvector storage is fixed at \
-                 {MILA_EMBEDDING_DIM} dimensions for this release"
-            );
-        }
 
         // M.9: integration OAuth tokens are encrypted with auth.credential_key.
         // In production, refuse to boot with integrations configured but no key
