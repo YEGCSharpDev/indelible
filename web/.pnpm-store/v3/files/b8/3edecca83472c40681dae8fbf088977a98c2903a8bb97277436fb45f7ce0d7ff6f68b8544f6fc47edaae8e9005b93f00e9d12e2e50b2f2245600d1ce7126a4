@@ -1,0 +1,9 @@
+import type { Rule } from 'eslint';
+type Configuration = 'recommended';
+type RuleData = {
+    rule: Rule.RuleModule;
+    id: string;
+    configurations: Configuration[];
+};
+export declare function createRule<const ID extends string>(id: ID, rule: Rule.RuleModule, configurations: Configuration[]): RuleData;
+export {};

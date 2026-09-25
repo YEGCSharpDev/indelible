@@ -1,0 +1,9 @@
+export declare const EFFECT_RUNE = "$effect";
+export declare const PROPS_RUNE = "$props";
+export declare const RUNE_NAMES: readonly ["$effect", "$state", "$derived", "$props"];
+export declare const SVELTE_COMPONENT_FILE_EXTENSION = ".svelte";
+export declare const SVELTE_JS_FILE_EXTENSION = ".svelte.js";
+export declare const SVELTE_TS_FILE_EXTENSION = ".svelte.ts";
+export declare const SVELTE_COMPONENT_PATTERN: RegExp;
+export declare const SVELTE_JS_OR_TS_PATTERN: RegExp;
+export declare const SVELTE_FILE_EXTENSIONS: readonly [".svelte", ".svelte.js", ".svelte.ts"];

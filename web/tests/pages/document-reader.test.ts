@@ -150,84 +150,9 @@ afterEach(() => {
 });
 
 describe('document reader page', () => {
-	it('explains a transcript-free YouTube save and removes transcript-dependent actions', async () => {
-		mockGetDocumentEntry.mockResolvedValue({
-			data: readModel({
-				item_type: 'video',
-				document_type: 'video',
-				title: 'Metadata-only video'
-			})
-		});
-		mockListAssets.mockResolvedValue({
-			data: {
-				data: assets([
-					{ asset_kind: 'readable_html', status: 'completed' },
-					{
-						asset_kind: 'extracted_text',
-						status: 'failed',
-						failed_reason: 'YouTube transcript unavailable or empty'
-					}
-				]),
-				page: { has_more: false }
-			}
-		});
+	
 
-		render(DocumentReaderPage);
-
-		await waitFor(() => expect(screen.getByText('No transcript available')).toBeTruthy());
-		expect(screen.getByText(/embed, metadata, and description remain available/)).toBeTruthy();
-		expect(screen.queryByRole('button', { name: 'Listen to article' })).toBeNull();
-		expect(screen.queryByRole('tab', { name: 'Chat' })).toBeNull();
-		expect(screen.getByRole('tab', { name: 'Info' })).toBeTruthy();
-		expect(screen.getByRole('tab', { name: 'Notebook' })).toBeTruthy();
-	});
-
-	it('closes active Listen mode when a video becomes transcript-free', async () => {
-		mockGetDocumentEntry.mockResolvedValue({
-			data: readModel({ item_type: 'video', document_type: 'video' })
-		});
-		const transcriptFreeAssets = assets([
-			{ asset_kind: 'readable_html', status: 'completed' },
-			{
-				asset_kind: 'extracted_text',
-				status: 'failed',
-				failed_reason: 'YouTube transcript unavailable or empty'
-			}
-		]);
-		mockListAssets
-			.mockResolvedValueOnce({
-				data: {
-					data: assets([{ asset_kind: 'readable_html', status: 'completed' }]),
-					page: { has_more: false }
-				}
-			})
-			.mockResolvedValueOnce({
-				data: { data: transcriptFreeAssets, page: { has_more: false } }
-			})
-			.mockResolvedValueOnce({
-				data: {
-					data: assets([{ asset_kind: 'readable_html', status: 'completed' }]),
-					page: { has_more: false }
-				}
-			});
-
-		render(DocumentReaderPage);
-		const listen = await screen.findByRole('button', { name: 'Listen to article' });
-		await fireEvent.click(listen);
-		expect(screen.getByRole('button', { name: 'Close listen mode' })).toBeTruthy();
-
-		readerRealtimeCallbacks?.onAiCompleted({ action: 'summary', aiRunId: 'air_video' });
-		await waitFor(() =>
-			expect(screen.queryByRole('button', { name: 'Close listen mode' })).toBeNull()
-		);
-		expect(screen.queryByRole('button', { name: 'Listen to article' })).toBeNull();
-
-		readerRealtimeCallbacks?.onAiCompleted({ action: 'summary', aiRunId: 'air_video_2' });
-		await waitFor(() =>
-			expect(screen.getByRole('button', { name: 'Listen to article' })).toBeTruthy()
-		);
-		expect(screen.queryByRole('button', { name: 'Close listen mode' })).toBeNull();
-	});
+	
 	it('reserves a safe reader gutter when the table of contents rail is visible', async () => {
 		mockGetArticleToc.mockResolvedValue({
 			data: {
@@ -267,114 +192,15 @@ describe('document reader page', () => {
 		expect(container.querySelector('.content-area')?.classList.contains('with-toc')).toBe(false);
 	});
 
-	it('clears a Mila failure when the reader navigates to another document', async () => {
-		mockGetDocumentEntry.mockResolvedValue({ data: readModel() });
-		render(DocumentReaderPage);
-		await waitFor(() => expect(readerRealtimeCallbacks).toBeTruthy());
+	
 
-		readerRealtimeCallbacks?.onAiFailed({
-			documentId: 'doc_1',
-			action: 'summary',
-			aiRunId: 'airun_summary',
-			message: 'provider timeout'
-		});
-		expect(await screen.findByText("Mila couldn't create a summary.")).toBeTruthy();
+	
 
-		mockRouteParams.set('documentId', 'doc_2');
-		await waitFor(() => expect(screen.queryByText("Mila couldn't create a summary.")).toBeNull());
-	});
+	
 
-	it('does not apply a stale retry result to a newer failure', async () => {
-		let resolveRetry!: (value: { data: { queued: boolean; action: string } }) => void;
-		mockRetryMilaDocumentAction.mockReturnValueOnce(
-			new Promise((resolve) => {
-				resolveRetry = resolve;
-			})
-		);
-		mockGetDocumentEntry.mockResolvedValue({ data: readModel() });
-		render(DocumentReaderPage);
-		await waitFor(() => expect(readerRealtimeCallbacks).toBeTruthy());
+	
 
-		readerRealtimeCallbacks?.onAiFailed({
-			documentId: 'doc_1',
-			action: 'summary',
-			aiRunId: 'airun_summary',
-			message: 'summary timeout'
-		});
-		await fireEvent.click(await screen.findByRole('button', { name: 'Retry' }));
-		readerRealtimeCallbacks?.onAiFailed({
-			documentId: 'doc_1',
-			action: 'tags',
-			aiRunId: 'airun_tags',
-			message: 'tags timeout'
-		});
-		resolveRetry({ data: { queued: true, action: 'summary' } });
-
-		await waitFor(() => expect(screen.getByText("Mila couldn't suggest tags.")).toBeTruthy());
-		expect(screen.queryByText('Retry queued.')).toBeNull();
-	});
-
-	it('clears a Mila failure only when the same action completes', async () => {
-		mockGetDocumentEntry.mockResolvedValue({ data: readModel() });
-		render(DocumentReaderPage);
-		await waitFor(() => expect(readerRealtimeCallbacks).toBeTruthy());
-
-		readerRealtimeCallbacks?.onAiFailed({
-			documentId: 'doc_1',
-			action: 'summary',
-			aiRunId: 'airun_summary',
-			message: 'provider timeout'
-		});
-		expect(await screen.findByText("Mila couldn't create a summary.")).toBeTruthy();
-
-		readerRealtimeCallbacks?.onAiCompleted({ action: 'tags', aiRunId: 'airun_tags' });
-		await tick();
-		expect(screen.getByText("Mila couldn't create a summary.")).toBeTruthy();
-
-		readerRealtimeCallbacks?.onAiCompleted({ action: 'summary', aiRunId: 'airun_summary_retry' });
-		await waitFor(() => expect(screen.queryByText("Mila couldn't create a summary.")).toBeNull());
-	});
-
-	it('queues the failed Mila action and reports success', async () => {
-		mockGetDocumentEntry.mockResolvedValue({ data: readModel() });
-		render(DocumentReaderPage);
-		await waitFor(() => expect(readerRealtimeCallbacks).toBeTruthy());
-
-		readerRealtimeCallbacks?.onAiFailed({
-			documentId: 'doc_1',
-			action: 'summary',
-			aiRunId: 'airun_1',
-			message: 'provider timeout'
-		});
-		await fireEvent.click(await screen.findByRole('button', { name: 'Retry' }));
-
-		await waitFor(() =>
-			expect(mockRetryMilaDocumentAction).toHaveBeenCalledWith({
-				path: { document_id: 'doc_1', action: 'summary' }
-			})
-		);
-		expect(screen.getByText('Retry queued.')).toBeTruthy();
-	});
-
-	it('keeps the Mila failure actionable when retry enqueue fails', async () => {
-		mockRetryMilaDocumentAction.mockResolvedValueOnce({
-			error: { code: 'service_unavailable', message: 'provider unavailable' }
-		});
-		mockGetDocumentEntry.mockResolvedValue({ data: readModel() });
-		render(DocumentReaderPage);
-		await waitFor(() => expect(readerRealtimeCallbacks).toBeTruthy());
-
-		readerRealtimeCallbacks?.onAiFailed({
-			documentId: 'doc_1',
-			action: 'entities',
-			aiRunId: 'airun_2',
-			message: 'provider unavailable'
-		});
-		await fireEvent.click(await screen.findByRole('button', { name: 'Retry' }));
-
-		await waitFor(() => expect(screen.getByText('Could not queue retry. Try again.')).toBeTruthy());
-		expect(screen.getByRole('button', { name: 'Retry' })).toBeTruthy();
-	});
+	
 	it('shows a preparing state until the readable asset is ready', async () => {
 		mockGetDocumentEntry.mockResolvedValue({ data: readModel({ readable_ready: false }) });
 		mockListAssets.mockResolvedValue({ data: { data: [], page: { has_more: false } } });

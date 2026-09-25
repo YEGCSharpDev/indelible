@@ -40,7 +40,6 @@ class ReaderHtmlTemplateTest {
                     ReaderHtmlLocalization(
                         publishedDate = "5 mars 2024",
                         readingTime = "1 minute",
-                        summaryLabel = "Résumé Mila",
                         askFollowUpLabel = "Poser une question",
                     ),
             )

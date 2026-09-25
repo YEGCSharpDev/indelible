@@ -23,7 +23,6 @@ import app.indelible.core.network.FeedApiService
 import app.indelible.core.network.HomeApiService
 import app.indelible.core.network.ImportApiService
 import app.indelible.core.network.LibraryApiService
-import app.indelible.core.network.MilaApiService
 import app.indelible.core.network.OnboardingApiService
 import app.indelible.core.network.ReaderApiService
 import app.indelible.core.network.SearchApiService
@@ -42,7 +41,6 @@ import app.indelible.home.repository.HomeRepository
 import app.indelible.library.repository.ApiLibraryRepository
 import app.indelible.library.repository.LibraryRepository
 import app.indelible.library.viewmodel.LibraryViewModel
-import app.indelible.mila.data.MilaRepository
 import app.indelible.onboarding.repository.ApiOnboardingRepository
 import app.indelible.onboarding.repository.OnboardingRepository
 import app.indelible.onboarding.viewmodel.OnboardingViewModel
@@ -50,13 +48,10 @@ import app.indelible.profile.repository.AccountRepository
 import app.indelible.profile.repository.AddLibraryRepository
 import app.indelible.profile.repository.ApiAccountRepository
 import app.indelible.profile.repository.ApiAddLibraryRepository
-import app.indelible.profile.repository.ApiMilaSettingsRepository
 import app.indelible.profile.repository.ApiPreferencesRepository
-import app.indelible.profile.repository.MilaSettingsRepository
 import app.indelible.profile.repository.PreferencesRepository
 import app.indelible.profile.viewmodel.AccountViewModel
 import app.indelible.profile.viewmodel.AddLibraryViewModel
-import app.indelible.profile.viewmodel.AiSettingsViewModel
 import app.indelible.profile.viewmodel.UserPreferencesViewModel
 import app.indelible.reader.repository.ApiReaderRepository
 import app.indelible.reader.repository.ReaderRepository
@@ -85,21 +80,18 @@ data class AppContainer(
     val libraryRepository: LibraryRepository,
     val feedRepository: FeedRepository,
     val readerRepository: ReaderRepository,
-    val milaRepository: MilaRepository,
     val searchRepository: SearchRepository,
     val sidebarRepository: SidebarRepository,
     val collectionsRepository: CollectionsRepository,
     val tagsRepository: TagsRepository,
     val trashRepository: TrashRepository,
     val accountRepository: AccountRepository,
-    val milaSettingsRepository: MilaSettingsRepository,
     val libraryViewModel: LibraryViewModel,
     val feedViewModel: FeedViewModel,
     val addFeedViewModel: AddFeedViewModel,
     val addLibraryViewModel: AddLibraryViewModel,
     val feedManagementViewModel: FeedManagementViewModel,
     val accountViewModel: AccountViewModel,
-    val aiSettingsViewModel: AiSettingsViewModel,
     val searchViewModel: SearchViewModel,
     val sidebarViewModel: SidebarViewModel,
 )
@@ -139,7 +131,6 @@ fun rememberAppContainer(
                         single { TagsApiService(get()) }
                         single { SettingsApiService(get()) }
                         single { HomeApiService(get()) }
-                        single { MilaApiService(get()) }
                         single { TrashApiService(get()) }
                         single { ImportApiService(get()) }
                         single<AuthRepository> { ApiAuthRepository(get(), get()) }
@@ -148,7 +139,6 @@ fun rememberAppContainer(
                         single<LibraryRepository> { ApiLibraryRepository(get()) }
                         single<FeedRepository> { ApiFeedRepository(get()) }
                         single<ReaderRepository> { ApiReaderRepository(get(), get()) }
-                        single { MilaRepository(get()) }
                         single<OnboardingRepository> { ApiOnboardingRepository(get()) }
                         single<SearchRepository> { ApiSearchRepository(get()) }
                         single<SidebarRepository> { ApiSidebarRepository(get()) }
@@ -157,7 +147,6 @@ fun rememberAppContainer(
                         single<TrashRepository> { ApiTrashRepository(get()) }
                         single<AddLibraryRepository> { ApiAddLibraryRepository(get()) }
                         single<AccountRepository> { ApiAccountRepository(get()) }
-                        single<MilaSettingsRepository> { ApiMilaSettingsRepository(get()) }
                         single<PreferencesRepository> { ApiPreferencesRepository(get()) }
                         single<ServerHealthChecker> { HttpServerHealthChecker() }
                         single {
@@ -177,7 +166,6 @@ fun rememberAppContainer(
                         single { AddLibraryViewModel(get()) }
                         single { FeedManagementViewModel(get()) }
                         single { AccountViewModel(get()) }
-                        single { AiSettingsViewModel(get()) }
                         single { SearchViewModel(get()) }
                         single { SidebarViewModel(get()) }
                     },
@@ -209,21 +197,18 @@ fun rememberAppContainer(
             libraryRepository = koin.get(),
             feedRepository = koin.get(),
             readerRepository = koin.get(),
-            milaRepository = koin.get(),
             searchRepository = koin.get(),
             sidebarRepository = koin.get(),
             collectionsRepository = koin.get(),
             tagsRepository = koin.get(),
             trashRepository = koin.get(),
             accountRepository = koin.get(),
-            milaSettingsRepository = koin.get(),
             libraryViewModel = koin.get(),
             feedViewModel = koin.get(),
             addFeedViewModel = koin.get(),
             addLibraryViewModel = koin.get(),
             feedManagementViewModel = koin.get(),
             accountViewModel = koin.get(),
-            aiSettingsViewModel = koin.get(),
             searchViewModel = koin.get(),
             sidebarViewModel = koin.get(),
         )

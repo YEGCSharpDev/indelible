@@ -11,8 +11,6 @@ pub mod highlight;
 pub mod home;
 pub mod library;
 pub mod library_upload;
-pub mod mila;
-pub mod mila_config;
 pub mod provided_content;
 pub mod provider_candidates;
 pub mod settings;

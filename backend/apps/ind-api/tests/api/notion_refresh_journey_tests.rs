@@ -84,7 +84,7 @@ async fn harness(server: &MockServer) -> Harness {
         "https://api.example.com".into(),
     ));
     let export_summary = Arc::new(
-        ind_application::export_summary::StoredExportSummaryProvider::new(Arc::new(
+        ind_application::export_summary::StoredExportSummaryProvider::new()
             PgAiOutputRepository::new(pool.clone()),
         )),
     );

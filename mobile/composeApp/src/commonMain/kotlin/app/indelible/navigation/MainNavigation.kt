@@ -118,7 +118,6 @@ fun MainNavigation(
         appContainer.libraryViewModel.refresh()
         appContainer.feedViewModel.refresh()
         appContainer.searchViewModel.refresh()
-        appContainer.aiSettingsViewModel.refresh()
         appContainer.feedManagementViewModel.loadSubscriptions()
     }
 
@@ -231,7 +230,6 @@ fun MainNavigation(
                     navController = navController,
                     libraryRepository = appContainer.libraryRepository,
                     readerRepository = appContainer.readerRepository,
-                    milaRepository = appContainer.milaRepository,
                     collectionsRepository = appContainer.collectionsRepository,
                     tagsRepository = appContainer.tagsRepository,
                     trashRepository = appContainer.trashRepository,
@@ -239,19 +237,16 @@ fun MainNavigation(
                 profileRoutes(
                     navController = navController,
                     authViewModel = authViewModel,
-                    aiSettingsViewModel = appContainer.aiSettingsViewModel,
                     userPreferencesViewModel = userPreferencesViewModel,
                     addLibraryViewModel = appContainer.addLibraryViewModel,
                     addFeedViewModel = appContainer.addFeedViewModel,
                     feedManagementViewModel = appContainer.feedManagementViewModel,
                     accountViewModel = appContainer.accountViewModel,
                     accountRepository = appContainer.accountRepository,
-                    milaSettingsRepository = appContainer.milaSettingsRepository,
                     ingestEmail = ingestEmail,
                     ingestLibraryEmail = ingestLibraryEmail,
                     appLanguageSettings = appLanguageSettings,
                 )
-                milaChatRoutes(navController, appContainer.milaRepository)
             }
         }
     }

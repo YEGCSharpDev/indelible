@@ -1,0 +1,36 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getImportSource = void 0;
+const fs_1 = require("fs");
+const path_1 = require("path");
+/**
+ * Get the absolute path of the imported module, including the file extension.
+ */
+function getImportSource({ source, fileName }) {
+    const basePath = (0, path_1.dirname)(fileName);
+    const importedModulePath = (0, path_1.resolve)(basePath, source);
+    // If it's an absolute or relative path, perform the custom logic
+    if (source.startsWith('./') || source.startsWith('../') || source.startsWith('/')) {
+        if ((0, fs_1.existsSync)(importedModulePath)) {
+            return importedModulePath;
+        }
+        if ((0, fs_1.existsSync)(importedModulePath + '.js')) {
+            return importedModulePath + '.js';
+        }
+        if ((0, fs_1.existsSync)(importedModulePath + '.ts')) {
+            return importedModulePath + '.ts';
+        }
+        return null;
+    }
+    // For modules in node_modules or node's resolution logic
+    try {
+        return require.resolve(source, {
+            paths: [basePath],
+        });
+    }
+    catch (e) {
+        return null;
+    }
+}
+exports.getImportSource = getImportSource;
+//# sourceMappingURL=getImportSource.js.map

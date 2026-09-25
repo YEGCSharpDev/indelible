@@ -9,6 +9,6 @@ pub use factories::*;
 pub use mock_renderer::StorageBackedMockRenderer;
 pub use test_app::{
     AuthedClient, TEST_CIPHER_KEY_B64, TestApiCredential, TestApp, TestAppOptions, TestAuthSession,
-    TestPersonalAccessToken, spawn_app, spawn_app_with_options, test_mila_defaults,
+    TestPersonalAccessToken, spawn_app, spawn_app_with_options,
 };
 pub use worker_harness::TestWorkerHarness;

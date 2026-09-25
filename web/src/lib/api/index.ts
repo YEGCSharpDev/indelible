@@ -10,7 +10,6 @@ export type {
 	LibraryTriageRequest
 } from './compat-types';
 export * from './extension-auth';
-export * from './mila';
 export {
 	addEntryToCollection,
 	authorizeIntegration,

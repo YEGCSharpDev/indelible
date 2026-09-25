@@ -72,7 +72,6 @@
 		onDetailPanelToggle: () => void;
 		onMenuClick?: () => void;
 		onTabChange: (tab: ViewTab) => void;
-		onTtsToggle?: () => void;
 		onRetryReader: () => void;
 		onProgressScroll: (percent: number) => void;
 		onArticlePdfProgress: (percent: number, pageIndex: number) => void;
@@ -135,7 +134,6 @@
 		onDetailPanelToggle,
 		onMenuClick,
 		onTabChange,
-		onTtsToggle,
 		onRetryReader,
 		onProgressScroll,
 		onArticlePdfProgress,
@@ -268,7 +266,6 @@
 		detailPanelOpen={showDetailPanel}
 		{availableTabs}
 		{activeTab}
-		ttsActive={ttsOpen}
 		{onBack}
 		{onPrev}
 		{onNext}
@@ -278,7 +275,6 @@
 		{onDetailPanelToggle}
 		{onMenuClick}
 		{onTabChange}
-		{onTtsToggle}
 	/>
 
 	<div class="reading-progress-bar">

@@ -20,7 +20,6 @@ import kotlin.test.assertTrue
 
 /**
  * Video documents are transcripts: the provider embed is hidden, transcript paragraph
- * rhythm is tightened, and Mila's extracted entities are loaded for the details sheet.
  * Articles must keep their existing rendering.
  */
 @OptIn(ExperimentalCoroutinesApi::class)

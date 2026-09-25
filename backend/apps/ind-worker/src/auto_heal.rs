@@ -3,19 +3,13 @@ use std::time::Duration;
 
 use chrono::Utc;
 use ind_application::AppError;
-use ind_application::repos::embedding_backfill::EmbeddingBackfillRepository;
 use ind_application::repos::integrity::{IntegrityStats, IntegrityStatsRepository};
 use ind_application::repos::maintenance::MaintenanceTaskLease;
-use ind_application::services::tts::synthesis::{TtsOrphanSweepReport, TtsOrphanSweeper};
 
 use crate::context::RecoveryJobDeps;
 
-const EMBEDDING_REPAIR_TASK: &str = "embedding.repair";
 const INTEGRITY_TASK: &str = "integrity.check";
-const TTS_ORPHAN_TASK: &str = "tts.orphan_cleanup";
 const MAINTENANCE_FAILURE_RETRY_SECS: u64 = 60;
-const EMBEDDING_REPAIR_CONTINUATION_DELAY_SECS: u64 = 1;
-const TTS_PAGE_CONTINUATION_DELAY_SECS: u64 = 1;
 
 pub async fn run_auto_heal_loop(ctx: Arc<RecoveryJobDeps>) {
     run_auto_heal_once(&ctx).await;
@@ -43,18 +37,9 @@ pub async fn run_auto_heal_once(ctx: &RecoveryJobDeps) {
     )
     .await;
 
-    run_embedding_repair_if_due(ctx).await;
     run_integrity_check_if_due(ctx).await;
-    run_tts_orphan_cleanup_if_due(ctx).await;
 }
 
-pub async fn repair_missing_vector_embeddings(
-    repo: &dyn EmbeddingBackfillRepository,
-    defaults: &ind_domain::MilaPlatformDefaults,
-    limit: i64,
-) -> Result<i64, AppError> {
-    repo.enqueue_target_vector_repairs(defaults, limit).await
-}
 
 pub async fn sweep_integrity_stats(
     repo: &dyn IntegrityStatsRepository,
@@ -62,48 +47,7 @@ pub async fn sweep_integrity_stats(
     repo.stats().await
 }
 
-pub async fn sweep_tts_orphan_objects(
-    sweeper: &TtsOrphanSweeper,
-    continuation_cursor: Option<&str>,
-    max_objects: i32,
-) -> Result<TtsOrphanSweepReport, AppError> {
-    sweeper.sweep_page(continuation_cursor, max_objects).await
-}
 
-async fn run_embedding_repair_if_due(ctx: &RecoveryJobDeps) {
-    let Some(_) = acquire_maintenance(ctx, EMBEDDING_REPAIR_TASK, Utc::now()).await else {
-        return;
-    };
-    match repair_missing_vector_embeddings(
-        ctx.embedding_backfill_repo.as_ref(),
-        &ctx.mila_platform_defaults,
-        ctx.auto_heal_batch_size,
-    )
-    .await
-    {
-        Ok(repaired) => {
-            tracing::info!(repaired, "embedding missing-vector repair finished");
-            let completed_at = Utc::now();
-            let delay_secs = if repaired >= ctx.auto_heal_batch_size {
-                EMBEDDING_REPAIR_CONTINUATION_DELAY_SECS
-            } else {
-                ctx.embedding_repair_interval_secs
-            };
-            complete_maintenance(
-                ctx,
-                EMBEDDING_REPAIR_TASK,
-                schedule_after(completed_at, delay_secs),
-                None,
-                completed_at,
-            )
-            .await;
-        }
-        Err(error) => {
-            tracing::warn!(%error, "embedding missing-vector repair failed");
-            fail_maintenance(ctx, EMBEDDING_REPAIR_TASK, &error).await;
-        }
-    }
-}
 
 async fn run_integrity_check_if_due(ctx: &RecoveryJobDeps) {
     let Some(_) = acquire_maintenance(ctx, INTEGRITY_TASK, Utc::now()).await else {
@@ -129,47 +73,6 @@ async fn run_integrity_check_if_due(ctx: &RecoveryJobDeps) {
     }
 }
 
-async fn run_tts_orphan_cleanup_if_due(ctx: &RecoveryJobDeps) {
-    let Some(sweeper) = ctx.tts_orphan_sweeper.as_ref() else {
-        return;
-    };
-    let Some(lease) = acquire_maintenance(ctx, TTS_ORPHAN_TASK, Utc::now()).await else {
-        return;
-    };
-    match sweep_tts_orphan_objects(
-        sweeper,
-        lease.continuation_cursor.as_deref(),
-        ctx.tts_orphan_page_size,
-    )
-    .await
-    {
-        Ok(report) => {
-            log_tts_orphan_sweep(&report);
-            let completed_at = Utc::now();
-            let has_more = report.next_continuation_cursor.is_some();
-            let next_run_at = schedule_after(
-                completed_at,
-                if has_more {
-                    TTS_PAGE_CONTINUATION_DELAY_SECS
-                } else {
-                    ctx.tts_orphan_interval_secs
-                },
-            );
-            complete_maintenance(
-                ctx,
-                TTS_ORPHAN_TASK,
-                next_run_at,
-                report.next_continuation_cursor.as_deref(),
-                completed_at,
-            )
-            .await;
-        }
-        Err(error) => {
-            tracing::warn!(%error, "TTS orphan object sweep failed");
-            fail_maintenance(ctx, TTS_ORPHAN_TASK, &error).await;
-        }
-    }
-}
 
 async fn acquire_maintenance(
     ctx: &RecoveryJobDeps,
@@ -274,22 +177,3 @@ fn log_integrity_stats(stats: &IntegrityStats) {
     }
 }
 
-fn log_tts_orphan_sweep(report: &TtsOrphanSweepReport) {
-    if report.failed_deletes > 0 {
-        tracing::warn!(
-            scanned_objects = report.scanned_objects,
-            referenced_objects = report.referenced_objects,
-            deleted_objects = report.deleted_objects,
-            failed_deletes = report.failed_deletes,
-            "TTS orphan object sweep finished with delete failures"
-        );
-    } else {
-        tracing::info!(
-            scanned_objects = report.scanned_objects,
-            referenced_objects = report.referenced_objects,
-            deleted_objects = report.deleted_objects,
-            failed_deletes = report.failed_deletes,
-            "TTS orphan object sweep finished"
-        );
-    }
-}

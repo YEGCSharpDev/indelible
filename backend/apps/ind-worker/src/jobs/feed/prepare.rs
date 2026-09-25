@@ -6,7 +6,6 @@ use ind_domain::{
 };
 
 use crate::context::FeedJobDeps;
-use crate::jobs::ai::enqueue_document_embed_if_engaged;
 use crate::jobs::search::enqueue_search_reindex_document;
 
 /// Readable-content preparation for a feed-discovered document (docs/document-feed-library-
@@ -53,7 +52,6 @@ pub async fn handle_prepare_document(
         // Ensure durable search exists even when the render was already done (e.g. a re-tap
         // after read-ahead prepared it). The dedupe_key collapses duplicate enqueues.
         enqueue_search_reindex_document(ctx, job.document_id).await?;
-        enqueue_document_embed_if_engaged(ctx, job.user_id, job.document_id).await?;
         return Ok(());
     }
 
@@ -181,7 +179,6 @@ pub async fn handle_prepare_document(
 
     // Now that readable content exists, make the document durably searchable.
     enqueue_search_reindex_document(ctx, job.document_id).await?;
-    enqueue_document_embed_if_engaged(ctx, job.user_id, job.document_id).await?;
 
     ind_application::handlers::article_toc::apply_article_toc(
         ctx.object_storage.as_deref(),

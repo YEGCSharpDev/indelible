@@ -1,0 +1,7 @@
+/**
+ * Get the absolute path of the imported module, including the file extension.
+ */
+export declare function getImportSource({ source, fileName }: {
+    source: string;
+    fileName: string;
+}): string | null;

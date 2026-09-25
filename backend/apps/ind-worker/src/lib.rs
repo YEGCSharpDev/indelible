@@ -6,7 +6,6 @@ pub mod config;
 pub mod context;
 pub mod jobs {
     pub mod account_storage_purge;
-    pub mod ai;
     pub mod article_toc;
     pub mod attach_provided_content;
     pub mod backfill;

@@ -13,9 +13,6 @@ import app.indelible.collections.viewmodel.CollectionsViewModel
 import app.indelible.library.repository.LibraryRepository
 import app.indelible.library.ui.ItemDetailScreen
 import app.indelible.library.viewmodel.ItemDetailViewModel
-import app.indelible.mila.data.ChatScope
-import app.indelible.mila.data.MilaRepository
-import app.indelible.mila.viewmodel.MilaChatViewModel
 import app.indelible.reader.repository.ReaderRepository
 import app.indelible.reader.ui.ReaderScreen
 import app.indelible.reader.viewmodel.ReaderViewModel
@@ -32,7 +29,7 @@ fun NavGraphBuilder.contentRoutes(
     navController: NavHostController,
     libraryRepository: LibraryRepository,
     readerRepository: ReaderRepository,
-    milaRepository: MilaRepository,
+    
     collectionsRepository: CollectionsRepository,
     tagsRepository: TagsRepository,
     trashRepository: TrashRepository,
@@ -66,15 +63,6 @@ fun NavGraphBuilder.contentRoutes(
         ReaderScreen(
             viewModel = readerViewModel,
             onNavigateBack = { navController.popBackStack() },
-            milaViewModelProvider = { title ->
-                MilaChatViewModel(
-                    milaRepository,
-                    ChatScope.SingleDocument(documentId, displayTitle = title),
-                )
-            },
-            onNavigateToAiSettings = {
-                navController.navigate(MainRoutes.PROFILE_AI)
-            },
             onNavigateToItem = { id ->
                 navController.navigate(MainRoutes.reader(id))
             },

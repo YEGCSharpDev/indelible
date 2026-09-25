@@ -4,7 +4,6 @@
 	import MorphSwitcher from '$lib/components/ui/MorphSwitcher.svelte';
 	import DetailInfo from './DetailInfo.svelte';
 	import NotebookTab from './NotebookTab.svelte';
-	import ChatTab from './ChatTab.svelte';
 	import EditMetadataPanel from './EditMetadataPanel.svelte';
 
 	interface Props {
@@ -87,20 +86,6 @@
 		/>
 	{:else if activeTab === 'notebook' && displayItem}
 		<NotebookTab item={displayItem} />
-	{:else if activeTab === 'chat'}
-		<div class="chat-shell">
-			{#if hasCollectionChat && currentCollectionId && collectionName}
-				<ChatTab
-					scope={{ type: 'collection', collectionId: currentCollectionId }}
-					label={collectionName}
-				/>
-			{:else if displayItem}
-				<ChatTab
-					scope={{ type: 'single_document', documentId: displayItem.id }}
-					label={displayItem.title}
-				/>
-			{/if}
-		</div>
 	{/if}
 </aside>
 

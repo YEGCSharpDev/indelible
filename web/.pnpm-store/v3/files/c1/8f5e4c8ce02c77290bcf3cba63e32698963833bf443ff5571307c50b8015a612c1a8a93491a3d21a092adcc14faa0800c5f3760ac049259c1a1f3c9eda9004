@@ -1,0 +1,42 @@
+import type { Rule } from 'eslint';
+declare const plugin: {
+    rules: {
+        readonly 'no-external-svelte-imports': Rule.RuleModule;
+        readonly 'no-external-svelte-exports': Rule.RuleModule;
+        readonly 'no-external-rune-calls': Rule.RuleModule;
+        readonly 'no-effect-outside-components': Rule.RuleModule;
+        readonly 'no-props-outside-components': Rule.RuleModule;
+        readonly 'no-direct-rune-assign': Rule.RuleModule;
+        readonly 'no-initialized-rune-exports': Rule.RuleModule;
+        readonly 'no-initialized-rune-return': Rule.RuleModule;
+        readonly 'require-extensions': Rule.RuleModule;
+    };
+    configs: {
+        recommended: {
+            rules: {
+                readonly 'svelte-runes/no-direct-rune-assign': "error";
+                readonly 'svelte-runes/no-external-rune-calls': "error";
+                readonly 'svelte-runes/no-external-svelte-exports': "error";
+                readonly 'svelte-runes/no-external-svelte-imports': "error";
+                readonly 'svelte-runes/no-props-outside-components': "error";
+                readonly 'svelte-runes/no-initialized-rune-exports': "error";
+                readonly 'svelte-runes/no-initialized-rune-return': "error";
+                readonly 'svelte-runes/require-extensions': "error";
+            };
+        };
+        all: {
+            rules: {
+                'svelte-runes/no-direct-rune-assign': "error";
+                'svelte-runes/no-external-rune-calls': "error";
+                'svelte-runes/no-external-svelte-exports': "error";
+                'svelte-runes/no-external-svelte-imports': "error";
+                'svelte-runes/no-props-outside-components': "error";
+                'svelte-runes/no-initialized-rune-exports': "error";
+                'svelte-runes/no-initialized-rune-return': "error";
+                'svelte-runes/require-extensions': "error";
+                'svelte-runes/no-effect-outside-components': "error";
+            };
+        };
+    };
+};
+export = plugin;

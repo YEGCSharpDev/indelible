@@ -1,64 +1,26 @@
+use chrono::Utc;
 use ind_domain::{
-    AiOutputType, AiPromptAction, AiRunId, ContentSource, DocumentId, HighlightId, LibraryEntry,
-    LibraryEntryId, NewDomainEvent, Tag, TriageState, UserId, build_domain_event,
+    ContentSource, DocumentId, HighlightId, LibraryEntry, LibraryEntryId, NewDomainEvent, Tag,
+    TriageState, UserId, DomainEventId,
 };
 
-pub fn ai_output_completed(
+fn build_domain_event(
+    event_type: &str,
+    aggregate_type: &str,
+    aggregate_id: uuid::Uuid,
     user_id: UserId,
-    document_id: DocumentId,
-    output_type: AiOutputType,
-    run_id: AiRunId,
+    payload: serde_json::Value,
 ) -> NewDomainEvent {
-    document_event(
-        "ai.output.completed",
+    NewDomainEvent {
+        id: DomainEventId::new(),
+        aggregate_type: aggregate_type.to_string(),
+        aggregate_id,
+        event_type: event_type.to_string(),
+        payload,
+        created_at: Utc::now(),
         user_id,
-        document_id,
-        serde_json::json!({
-            "document_id": document_id.to_string(),
-            "action": ai_output_type(output_type),
-            "ai_run_id": run_id.to_string()
-        }),
-    )
-}
-
-pub fn ai_output_failed(
-    user_id: UserId,
-    document_id: DocumentId,
-    action: AiPromptAction,
-    run_id: AiRunId,
-    message: &str,
-) -> NewDomainEvent {
-    document_event(
-        "ai.output.failed",
-        user_id,
-        document_id,
-        serde_json::json!({
-            "document_id": document_id.to_string(),
-            "action": ai_prompt_action(action),
-            "ai_run_id": run_id.to_string(),
-            "message": message
-        }),
-    )
-}
-
-fn ai_output_type(value: AiOutputType) -> &'static str {
-    match value {
-        AiOutputType::Summary => "summary",
-        AiOutputType::Tags => "tags",
-        AiOutputType::Entities => "entities",
     }
 }
-
-fn ai_prompt_action(value: AiPromptAction) -> &'static str {
-    match value {
-        AiPromptAction::Summary => "summary",
-        AiPromptAction::Tags => "tags",
-        AiPromptAction::Entities => "entities",
-        AiPromptAction::Chat => "chat",
-        AiPromptAction::Custom => "custom",
-    }
-}
-
 pub fn document_highlighted(
     user_id: UserId,
     document_id: DocumentId,

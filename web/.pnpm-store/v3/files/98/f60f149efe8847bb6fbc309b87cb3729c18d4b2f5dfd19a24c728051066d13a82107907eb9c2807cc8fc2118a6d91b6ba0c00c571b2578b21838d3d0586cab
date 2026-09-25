@@ -1,0 +1,48 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.rule = exports.messageId = void 0;
+const constants_1 = require("../constants");
+const checkIsVariableDefinedForIdentifier_1 = require("../utils/checkIsVariableDefinedForIdentifier");
+exports.messageId = 'noExternalRuneCalls';
+exports.rule = {
+    meta: {
+        type: 'problem',
+        docs: {
+            description: 'disallow the usage of $derived(), $effect(), $state(), and $props() function calls in non-Svelte files unless explicitly declared or imported',
+            category: 'Possible Errors',
+            recommended: true,
+        },
+        messages: {
+            [exports.messageId]: 'Usage of Svelte runes is not allowed outside Svelte files',
+        },
+    },
+    create(context) {
+        const fileName = context.filename;
+        if (constants_1.SVELTE_FILE_EXTENSIONS.some((extension) => fileName.endsWith(extension))) {
+            return {};
+        }
+        return {
+            CallExpression(node) {
+                if (node.callee.type !== 'Identifier') {
+                    return;
+                }
+                if (!constants_1.RUNE_NAMES.includes(node.callee.name)) {
+                    return;
+                }
+                const initialScope = context.sourceCode.getScope(node);
+                const isVariableDefinedForIdentifier = (0, checkIsVariableDefinedForIdentifier_1.checkIsVariableDefinedForIdentifier)({
+                    initialScope,
+                    identifierNode: node.callee,
+                });
+                if (isVariableDefinedForIdentifier) {
+                    return;
+                }
+                context.report({
+                    node,
+                    messageId: exports.messageId,
+                });
+            },
+        };
+    },
+};
+//# sourceMappingURL=no-external-rune-calls.js.map

@@ -1,0 +1,64 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.rule = exports.messageId = void 0;
+const constants_1 = require("../constants");
+const getImportSource_1 = require("../utils/getImportSource");
+exports.messageId = 'noExternalSvelteImports';
+exports.rule = {
+    meta: {
+        type: 'problem',
+        docs: {
+            description: 'disallow importing from .svelte.js/ts files outside of .svelte.js/ts files and .svelte files',
+            category: 'Possible Errors',
+            recommended: true,
+        },
+        messages: {
+            [exports.messageId]: 'Importing from .svelte.js/ts files is not allowed unless you are within a .svelte.js/ts or .svelte file.',
+        },
+    },
+    create(context) {
+        function checkImport(node, sourceValue) {
+            if (typeof sourceValue !== 'string') {
+                return;
+            }
+            const fileName = context.filename;
+            const importSource = (0, getImportSource_1.getImportSource)({
+                source: sourceValue,
+                fileName,
+            });
+            if (!importSource) {
+                return;
+            }
+            // Check if current file is NOT a .svelte.js/ts file or .svelte file but trying to import from one
+            if (!fileName.match(constants_1.SVELTE_JS_OR_TS_PATTERN) &&
+                !fileName.match(constants_1.SVELTE_COMPONENT_PATTERN) &&
+                importSource.match(constants_1.SVELTE_JS_OR_TS_PATTERN)) {
+                context.report({
+                    node: node.source,
+                    messageId: exports.messageId,
+                });
+            }
+        }
+        return {
+            ImportDeclaration(node) {
+                if (node.source.type !== 'Literal') {
+                    return;
+                }
+                if (typeof node.source.value !== 'string') {
+                    return;
+                }
+                checkImport(node, node.source.value);
+            },
+            ImportExpression(node) {
+                if (node.source.type !== 'Literal') {
+                    return;
+                }
+                if (typeof node.source.value !== 'string') {
+                    return;
+                }
+                checkImport(node, node.source.value);
+            },
+        };
+    },
+};
+//# sourceMappingURL=no-external-svelte-imports.js.map

@@ -10,7 +10,6 @@ ind-domain = { workspace = true }
 ind-persistence = { workspace = true }
 ind-application = { workspace = true }
 ind-auth = { workspace = true }
-ind-ai = { workspace = true }
 ind-http-api = { workspace = true }
 ind-integrations = { workspace = true }
 ind-ingest = { workspace = true }

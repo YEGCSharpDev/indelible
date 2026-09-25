@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use ind_ai::{AiActionRunner, AiHttpClientConfig, EmbeddingIndexer, ReqwestAiProviderClient};
 use ind_application::export_summary::ExportSummaryProvider;
 use ind_application::handlers::feed::FeedPollScheduleConfig;
 use ind_application::renderer::RendererClient;
@@ -13,7 +12,6 @@ use ind_application::repos::document::DocumentRepository;
 use ind_application::repos::document_asset::DocumentAssetRepository;
 use ind_application::repos::document_lifecycle::DocumentLifecycle;
 use ind_application::repos::document_reprocess::DocumentReprocessRepository;
-use ind_application::repos::embedding_backfill::EmbeddingBackfillRepository;
 use ind_application::repos::event::EventRepository;
 use ind_application::repos::export_cursor::ExportCursorRepository;
 use ind_application::repos::feed::FeedRepository;
@@ -25,7 +23,6 @@ use ind_application::repos::integration_oauth_token::IntegrationOAuthTokenReposi
 use ind_application::repos::integrity::IntegrityStatsRepository;
 use ind_application::repos::library::LibraryRepository;
 use ind_application::repos::maintenance::MaintenanceTaskRepository;
-use ind_application::repos::mila_config::MilaConfigRepository;
 use ind_application::repos::outbox::JobOutboxRepository;
 use ind_application::repos::search_reindex::SearchReindexRepository;
 use ind_application::repos::tag::TagRepository;
@@ -40,23 +37,22 @@ use ind_application::repos::email_unsubscribe_target::EmailUnsubscribeTargetRepo
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-use ind_application::services::tts::synthesis::TtsOrphanSweeper;
 use ind_application::storage::ObjectStorage;
 use ind_domain::IntegrationConnectionId;
 use ind_ingest::AssetBackedPreparedContentProvider;
 use ind_integrations::email::InboundEmailProvider;
 use ind_integrations::notion::NotionRateLimiter;
 use ind_persistence::repos::{
-    PgAiOutputRepository, PgAiPromptPresetRepository, PgAiRunRepository, PgApalisJobRepository,
-    PgBackgroundJobRecoveryRepository, PgCollectionRepository, PgContentVectorRepository,
+       PgApalisJobRepository,
+    PgBackgroundJobRecoveryRepository, PgCollectionRepository, 
     PgDeadLetterRepository, PgDocumentAssetRepository, PgDocumentLifecycle, PgDocumentRepository,
     PgDocumentReprocessRepository, PgEmailIngestLogRepository, PgEmailSenderRepository,
-    PgEmailUnsubscribeTargetRepository, PgEmbeddingBackfillRepository, PgEntityRepository,
+    PgEmailUnsubscribeTargetRepository,  
     PgEventRepository, PgFeedDeliveryRepository, PgFeedRepository, PgHighlightRepository,
     PgImportJobRepository, PgIntegrationConnectionRepository, PgIntegrationOAuthTokenRepository,
     PgIntegrityStatsRepository, PgJobOutboxRepository, PgLibraryRepository,
-    PgMaintenanceTaskRepository, PgMilaConfigRepository, PgRetentionCleanupRepository,
-    PgSearchReindexRepository, PgSearchRepository, PgTagRepository, PgTtsAudioAssetRepository,
+    PgMaintenanceTaskRepository,  PgRetentionCleanupRepository,
+    PgSearchReindexRepository, PgSearchRepository, PgTagRepository, 
     PgUserDocumentStateRepository, PgUserPreferencesRepository, PgUserRepository,
     PgWebhookRepository,
 };
@@ -119,11 +115,8 @@ pub struct WorkerContext {
     pub dead_letter_repo: Arc<dyn DeadLetterRepository>,
     pub collection_repo: Arc<dyn CollectionRepository>,
     pub apalis_job_repo: Arc<dyn ApalisJobRepository>,
-    pub embedding_backfill_repo: Arc<dyn EmbeddingBackfillRepository>,
-    pub mila_platform_defaults: ind_domain::MilaPlatformDefaults,
     pub integrity_stats_repo: Arc<dyn IntegrityStatsRepository>,
     pub maintenance_task_repo: Arc<dyn MaintenanceTaskRepository>,
-    pub tts_orphan_sweeper: Option<Arc<TtsOrphanSweeper>>,
     pub event_repo: Arc<dyn EventRepository>,
     pub feed_repo: Arc<dyn FeedRepository>,
     pub feed_delivery_repo: Arc<dyn FeedDeliveryRepository>,
@@ -138,10 +131,7 @@ pub struct WorkerContext {
     pub outbox_repo: Arc<dyn JobOutboxRepository>,
     pub search_reindex_repo: Arc<dyn SearchReindexRepository>,
     pub search_indexer: Arc<SearchIndexer>,
-    pub embedding_indexer: Arc<EmbeddingIndexer>,
-    pub ai_action_runner: Arc<AiActionRunner>,
     pub export_summary_provider: Arc<dyn ExportSummaryProvider>,
-    pub mila_config_repo: Arc<dyn MilaConfigRepository>,
     pub webhook_repo: Arc<dyn WebhookRepository>,
     pub object_storage: Option<Arc<dyn ObjectStorage>>,
     /// YouTube player API base URL; `None` resolves to `https://www.youtube.com`. Overridden in
@@ -195,7 +185,6 @@ impl WorkerServicesBuilder {
         renderer: Arc<dyn RendererClient>,
         object_storage: Option<Arc<dyn ObjectStorage>>,
         s3_bucket: String,
-        mila_defaults: ind_domain::MilaPlatformDefaults,
         egress_policy: ind_egress::EgressPolicy,
         credential_cipher: Option<Arc<ind_auth::CredentialCipher>>,
     ) -> anyhow::Result<Self> {
@@ -203,60 +192,18 @@ impl WorkerServicesBuilder {
             Arc::new(PgDocumentRepository::new(pool.clone()));
         let document_asset_repo: Arc<dyn DocumentAssetRepository> =
             Arc::new(PgDocumentAssetRepository::new(pool.clone()));
-        let mila_config_repo: Arc<dyn MilaConfigRepository> =
-            Arc::new(PgMilaConfigRepository::new(pool.clone()));
-        let defaulting_mila_repo: Arc<dyn MilaConfigRepository> = Arc::new(
-            ind_application::repos::mila_config::DefaultingMilaConfigRepository::new(
-                mila_config_repo.clone(),
-                mila_defaults.clone(),
-            ),
-        );
         let content_provider = Arc::new(AssetBackedPreparedContentProvider::new(
             document_repo.clone(),
             document_asset_repo.clone(),
-            defaulting_mila_repo.clone(),
             object_storage.clone(),
         ));
-        let ai_client = Arc::new(ReqwestAiProviderClient::new(
-            AiHttpClientConfig::default(),
-            egress_policy.clone(),
-        )?);
         let search_indexer = Arc::new(SearchIndexer::new(
             document_repo.clone(),
             content_provider.clone(),
             Arc::new(PgSearchRepository::new(pool.clone())),
         ));
-        let embedding_indexer = EmbeddingIndexer::new(
-            content_provider.clone(),
-            defaulting_mila_repo.clone(),
-            Arc::new(PgContentVectorRepository::new(pool.clone())),
-            document_repo.clone(),
-            ai_client.clone(),
-            mila_defaults.clone(),
-        )
-        .with_credential_cipher(credential_cipher.clone());
-        let ai_action_runner = AiActionRunner::new(
-            document_repo.clone(),
-            content_provider,
-            defaulting_mila_repo,
-            Arc::new(PgAiPromptPresetRepository::new(pool.clone())),
-            Arc::new(PgAiOutputRepository::new(pool.clone())),
-            Arc::new(PgAiRunRepository::new(pool.clone())),
-            Arc::new(PgEntityRepository::new(pool.clone())),
-            ai_client,
-        )
-        .with_token_budgets(ind_ai::MilaTokenBudgets::from(&mila_defaults))
-        .with_credential_cipher(credential_cipher.clone());
-        let embedding_indexer = Arc::new(embedding_indexer);
-        let ai_action_runner = Arc::new(ai_action_runner);
         let webhook_http =
             ind_integrations::webhook_delivery::build_webhook_http_client(egress_policy.clone())?;
-        let tts_orphan_sweeper = object_storage.as_ref().map(|storage| {
-            Arc::new(TtsOrphanSweeper::new(
-                Arc::new(PgTtsAudioAssetRepository::new(pool.clone())),
-                storage.clone(),
-            ))
-        });
 
         Ok(Self {
             context: WorkerContext {
@@ -264,11 +211,8 @@ impl WorkerServicesBuilder {
                 dead_letter_repo: Arc::new(PgDeadLetterRepository::new(pool.clone())),
                 collection_repo: Arc::new(PgCollectionRepository::new(pool.clone())),
                 apalis_job_repo: Arc::new(PgApalisJobRepository::new(pool.clone())),
-                embedding_backfill_repo: Arc::new(PgEmbeddingBackfillRepository::new(pool.clone())),
-                mila_platform_defaults: mila_defaults,
                 integrity_stats_repo: Arc::new(PgIntegrityStatsRepository::new(pool.clone())),
                 maintenance_task_repo: Arc::new(PgMaintenanceTaskRepository::new(pool.clone())),
-                tts_orphan_sweeper,
                 event_repo: Arc::new(PgEventRepository::new(pool.clone())),
                 feed_repo: Arc::new(PgFeedRepository::new(pool.clone())),
                 feed_delivery_repo: Arc::new(PgFeedDeliveryRepository::new(pool.clone())),
@@ -285,14 +229,9 @@ impl WorkerServicesBuilder {
                 outbox_repo: Arc::new(PgJobOutboxRepository::new(pool.clone())),
                 search_reindex_repo: Arc::new(PgSearchReindexRepository::new(pool.clone())),
                 search_indexer,
-                embedding_indexer,
-                ai_action_runner,
                 export_summary_provider: Arc::new(
-                    ind_application::export_summary::StoredExportSummaryProvider::new(Arc::new(
-                        PgAiOutputRepository::new(pool.clone()),
-                    )),
+                    ind_application::export_summary::StoredExportSummaryProvider::new()
                 ),
-                mila_config_repo,
                 webhook_repo: Arc::new(PgWebhookRepository::new(pool.clone())),
                 object_storage,
                 youtube_player_base_url: None,
@@ -361,13 +300,6 @@ impl WorkerServicesBuilder {
         self
     }
 
-    pub fn with_embedding_backfill_repo(
-        mut self,
-        repo: Arc<dyn EmbeddingBackfillRepository>,
-    ) -> Self {
-        self.context.embedding_backfill_repo = repo;
-        self
-    }
 
     pub fn with_search_reindex_repo(mut self, repo: Arc<dyn SearchReindexRepository>) -> Self {
         self.context.search_reindex_repo = repo;
@@ -423,7 +355,6 @@ impl WorkerServicesBuilder {
 
     pub fn without_object_storage(mut self) -> Self {
         self.context.object_storage = None;
-        self.context.tts_orphan_sweeper = None;
         self
     }
 

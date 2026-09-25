@@ -4,7 +4,6 @@
 	import MorphSwitcher from '$lib/components/ui/MorphSwitcher.svelte';
 	import BookInfoPanel from './BookInfoPanel.svelte';
 	import NotebookTab from '$lib/components/library/NotebookTab.svelte';
-	import ChatTab from '$lib/components/library/ChatTab.svelte';
 	import type { MessageKey } from '$lib/i18n';
 	import { t } from '$lib/i18n';
 
@@ -50,7 +49,6 @@
 	{:else if activeTab === 'notebook'}
 		<NotebookTab {item} />
 	{:else if activeTab === 'chat' && textAvailable}
-		<ChatTab scope={{ type: 'single_document', documentId: item.id }} label={item.title} />
 	{/if}
 </div>
 

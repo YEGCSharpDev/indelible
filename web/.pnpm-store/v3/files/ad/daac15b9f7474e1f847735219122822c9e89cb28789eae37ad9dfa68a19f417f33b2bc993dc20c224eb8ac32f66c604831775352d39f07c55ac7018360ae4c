@@ -1,0 +1,19 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SVELTE_FILE_EXTENSIONS = exports.SVELTE_JS_OR_TS_PATTERN = exports.SVELTE_COMPONENT_PATTERN = exports.SVELTE_TS_FILE_EXTENSION = exports.SVELTE_JS_FILE_EXTENSION = exports.SVELTE_COMPONENT_FILE_EXTENSION = exports.RUNE_NAMES = exports.PROPS_RUNE = exports.EFFECT_RUNE = void 0;
+exports.EFFECT_RUNE = '$effect';
+const STATE_RUNE = '$state';
+const DERIVED_RUNE = '$derived';
+exports.PROPS_RUNE = '$props';
+exports.RUNE_NAMES = [exports.EFFECT_RUNE, STATE_RUNE, DERIVED_RUNE, exports.PROPS_RUNE];
+exports.SVELTE_COMPONENT_FILE_EXTENSION = '.svelte';
+exports.SVELTE_JS_FILE_EXTENSION = '.svelte.js';
+exports.SVELTE_TS_FILE_EXTENSION = '.svelte.ts';
+exports.SVELTE_COMPONENT_PATTERN = new RegExp(`${exports.SVELTE_COMPONENT_FILE_EXTENSION}$`, 'i');
+exports.SVELTE_JS_OR_TS_PATTERN = new RegExp(`(${exports.SVELTE_JS_FILE_EXTENSION}|${exports.SVELTE_TS_FILE_EXTENSION})$`, 'i');
+exports.SVELTE_FILE_EXTENSIONS = [
+    exports.SVELTE_COMPONENT_FILE_EXTENSION,
+    exports.SVELTE_JS_FILE_EXTENSION,
+    exports.SVELTE_TS_FILE_EXTENSION,
+];
+//# sourceMappingURL=constants.js.map

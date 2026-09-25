@@ -19,6 +19,7 @@ function sectionProps(overrides: Record<string, unknown> = {}) {
 		obsidianConnection: undefined,
 		notionStatus: { label: 'Not connected', variant: 'coming' as const },
 		obsidianStatus: { label: 'Not connected', variant: 'coming' as const },
+			minifluxStatus: { labelKey: "common_error", variant: "error" as const, check: null },
 		syncStateByConnection: {},
 		syncErrorByConnection: {},
 		notionConnectError: null,

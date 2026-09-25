@@ -4,11 +4,10 @@ use std::collections::HashMap;
 use ind_application::AppError;
 use ind_application::repos::search::{RecentSearchRepository, SearchFtsQuery, SearchRepository};
 use ind_domain::{
-    ContentVector, DocumentId, RecentSearch, RecentSearchId, SearchDocument, SearchEntityCard,
+    DocumentId, RecentSearch, RecentSearchId, SearchDocument, SearchEntityCard,
     SearchEntityChip, SearchHit, SearchIndexedHighlight, UserId,
 };
 
-use crate::repos::PgContentVectorRepository;
 
 mod documents;
 mod entities;
@@ -17,17 +16,14 @@ mod metadata;
 mod recent;
 mod suggestions;
 mod types;
-mod vectors;
 
 pub struct PgSearchRepository {
     pool: PgPool,
-    content_vectors: PgContentVectorRepository,
 }
 
 impl PgSearchRepository {
     pub fn new(pool: PgPool) -> Self {
         Self {
-            content_vectors: PgContentVectorRepository::new(pool.clone()),
             pool,
         }
     }
@@ -59,12 +55,6 @@ impl SearchRepository for PgSearchRepository {
             .await
     }
 
-    async fn upsert_content_vector(
-        &self,
-        vector: &ContentVector,
-    ) -> Result<ContentVector, AppError> {
-        self.upsert_content_vector_impl(vector).await
-    }
 
     async fn search_fts(&self, query: &SearchFtsQuery) -> Result<Vec<SearchHit>, AppError> {
         self.search_fts_impl(query).await

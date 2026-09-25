@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use ind_ai::{AiActionRunner, EmbeddingIndexer};
 use ind_application::handlers::feed::FeedPollScheduleConfig;
 use ind_application::renderer::RendererClient;
 use ind_application::repos::background_job_recovery::BackgroundJobRecoveryRepository;
@@ -12,7 +11,6 @@ use ind_application::repos::document_reprocess::DocumentReprocessRepository;
 use ind_application::repos::email_ingest::EmailIngestLogRepository;
 use ind_application::repos::email_sender::EmailSenderRepository;
 use ind_application::repos::email_unsubscribe_target::EmailUnsubscribeTargetRepository;
-use ind_application::repos::embedding_backfill::EmbeddingBackfillRepository;
 use ind_application::repos::feed::FeedRepository;
 use ind_application::repos::feed_delivery::FeedDeliveryRepository;
 use ind_application::repos::highlight::HighlightRepository;
@@ -20,7 +18,6 @@ use ind_application::repos::import_job::ImportJobRepository;
 use ind_application::repos::integrity::IntegrityStatsRepository;
 use ind_application::repos::library::LibraryRepository;
 use ind_application::repos::maintenance::MaintenanceTaskRepository;
-use ind_application::repos::mila_config::MilaConfigRepository;
 use ind_application::repos::outbox::JobOutboxRepository;
 use ind_application::repos::search_reindex::SearchReindexRepository;
 use ind_application::repos::tag::TagRepository;
@@ -28,7 +25,6 @@ use ind_application::repos::user::UserRepository;
 use ind_application::repos::user_document_state::UserDocumentStateRepository;
 use ind_application::repos::user_preferences::UserPreferencesRepository;
 use ind_application::repos::webhook::WebhookRepository;
-use ind_application::services::tts::synthesis::TtsOrphanSweeper;
 use ind_application::storage::ObjectStorage;
 use ind_integrations::email::InboundEmailProvider;
 use ind_search::SearchIndexer;
@@ -40,8 +36,6 @@ use crate::jobs::email_unsubscribe::OneClickPolicy;
 #[derive(Clone)]
 pub struct AiSearchJobDeps {
     pub document_repo: Arc<dyn DocumentRepository>,
-    pub embedding_indexer: Arc<EmbeddingIndexer>,
-    pub ai_action_runner: Arc<AiActionRunner>,
     pub outbox_repo: Arc<dyn JobOutboxRepository>,
     pub search_reindex_repo: Arc<dyn SearchReindexRepository>,
     pub search_indexer: Arc<SearchIndexer>,
@@ -98,7 +92,6 @@ pub struct IntegrationJobDeps {
     pub notion_job_deps: Option<Arc<NotionJobDeps>>,
     pub document_repo: Arc<dyn DocumentRepository>,
     pub document_asset_repo: Arc<dyn DocumentAssetRepository>,
-    pub mila_config_repo: Arc<dyn MilaConfigRepository>,
     pub object_storage: Option<Arc<dyn ObjectStorage>>,
     pub feed_repo: Arc<dyn FeedRepository>,
     pub import_job_repo: Arc<dyn ImportJobRepository>,
@@ -117,11 +110,8 @@ pub struct IntegrationJobDeps {
 pub struct RecoveryJobDeps {
     pub background_recovery_repo: Arc<dyn BackgroundJobRecoveryRepository>,
     pub outbox_repo: Arc<dyn JobOutboxRepository>,
-    pub embedding_backfill_repo: Arc<dyn EmbeddingBackfillRepository>,
-    pub mila_platform_defaults: ind_domain::MilaPlatformDefaults,
     pub integrity_stats_repo: Arc<dyn IntegrityStatsRepository>,
     pub maintenance_task_repo: Arc<dyn MaintenanceTaskRepository>,
-    pub tts_orphan_sweeper: Option<Arc<TtsOrphanSweeper>>,
     pub worker_id: String,
     pub auto_heal_lease_secs: i64,
     pub maintenance_lease_secs: i64,
@@ -174,8 +164,6 @@ impl WorkerContext {
     pub fn ai_search_jobs(&self) -> AiSearchJobDeps {
         AiSearchJobDeps {
             document_repo: self.document_repo.clone(),
-            embedding_indexer: self.embedding_indexer.clone(),
-            ai_action_runner: self.ai_action_runner.clone(),
             outbox_repo: self.outbox_repo.clone(),
             search_reindex_repo: self.search_reindex_repo.clone(),
             search_indexer: self.search_indexer.clone(),
@@ -236,7 +224,6 @@ impl WorkerContext {
             notion_job_deps: self.notion_job_deps.clone(),
             document_repo: self.document_repo.clone(),
             document_asset_repo: self.document_asset_repo.clone(),
-            mila_config_repo: self.mila_config_repo.clone(),
             object_storage: self.object_storage.clone(),
             feed_repo: self.feed_repo.clone(),
             import_job_repo: self.import_job_repo.clone(),
@@ -256,11 +243,8 @@ impl WorkerContext {
         RecoveryJobDeps {
             background_recovery_repo: self.background_recovery_repo.clone(),
             outbox_repo: self.outbox_repo.clone(),
-            embedding_backfill_repo: self.embedding_backfill_repo.clone(),
-            mila_platform_defaults: self.mila_platform_defaults.clone(),
             integrity_stats_repo: self.integrity_stats_repo.clone(),
             maintenance_task_repo: self.maintenance_task_repo.clone(),
-            tts_orphan_sweeper: self.tts_orphan_sweeper.clone(),
             worker_id: self.worker_id.clone(),
             auto_heal_lease_secs: self.auto_heal_lease_secs,
             maintenance_lease_secs: self.maintenance_lease_secs,

@@ -1,0 +1,76 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.rule = exports.messageId = void 0;
+const constants_1 = require("../constants");
+exports.messageId = 'noInitializedRuneExports';
+exports.rule = {
+    meta: {
+        type: 'problem',
+        docs: {
+            description: 'Disallow the export of variables or values that have been initialized with Svelte runes.',
+            category: 'Possible Errors',
+        },
+        messages: {
+            [exports.messageId]: 'Do not export values initialized with Svelte runes.',
+        },
+    },
+    create(context) {
+        // Track variables and their initializers
+        const runeInitializers = new Map();
+        return {
+            VariableDeclaration(node) {
+                for (const declarator of node.declarations) {
+                    if (declarator.init?.type === 'CallExpression' &&
+                        declarator.init.callee.type === 'Identifier' &&
+                        declarator.id.type === 'Identifier' &&
+                        constants_1.RUNE_NAMES.includes(declarator.init.callee.name)) {
+                        runeInitializers.set(declarator.id.name, declarator.init.callee.name);
+                    }
+                }
+            },
+            ExportNamedDeclaration(node) {
+                if (node.declaration?.type === 'VariableDeclaration') {
+                    for (const declarator of node.declaration.declarations) {
+                        if (declarator.init?.type === 'CallExpression' &&
+                            declarator.init.callee.type === 'Identifier' &&
+                            constants_1.RUNE_NAMES.includes(declarator.init.callee.name)) {
+                            context.report({
+                                node: declarator,
+                                messageId: exports.messageId,
+                            });
+                        }
+                    }
+                }
+                if (node.specifiers) {
+                    for (const specifier of node.specifiers) {
+                        const localName = specifier.local.name;
+                        if (constants_1.RUNE_NAMES.includes(localName) ||
+                            runeInitializers.has(localName)) {
+                            context.report({
+                                node,
+                                messageId: exports.messageId,
+                            });
+                        }
+                    }
+                }
+            },
+            ExportDefaultDeclaration(node) {
+                if (node.declaration.type === 'CallExpression' &&
+                    node.declaration.callee.type === 'Identifier' &&
+                    constants_1.RUNE_NAMES.includes(node.declaration.callee.name)) {
+                    context.report({
+                        node: node,
+                        messageId: exports.messageId,
+                    });
+                }
+                else if (node.declaration.type === 'Identifier' && runeInitializers.has(node.declaration.name)) {
+                    context.report({
+                        node,
+                        messageId: exports.messageId,
+                    });
+                }
+            },
+        };
+    },
+};
+//# sourceMappingURL=no-initialized-rune-exports.js.map

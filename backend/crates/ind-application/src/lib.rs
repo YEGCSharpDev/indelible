@@ -46,13 +46,10 @@ pub use handlers::highlight::{HighlightService, HighlightWithNote};
 pub use handlers::home::{HomeDashboardData, HomeService};
 pub use handlers::library::LibraryService;
 pub use handlers::library_upload::LibraryUploadService;
-pub use handlers::mila::{ChatTarget, MilaSessionService};
-pub use handlers::mila_config::MilaConfigService;
 pub use handlers::settings::{PreferencesSection, SettingsService};
 pub use handlers::smart_list::{CreateSmartListInput, SmartListService, UpdateSmartListInput};
 pub use handlers::tag::{CreateTagInput, TagService, TagWithMeta, UpdateTagInput};
 pub use ind_domain::{FilterNode, FilterOp};
-pub use repos::mila_config::{ApiKeyUpdate, UpsertMilaConfigInput};
 pub use repos::tag::TaggedHighlight;
 pub use repos::{Cursor, Page};
 pub use search_language::{

@@ -19,7 +19,6 @@ class ReaderHtmlTemplateMastheadTest {
             ReaderHtmlLocalization(
                 publishedDate = null,
                 readingTime = null,
-                summaryLabel = "Mila summary",
                 askFollowUpLabel = "Ask a follow-up",
             ),
     ) = ReaderHtmlTemplate.build(
@@ -71,15 +70,12 @@ class ReaderHtmlTemplateMastheadTest {
                     ReaderHtmlLocalization(
                         publishedDate = "5 mars 2024",
                         readingTime = "7 min",
-                        summaryLabel = "Résumé Mila <fiable>",
                         askFollowUpLabel = "Poser une question & poursuivre",
                     ),
             )
 
         assertTrue(html.contains("5 mars 2024"))
         assertTrue(html.contains("7 min"))
-        assertTrue(html.contains("Résumé Mila &lt;fiable&gt;"))
         assertTrue(html.contains("Poser une question &amp; poursuivre"))
-        assertFalse(html.contains("Résumé Mila <fiable>"))
     }
 }

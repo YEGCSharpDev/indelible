@@ -1,12 +1,13 @@
+use crate::AppError;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use crate::error::AppError;
+
 use crate::repos::lifecycle_outbox::OutboxEntry;
 use ind_domain::{
-    ContentSource, Document, DocumentId, DocumentOriginType, FeedDeliveryId, LibraryEntry,
-    MilaSession, MilaSessionId, NewDomainEvent, NewOriginDocument, NewUrlDocument,
-    UserDocumentState, UserId,
+    ContentSource, Document, DocumentOriginType, FeedDeliveryId, LibraryEntry,
+NewDomainEvent, NewOriginDocument, NewUrlDocument,
+    UserDocumentState,
 };
 
 /// Provenance origin recorded for a materialized document
@@ -113,44 +114,6 @@ pub struct SaveToLibraryRequest {
     pub side_effects: Option<SaveSideEffectsFn>,
 }
 
-/// How the chat target document is resolved for `start_single_document_chat`.
-pub enum ChatIdentity {
-    /// An already-saved or already-materialized document. The transaction loads it (verifying
-    /// ownership) and skips materialization/back-linking; no Library change (AC#1/AC#5).
-    Existing { document_id: DocumentId },
-    /// An unprepared feed delivery (or URL). Materialize-or-find through the same machinery as
-    /// `materialize_document`/`save_to_library`, back-linking matching deliveries (AC#2). Boxed
-    /// because `MaterializeIdentity` is far larger than the `Existing` variant.
-    Materialize(Box<MaterializeIdentity>),
-}
-
-/// Seed for the `mila_sessions` row inserted in the chat-start transaction. The lifecycle fills
-/// `document_id` from the resolved document, so the seed carries only the session identity.
-pub struct NewChatSession {
-    pub session_id: MilaSessionId,
-    pub user_id: UserId,
-    pub created_at: DateTime<Utc>,
-}
-
-/// One atomic chat-start: resolve the document (load-existing or materialize-or-find), insert the
-/// single-document `mila_sessions` row, resolve the content-gated AI outbox (when
-/// `enqueue_engaged_ai`), and emit `document.engaged` when the document is not already saved — all
-/// in ONE transaction.
-pub struct StartDocumentChatRequest {
-    pub chat_identity: ChatIdentity,
-    pub session: NewChatSession,
-    pub enqueue_engaged_ai: bool,
-    pub side_effects: Option<MaterializeSideEffectsFn>,
-}
-
-/// Result of a chat-start. `document_created` is true when the document row was inserted by this
-/// call; `backlinked_deliveries` counts deliveries linked when materializing a feed delivery.
-pub struct StartDocumentChatOutcome {
-    pub document: Document,
-    pub session: MilaSession,
-    pub document_created: bool,
-    pub backlinked_deliveries: u64,
-}
 
 /// Result of a save. `document_created` is true when the document row was inserted by this call;
 /// `restored` when a soft-deleted entry was revived; `already_active` when an active entry already
@@ -192,14 +155,4 @@ pub trait DocumentLifecycle: Send + Sync {
         request: SaveToLibraryRequest,
     ) -> Result<SaveToLibraryOutcome, AppError>;
 
-    /// Atomic single-document chat-start (TASK-234). Composes the same `*_tx` helpers as
-    /// `materialize_document` plus the `mila_sessions` insert and content-gated AI outbox. This is
-    /// the single public chat-start flow — callers must NOT materialize then insert a session separately
-    /// (`materialize_document` cannot commit a session row). See
-    /// docs/document-feed-library-architecture.md (single-document chat attaches to document_id
-    /// regardless of saved state).
-    async fn start_single_document_chat(
-        &self,
-        request: StartDocumentChatRequest,
-    ) -> Result<StartDocumentChatOutcome, AppError>;
 }

@@ -1,0 +1,52 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.rule = exports.messageId = void 0;
+const constants_1 = require("../constants");
+const getPropertyValueIdentifier_1 = require("../utils/getPropertyValueIdentifier");
+exports.messageId = 'noDirectRuneAssign';
+exports.rule = {
+    meta: {
+        type: 'problem',
+        docs: {
+            description: 'Disallow the assignment of Svelte runes as object properties or direct variable assignments, as the compiler will not be able to process them.',
+            category: 'Possible Errors',
+            recommended: true,
+        },
+        messages: {
+            [exports.messageId]: 'Direct assignment or property assignment of Svelte runes is not allowed without invocation.',
+        },
+    },
+    create(context) {
+        if (!constants_1.SVELTE_FILE_EXTENSIONS.some((extension) => context.filename.endsWith(extension))) {
+            return {};
+        }
+        return {
+            Property(node) {
+                const propertyValueIdentifier = (0, getPropertyValueIdentifier_1.getPropertyValueIdentifier)(node);
+                if (!propertyValueIdentifier) {
+                    return;
+                }
+                if (!constants_1.RUNE_NAMES.includes(propertyValueIdentifier.name)) {
+                    return;
+                }
+                context.report({
+                    node: propertyValueIdentifier,
+                    messageId: exports.messageId,
+                });
+            },
+            VariableDeclarator(node) {
+                if (node.init?.type !== 'Identifier') {
+                    return;
+                }
+                if (!constants_1.RUNE_NAMES.includes(node.init.name)) {
+                    return;
+                }
+                context.report({
+                    node: node.init,
+                    messageId: exports.messageId,
+                });
+            },
+        };
+    },
+};
+//# sourceMappingURL=no-direct-rune-assign.js.map
