@@ -120,8 +120,7 @@ class JvmTokenStorageTest {
 
         override fun childrenNamesSpi(): Array<String> = emptyArray()
 
-        override fun childSpi(name: String): AbstractPreferences =
-            throw UnsupportedOperationException("child nodes are not used")
+        override fun childSpi(name: String): AbstractPreferences = throw UnsupportedOperationException("child nodes are not used")
 
         override fun removeNodeSpi() {
             values.clear()

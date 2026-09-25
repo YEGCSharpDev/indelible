@@ -16,28 +16,24 @@ class ApiLibraryRepository(
         itemType: String?,
         cursor: String?,
         limit: Int,
-    ): Result<PaginatedItems> =
-        libraryApiService.listItems(triageState, itemType, cursor, limit).map { it.toPaginatedItems() }
+    ): Result<PaginatedItems> = libraryApiService.listItems(triageState, itemType, cursor, limit).map { it.toPaginatedItems() }
 
     override suspend fun listCollectionItems(
         collectionId: String,
         cursor: String?,
         limit: Int,
-    ): Result<PaginatedItems> =
-        libraryApiService.listCollectionItems(collectionId, cursor, limit).map { it.toPaginatedItems() }
+    ): Result<PaginatedItems> = libraryApiService.listCollectionItems(collectionId, cursor, limit).map { it.toPaginatedItems() }
 
     override suspend fun listSmartListItems(
         smartListId: String,
         cursor: String?,
         limit: Int,
-    ): Result<PaginatedItems> =
-        libraryApiService.listSmartListItems(smartListId, cursor, limit).map { it.toPaginatedItems() }
+    ): Result<PaginatedItems> = libraryApiService.listSmartListItems(smartListId, cursor, limit).map { it.toPaginatedItems() }
 
     override suspend fun scopeCounts(triageState: String?): Result<LibraryCounts> =
         libraryApiService.getScopeCounts(triageState).map { it.toLibraryCounts() }
 
-    override suspend fun getItem(itemId: String): Result<ItemDetail> =
-        libraryApiService.getItem(itemId).map { it.toLibraryItem() }
+    override suspend fun getItem(itemId: String): Result<ItemDetail> = libraryApiService.getItem(itemId).map { it.toLibraryItem() }
 
     override suspend fun triageItem(
         itemId: String,

@@ -67,7 +67,8 @@ fun WaveformBars(
         for (i in 0 until barCount) {
             val baseline = BASELINE_HEIGHT + BASELINE_AMPLITUDE * abs(sin(i * BAR_FREQUENCY))
             val pulse = if (playing) PULSE_BASE + PULSE_AMPLITUDE * sin(phase + i * PULSE_PHASE_STEP) else 1f
-            val barHeight = (size.height * baseline * pulse).coerceIn(
+            val barHeight =
+                (size.height * baseline * pulse).coerceIn(
                     size.height * MIN_BAR_HEIGHT_FRACTION,
                     size.height,
                 )

@@ -85,13 +85,9 @@ fun PaginatedResponseLibraryEntryResponse.toPaginatedItems(): PaginatedItems =
  * the "MIN LEFT" label rather than render "0 MIN LEFT". Floors at one minute so a
  * nearly-complete item still reads as having a sliver left.
  */
-fun LibraryItem.readingMinutesLeft(): Int? {
-    return null
-}
+fun LibraryItem.readingMinutesLeft(): Int? = null
 
-fun LibraryItem.withTriageState(state: String): LibraryItem {
-    return copy(triageState = state)
-}
+fun LibraryItem.withTriageState(state: String): LibraryItem = copy(triageState = state)
 
 /**
  * Formats a minute count as an uppercase reading-time label, rolling past an hour

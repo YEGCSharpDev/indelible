@@ -39,26 +39,43 @@ fabrikt {
     }
 }
 
-val fabriktAnyPatchTargets: List<Pair<java.io.File, List<Pair<String, String>>>> = listOf(
-    layout.projectDirectory.file(
-        "build/generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/models/IntegrationConnectionDto.kt",
-    ).asFile to listOf("public val config: Any," to "public val config: kotlinx.serialization.json.JsonElement,"),
-    layout.projectDirectory.file(
-        "build/generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/models/CreateSmartListBody.kt",
-    ).asFile to listOf("public val filterExpression: Any," to "public val filterExpression: kotlinx.serialization.json.JsonElement,"),
-    layout.projectDirectory.file(
-        "build/generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/models/UpdateSmartListBody.kt",
-    ).asFile to listOf("public val filterExpression: Any? = null," to "public val filterExpression: kotlinx.serialization.json.JsonElement? = null,"),
-    layout.projectDirectory.file(
-        "build/generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/models/SmartListResponse.kt",
-    ).asFile to listOf("public val filterExpression: Any," to "public val filterExpression: kotlinx.serialization.json.JsonElement,"),
-    layout.projectDirectory.file(
-        "build/generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/models/LibraryQueryBody.kt",
-    ).asFile to listOf("public val filterExpression: Any? = null," to "public val filterExpression: kotlinx.serialization.json.JsonElement? = null,"),
-    layout.projectDirectory.file(
-        "build/generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/models/MilaAiOutputResponse.kt",
-    ).asFile to listOf("public val content: Any," to "public val content: kotlinx.serialization.json.JsonElement,"),
-)
+val fabriktAnyPatchTargets: List<Pair<java.io.File, List<Pair<String, String>>>> =
+    listOf(
+        layout.projectDirectory
+            .file(
+                "build/generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/models/IntegrationConnectionDto.kt",
+            ).asFile to listOf("public val config: Any," to "public val config: kotlinx.serialization.json.JsonElement,"),
+        layout.projectDirectory
+            .file(
+                "build/generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/models/CreateSmartListBody.kt",
+            ).asFile to
+            listOf("public val filterExpression: Any," to "public val filterExpression: kotlinx.serialization.json.JsonElement,"),
+        layout.projectDirectory
+            .file(
+                "build/generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/models/UpdateSmartListBody.kt",
+            ).asFile to
+            listOf(
+                "public val filterExpression: Any? = null," to
+                    "public val filterExpression: kotlinx.serialization.json.JsonElement? = null,",
+            ),
+        layout.projectDirectory
+            .file(
+                "build/generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/models/SmartListResponse.kt",
+            ).asFile to
+            listOf("public val filterExpression: Any," to "public val filterExpression: kotlinx.serialization.json.JsonElement,"),
+        layout.projectDirectory
+            .file(
+                "build/generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/models/LibraryQueryBody.kt",
+            ).asFile to
+            listOf(
+                "public val filterExpression: Any? = null," to
+                    "public val filterExpression: kotlinx.serialization.json.JsonElement? = null,",
+            ),
+        layout.projectDirectory
+            .file(
+                "build/generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/models/MilaAiOutputResponse.kt",
+            ).asFile to listOf("public val content: Any," to "public val content: kotlinx.serialization.json.JsonElement,"),
+    )
 val fabriktGeneratedClientDir =
     layout.buildDirectory
         .dir("generated/fabrikt/src/commonMain/kotlin/app/indelible/api/generated/client")
@@ -107,7 +124,7 @@ tasks.register("patchFabriktGenerated") {
                         if (expression.endsWith(".encodeQueryParameter()")) {
                             match.value
                         } else {
-                            "add(\"$name=\${${expression}.encodeQueryParameter()}\")"
+                            "add(\"$name=\${$expression.encodeQueryParameter()}\")"
                         }
                     }
                 val patched =

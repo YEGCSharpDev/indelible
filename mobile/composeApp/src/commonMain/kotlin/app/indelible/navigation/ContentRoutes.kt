@@ -29,7 +29,6 @@ fun NavGraphBuilder.contentRoutes(
     navController: NavHostController,
     libraryRepository: LibraryRepository,
     readerRepository: ReaderRepository,
-    
     collectionsRepository: CollectionsRepository,
     tagsRepository: TagsRepository,
     trashRepository: TrashRepository,

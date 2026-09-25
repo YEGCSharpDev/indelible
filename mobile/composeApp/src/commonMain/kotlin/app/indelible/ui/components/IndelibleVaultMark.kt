@@ -25,7 +25,12 @@ fun IndelibleVaultMark(
         val side = min(size.width, size.height)
         val scale = side / 200f
         val origin = Offset((size.width - side) / 2f, (size.height - side) / 2f)
-        fun point(x: Float, y: Float) = Offset(origin.x + x * scale, origin.y + y * scale)
+
+        fun point(
+            x: Float,
+            y: Float,
+        ) = Offset(origin.x + x * scale, origin.y + y * scale)
+
         fun length(value: Float) = value * scale
         val center = point(100f, 100f)
 

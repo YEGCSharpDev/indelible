@@ -21,9 +21,7 @@ import kotlin.coroutines.resume
 private class WindowContextProvider :
     NSObject(),
     ASWebAuthenticationPresentationContextProvidingProtocol {
-    override fun presentationAnchorForWebAuthenticationSession(
-        session: ASWebAuthenticationSession,
-    ): ASPresentationAnchor {
+    override fun presentationAnchorForWebAuthenticationSession(session: ASWebAuthenticationSession): ASPresentationAnchor {
         val windowScene =
             UIApplication.sharedApplication
                 .connectedScenes
