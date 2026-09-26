@@ -47,7 +47,6 @@ fn category_mapping_matches_plan() {
     for (item_type, category) in [
         (ItemType::Book, "books"),
         (ItemType::Pdf, "books"),
-        (ItemType::Tweet, "tweets"),
         (ItemType::Podcast, "podcasts"),
         (ItemType::Article, "articles"),
         (ItemType::Email, "articles"),

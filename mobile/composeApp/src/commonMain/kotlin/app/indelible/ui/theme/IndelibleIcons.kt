@@ -564,43 +564,6 @@ object IndelibleIcons {
             }.build()
     }
 
-    val Tweet: ImageVector by lazy {
-        ImageVector
-            .Builder(
-                name = "Tweet",
-                defaultWidth = 24.dp,
-                defaultHeight = 24.dp,
-                viewportWidth = 24f,
-                viewportHeight = 24f,
-            ).apply {
-                // X logo (filled): M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68
-                // l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z
-                path(
-                    fill = SolidColor(Color(0xFF000000)),
-                    stroke = null,
-                ) {
-                    moveTo(18.244f, 2.25f)
-                    horizontalLineToRelative(3.308f)
-                    lineToRelative(-7.227f, 8.26f)
-                    lineToRelative(8.502f, 11.24f)
-                    horizontalLineTo(16.17f)
-                    lineToRelative(-5.214f, -6.817f)
-                    lineTo(4.99f, 21.75f)
-                    horizontalLineTo(1.68f)
-                    lineToRelative(7.73f, -8.835f)
-                    lineTo(1.254f, 2.25f)
-                    horizontalLineTo(8.08f)
-                    lineToRelative(4.713f, 6.231f)
-                    close()
-                    moveTo(17.083f, 19.77f)
-                    horizontalLineToRelative(1.833f)
-                    lineTo(7.084f, 4.126f)
-                    horizontalLineTo(5.117f)
-                    close()
-                }
-            }.build()
-    }
-
     val Podcast: ImageVector by lazy {
         ImageVector
             .Builder(

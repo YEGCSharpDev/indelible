@@ -19,8 +19,7 @@ function settings(overrides: Partial<ObsidianSettingsDto> = {}): ObsidianSetting
 		category_folder_templates: {
 			articles: 'articles',
 			books: 'books',
-			podcasts: 'podcasts',
-			tweets: 'tweets'
+			podcasts: 'podcasts'
 		},
 		export_all_reader_documents: false,
 		file_name_template: '{{title}}',
@@ -100,7 +99,7 @@ describe('Obsidian preferences validation', () => {
 
 	it('keeps Save disabled until the current corrected draft has a successful preview', async () => {
 		await renderLoadedPage();
-		expect(screen.getByText('3 folder groups')).toBeTruthy();
+		expect(screen.getByText('2 folder groups')).toBeTruthy();
 		expect(screen.queryByLabelText('Podcasts')).toBeNull();
 
 		await fireEvent.input(fileNameInput(), { target: { value: '{{ title' } });

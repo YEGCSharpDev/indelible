@@ -18,7 +18,7 @@
 
 	const store = getCollections();
 
-	type ItemType = 'article' | 'video' | 'pdf' | 'epub' | 'tweet';
+	type ItemType = 'article' | 'video' | 'pdf' | 'epub';
 	const TYPE_FILTERS: { labelKey: MessageKey; value: ItemType | null }[] = [
 		{ labelKey: 'common_all', value: null },
 		{ labelKey: 'library_nav_articles', value: 'article' },
@@ -31,7 +31,6 @@
 		article: 'library_filter_value_article',
 		epub: 'library_filter_value_book',
 		pdf: 'library_filter_value_pdf',
-		tweet: 'library_filter_value_tweet',
 		video: 'library_filter_value_video'
 	};
 

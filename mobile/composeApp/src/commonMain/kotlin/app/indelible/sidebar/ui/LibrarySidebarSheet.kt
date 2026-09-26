@@ -27,7 +27,6 @@ import indelible.composeapp.generated.resources.library_content_articles
 import indelible.composeapp.generated.resources.library_content_books
 import indelible.composeapp.generated.resources.library_content_emails
 import indelible.composeapp.generated.resources.library_content_pdfs
-import indelible.composeapp.generated.resources.library_content_tweets
 import indelible.composeapp.generated.resources.library_content_videos
 import indelible.composeapp.generated.resources.sidebar_all_items
 import indelible.composeapp.generated.resources.sidebar_collections
@@ -156,7 +155,6 @@ private val ContentTypeEntries =
         ContentTypeEntry(Res.string.library_content_books, "book", IndelibleIcons.Book),
         ContentTypeEntry(Res.string.library_content_emails, "email", IndelibleIcons.Email),
         ContentTypeEntry(Res.string.library_content_pdfs, "pdf", IndelibleIcons.Pdf),
-        ContentTypeEntry(Res.string.library_content_tweets, "tweet", IndelibleIcons.Tweet),
         ContentTypeEntry(Res.string.library_content_videos, "video", IndelibleIcons.Video),
     )
 

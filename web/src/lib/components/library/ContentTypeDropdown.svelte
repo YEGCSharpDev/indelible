@@ -18,7 +18,6 @@
 		| '/library/books'
 		| '/library/emails'
 		| '/library/pdfs'
-		| '/library/tweets'
 		| '/library/videos'
 		| '/library/podcasts';
 
@@ -34,7 +33,6 @@
 		{ labelKey: 'library_nav_books', type: 'books', href: '/library/books' },
 		{ labelKey: 'library_nav_emails', type: 'emails', href: '/library/emails' },
 		{ labelKey: 'library_nav_pdfs', type: 'pdfs', href: '/library/pdfs' },
-		{ labelKey: 'library_nav_tweets', type: 'tweets', href: '/library/tweets' },
 		{ labelKey: 'library_nav_videos', type: 'videos', href: '/library/videos' }
 	];
 

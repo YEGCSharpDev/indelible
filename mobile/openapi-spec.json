@@ -3538,7 +3538,7 @@
             "type": "integer"
           },
           "item_type": {
-            "description": "One of: article, book, email, pdf, tweet, video, podcast.",
+            "description": "One of: article, book, email, pdf, video, podcast.",
             "type": "string"
           }
         },
@@ -5664,7 +5664,7 @@
         "description": "Save a URL/manual/API item into the Library.",
         "properties": {
           "item_type": {
-            "description": "One of: article, book, email, pdf, tweet, video, podcast. Inferred from the URL when\nomitted.",
+            "description": "One of: article, book, email, pdf, video, podcast. Inferred from the URL when\nomitted.",
             "type": [
               "string",
               "null"

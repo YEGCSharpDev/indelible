@@ -10,7 +10,6 @@
 		| '/library/books'
 		| '/library/emails'
 		| '/library/pdfs'
-		| '/library/tweets'
 		| '/library/videos'
 		| '/library/podcasts'
 		| '/tags'
@@ -41,7 +40,6 @@
 		{ href: '/library/books', labelKey: 'library_nav_books', icon: 'books', countKey: 'book' },
 		{ href: '/library/emails', labelKey: 'library_nav_emails', icon: 'emails', countKey: 'email' },
 		{ href: '/library/pdfs', labelKey: 'library_nav_pdfs', icon: 'pdfs', countKey: 'pdf' },
-		{ href: '/library/tweets', labelKey: 'library_nav_tweets', icon: 'tweets', countKey: 'tweet' },
 		{ href: '/library/videos', labelKey: 'library_nav_videos', icon: 'videos', countKey: 'video' },
 		{ href: '/tags', labelKey: 'common_tags', icon: 'tags' },
 		{ href: '/feed', labelKey: 'common_feed', icon: 'feed' }

@@ -203,9 +203,6 @@
 				{#if item.item_type === 'podcast'}
 					<option value="podcast" selected>{$t('library_filter_value_podcast')}</option>
 				{/if}
-				<option value="tweet" selected={item.item_type === 'tweet'}
-					>{$t('library_filter_value_tweet')}</option
-				>
 				<option value="email" selected={item.item_type === 'email'}
 					>{$t('library_filter_value_email')}</option
 				>

@@ -33,7 +33,6 @@
 		if (type === 'podcast') return 'purple-gradient';
 		if (type === 'email') return 'orange-gradient';
 		if (type === 'pdf') return 'teal-gradient';
-		if (type === 'tweet') return 'teal-gradient';
 		if (type === 'book') return 'green-gradient';
 		const hash = domain.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
 		const gradients = ['blue-gradient', 'green-gradient', 'purple-gradient', 'orange-gradient'];
@@ -45,7 +44,6 @@
 		if (type === 'podcast') return '\u{1F3A7}';
 		if (type === 'email') return '\u{2709}\u{FE0F}';
 		if (type === 'pdf') return '\u{1F4C4}';
-		if (type === 'tweet') return '\u{1F426}';
 		if (type === 'book') return '\u{1F4D6}';
 		return '\u{1F4F0}';
 	}
@@ -72,7 +70,6 @@
 			book: 'library_filter_value_book',
 			email: 'library_filter_value_email',
 			pdf: 'library_filter_value_pdf',
-			tweet: 'library_filter_value_tweet',
 			video: 'library_filter_value_video'
 		};
 		const key = keys[type.toLowerCase()];
@@ -493,14 +490,6 @@
 	:global([data-theme='dark']) .type-badge.video {
 		background: rgba(255, 159, 10, 0.15);
 		color: #ff9f0a;
-	}
-	.type-badge.tweet {
-		background: rgba(90, 200, 250, 0.08);
-		color: #5ac8fa;
-	}
-	:global([data-theme='dark']) .type-badge.tweet {
-		background: rgba(90, 200, 250, 0.15);
-		color: #64d2ff;
 	}
 	.type-badge.email {
 		background: rgba(255, 149, 0, 0.08);

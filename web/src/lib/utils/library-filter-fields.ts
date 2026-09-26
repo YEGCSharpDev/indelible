@@ -38,7 +38,6 @@ const LIBRARY_FILTER_FIELDS: LibraryFilterFieldDef[] = [
 			{ value: 'book', labelKey: 'library_filter_value_book' },
 			{ value: 'email', labelKey: 'library_filter_value_email' },
 			{ value: 'pdf', labelKey: 'library_filter_value_pdf' },
-			{ value: 'tweet', labelKey: 'library_filter_value_tweet' },
 			{ value: 'video', labelKey: 'library_filter_value_video' }
 		]
 	},

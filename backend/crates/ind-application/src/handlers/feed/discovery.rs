@@ -2,12 +2,12 @@ use url::Url;
 
 use crate::error::AppError;
 use crate::handlers::provider_candidates::{
-    ProviderCandidate, instance_for_url, twitter_candidates, youtube_candidates,
+    ProviderCandidate, instance_for_url, youtube_candidates,
 };
 use crate::ports::{FetchRequest, HttpFetchError};
 use ind_domain::{DomainError, FeedType, FeedVisibility, UserId};
 
-use super::providers::{YoutubeRouteKind, parse_twitter_url, parse_youtube_url};
+use super::providers::{YoutubeRouteKind, parse_youtube_url};
 use super::{FeedService, ResolvedFeedSource};
 
 mod helpers;
@@ -43,13 +43,6 @@ impl FeedService {
         };
 
         if let Some(resolved) = self
-            .try_resolve_twitter_source(user_id, &parsed, visibility)
-            .await?
-        {
-            return Ok(resolved);
-        }
-
-        if let Some(resolved) = self
             .try_resolve_youtube_source(user_id, &parsed, visibility)
             .await?
         {
@@ -70,93 +63,6 @@ impl FeedService {
             None,
             false,
         ))
-    }
-    async fn try_resolve_twitter_source(
-        &self,
-        user_id: UserId,
-        parsed: &Url,
-        visibility: FeedVisibility,
-    ) -> Result<Option<ResolvedFeedSource>, AppError> {
-        let Some(twitter) = parse_twitter_url(parsed) else {
-            return Ok(None);
-        };
-
-        let instances = self.feed_repo.list_all_enabled_provider_instances().await?;
-
-        let mut candidates: Vec<ProviderCandidate> = Vec::new();
-
-        // The user's URL goes first so an explicit choice wins over our priorities.
-        if let Some(provider) = twitter.input_provider.clone() {
-            let url = parsed.as_str().to_string();
-            candidates.push(ProviderCandidate {
-                instance_id: instance_for_url(&instances, &url).map(|i| i.id),
-                url,
-                provider_type: provider,
-            });
-        }
-
-        for cand in twitter_candidates(&twitter.handle, &instances) {
-            if !candidates.iter().any(|c| c.url == cand.url) {
-                candidates.push(cand);
-            }
-        }
-
-        let mut last_error = None;
-        for candidate in &candidates {
-            let candidate_url = match Url::parse(&candidate.url) {
-                Ok(url) => url,
-                Err(_) => continue,
-            };
-            match self
-                .validate_or_discover_feed(&candidate_url, Some(FeedType::Twitter))
-                .await
-            {
-                Ok((_, metadata)) => {
-                    if let Some(id) = candidate.instance_id {
-                        let _ = self.feed_repo.record_provider_instance_success(id).await;
-                    }
-                    return Ok(Some(ResolvedFeedSource {
-                        canonical_key: if visibility == FeedVisibility::Private {
-                            format!(
-                                "private:{}:{}",
-                                user_id,
-                                normalize_url(candidate_url.as_str())
-                            )
-                        } else {
-                            twitter.canonical_key.clone()
-                        },
-                        source_url: twitter.public_source_url.clone(),
-                        poll_url: candidate.url.clone(),
-                        title: metadata.title,
-                        description: metadata.description,
-                        site_url: metadata.site_url,
-                        image_url: metadata.image_url,
-                        domain: Url::parse(&twitter.public_source_url)
-                            .ok()
-                            .and_then(|url| url.host_str().map(|host| host.to_string())),
-                        feed_type: FeedType::Twitter,
-                        visibility,
-                        provider: Some(candidate.provider_type.clone()),
-                        is_resolvable: true,
-                    }));
-                }
-                Err(err) => {
-                    if let Some(id) = candidate.instance_id {
-                        let _ = self.feed_repo.record_provider_instance_failure(id).await;
-                    }
-                    last_error = Some(err);
-                }
-            }
-        }
-
-        if twitter.input_provider.is_some() {
-            return Err(last_error.unwrap_or_else(|| AppError::ExternalService {
-                service: "feed_fetch".into(),
-                message: "no public Twitter RSS provider returned a valid feed".into(),
-            }));
-        }
-
-        Ok(None)
     }
     async fn try_resolve_youtube_source(
         &self,

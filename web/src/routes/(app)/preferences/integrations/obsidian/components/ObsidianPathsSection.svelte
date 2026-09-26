@@ -12,8 +12,7 @@
 
 	const folders = [
 		{ key: 'books', labelKey: 'integrations_obsidian_books', fallback: 'books' },
-		{ key: 'articles', labelKey: 'integrations_obsidian_articles', fallback: 'articles' },
-		{ key: 'tweets', labelKey: 'integrations_obsidian_tweets', fallback: 'tweets' }
+		{ key: 'articles', labelKey: 'integrations_obsidian_articles', fallback: 'articles' }
 	] satisfies { key: string; labelKey: MessageKey; fallback: string }[];
 </script>
 
@@ -44,7 +43,7 @@
 			<div class="row-block-head">
 				<p class="row-title">{$t('integrations_obsidian_category_folders')}</p>
 				<span class="row-count"
-					>{$t('integrations_obsidian_folder_group_count', { values: { count: 3 } })}</span
+					>{$t('integrations_obsidian_folder_group_count', { values: { count: folders.length } })}</span
 				>
 			</div>
 			<p class="row-sub-inline">

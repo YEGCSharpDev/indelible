@@ -11,7 +11,6 @@ pub enum FeedType {
     Atom,
     Podcast,
     Youtube,
-    Twitter,
     Newsletter,
 }
 
@@ -70,7 +69,6 @@ pub enum FeedSearchSurface {
     All,
     Rss,
     Youtube,
-    Twitter,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

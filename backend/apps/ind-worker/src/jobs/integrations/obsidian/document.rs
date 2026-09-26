@@ -22,7 +22,6 @@ fn item_type_from_document_type(document_type: DocumentType) -> ItemType {
         DocumentType::Book => ItemType::Book,
         DocumentType::Email => ItemType::Email,
         DocumentType::Pdf => ItemType::Pdf,
-        DocumentType::Tweet => ItemType::Tweet,
         DocumentType::Video => ItemType::Video,
         DocumentType::Podcast => ItemType::Podcast,
     }

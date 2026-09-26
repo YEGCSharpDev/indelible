@@ -21,8 +21,7 @@ function settings(overrides: Partial<ObsidianSettingsDto> = {}): ObsidianSetting
 		category_folder_templates: {
 			articles: 'articles',
 			books: 'books',
-			podcasts: 'podcasts',
-			tweets: 'tweets'
+			podcasts: 'podcasts'
 		},
 		export_all_reader_documents: false,
 		file_name_template: '{{title}}',

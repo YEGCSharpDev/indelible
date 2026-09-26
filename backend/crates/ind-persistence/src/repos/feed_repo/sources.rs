@@ -540,8 +540,7 @@ impl PgFeedRepository {
                     OR poll_url ILIKE $1 ESCAPE '\\') \
                AND ($2 = 'all' \
                     OR ($2 = 'youtube' AND feed_type = 'youtube') \
-                    OR ($2 = 'twitter' AND feed_type = 'twitter') \
-                    OR ($2 = 'rss' AND feed_type <> 'youtube' AND feed_type <> 'twitter')) \
+                    OR ($2 = 'rss' AND feed_type <> 'youtube')) \
              ORDER BY \
                CASE \
                    WHEN lower(title) = lower($3) THEN 300 \
@@ -551,8 +550,7 @@ impl PgFeedRepository {
                END DESC, \
                CASE \
                    WHEN $2 = 'youtube' AND feed_type = 'youtube' THEN 50 \
-                   WHEN $2 = 'twitter' AND feed_type = 'twitter' THEN 50 \
-                   WHEN $2 = 'rss' AND feed_type <> 'youtube' AND feed_type <> 'twitter' THEN 25 \
+                   WHEN $2 = 'rss' AND feed_type <> 'youtube' THEN 25 \
                    ELSE 0 \
                END DESC, \
                popularity DESC, \

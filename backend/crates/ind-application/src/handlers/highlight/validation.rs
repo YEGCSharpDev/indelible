@@ -83,7 +83,6 @@ pub(crate) fn validate_highlight_locators_for_document(
             DocumentType::Book => matches!(locator, HighlightLocator::Epub { .. }),
             DocumentType::Article
             | DocumentType::Email
-            | DocumentType::Tweet
             | DocumentType::Video
             | DocumentType::Podcast => matches!(locator, HighlightLocator::Html { .. }),
         };

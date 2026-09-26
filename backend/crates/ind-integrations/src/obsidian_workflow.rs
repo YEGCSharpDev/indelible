@@ -48,7 +48,6 @@ impl ObsidianPreviewRenderer {
         for item_type in [
             ind_domain::ItemType::Article,
             ind_domain::ItemType::Book,
-            ind_domain::ItemType::Tweet,
             ind_domain::ItemType::Podcast,
         ] {
             let mut document = sample_preview_document();
@@ -516,7 +515,7 @@ mod tests {
             "sync_notification",
         );
 
-        for category in ["articles", "books", "tweets", "podcasts"] {
+        for category in ["articles", "books", "podcasts"] {
             assert_invalid_template(
                 |settings| {
                     settings
@@ -542,7 +541,7 @@ mod tests {
             sync_notification_template: "{{document_count}} documents at {{time}}".into(),
             ..Default::default()
         };
-        for category in ["articles", "books", "tweets", "podcasts"] {
+        for category in ["articles", "books", "podcasts"] {
             settings
                 .category_folder_templates
                 .insert(category.into(), "{{category}}-archive".into());

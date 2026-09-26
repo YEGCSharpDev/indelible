@@ -23,8 +23,6 @@
 				return 'orange-gradient';
 			case 'pdf':
 				return 'teal-gradient';
-			case 'tweet':
-				return 'teal-gradient';
 			case 'book':
 				return 'green-gradient';
 			default:
@@ -42,8 +40,6 @@
 				return '\u{2709}\u{FE0F}';
 			case 'pdf':
 				return '\u{1F4C4}';
-			case 'tweet':
-				return '\u{1F426}';
 			case 'book':
 				return '\u{1F4D6}';
 			default:

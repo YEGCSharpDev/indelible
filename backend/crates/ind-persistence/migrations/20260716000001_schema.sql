@@ -340,7 +340,7 @@ CREATE TABLE public.documents (
     sender_id uuid,
     word_count integer,
     reading_time_minutes integer,
-    CONSTRAINT ck_documents_type CHECK ((document_type = ANY (ARRAY['article'::text, 'book'::text, 'email'::text, 'pdf'::text, 'tweet'::text, 'video'::text, 'podcast'::text])))
+    CONSTRAINT ck_documents_type CHECK ((document_type = ANY (ARRAY['article'::text, 'book'::text, 'email'::text, 'pdf'::text, 'video'::text, 'podcast'::text])))
 );
 
 CREATE TABLE public.domain_events (
