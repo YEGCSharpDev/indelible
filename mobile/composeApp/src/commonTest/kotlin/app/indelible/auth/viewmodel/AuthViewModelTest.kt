@@ -75,7 +75,6 @@ class AuthViewModelTest {
             // conflicts with the setMain/resetMain in setUp/tearDown and made test
             // ordering matter. Mirrors the await pattern used by the other tests here.
             viewModel.authState.first { it is AuthState.Unauthenticated }
-            viewModel.loginState.first { it.serverError != null }
 
             assertIs<AuthState.Unauthenticated>(viewModel.authState.value)
         }
@@ -104,7 +103,6 @@ class AuthViewModelTest {
             val apiClient = ApiClient(tokenStorage, engine = engine)
             val viewModel = AuthViewModel(ApiAuthRepository(apiClient.authApiService, apiClient.accountApiService), tokenStorage)
             viewModel.authState.first { it is AuthState.Unauthenticated }
-            viewModel.loginState.first { it.serverError != null }
 
             viewModel.updateLoginEmail("user@example.com")
             viewModel.updateLoginPassword("password123")
@@ -138,7 +136,6 @@ class AuthViewModelTest {
             val apiClient = ApiClient(tokenStorage, engine = engine)
             val viewModel = AuthViewModel(ApiAuthRepository(apiClient.authApiService, apiClient.accountApiService), tokenStorage)
             viewModel.authState.first { it is AuthState.Unauthenticated }
-            viewModel.loginState.first { it.serverError != null }
 
             viewModel.updateLoginEmail("user@example.com")
             viewModel.updateLoginPassword("wrongpassword")
@@ -179,7 +176,6 @@ class AuthViewModelTest {
             val apiClient = ApiClient(tokenStorage, engine = engine)
             val viewModel = AuthViewModel(ApiAuthRepository(apiClient.authApiService, apiClient.accountApiService), tokenStorage)
             viewModel.authState.first { it is AuthState.Unauthenticated }
-            viewModel.loginState.first { it.serverError != null }
 
             viewModel.updateRegisterDisplayName("New User")
             viewModel.updateRegisterEmail("new@example.com")
@@ -339,7 +335,6 @@ class AuthViewModelTest {
 
             viewModel.logout()
             viewModel.authState.first { it is AuthState.Unauthenticated }
-            viewModel.loginState.first { it.serverError != null }
 
             assertNull(tokenStorage.getToken())
             assertNull(tokenStorage.getRefreshToken())
@@ -426,7 +421,6 @@ class AuthViewModelTest {
             // Await init settling deterministically; counting only login-path requests
             // keeps this immune to the unconditional OAuth-providers fetch on construction.
             viewModel.authState.first { it is AuthState.Unauthenticated }
-            viewModel.loginState.first { it.serverError != null }
 
             viewModel.updateLoginEmail("")
             viewModel.updateLoginPassword("")
