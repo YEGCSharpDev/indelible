@@ -3,10 +3,9 @@
 
 	interface Props {
 		onCopyInbox: () => void;
-		onStartNotion: () => void;
 	}
 
-	let { onCopyInbox, onStartNotion }: Props = $props();
+	let { onCopyInbox }: Props = $props();
 </script>
 
 <div class="quickstart-stack">
@@ -43,16 +42,6 @@
 		<div class="meta">
 			<div class="title">{$t('integrations_hub_setup_email')}</div>
 			<div class="sub">{$t('integrations_hub_setup_email_hint')}</div>
-		</div>
-		<div class="arrow">
-			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
-		</div>
-	</button>
-	<button type="button" class="quickstart-card" onclick={onStartNotion}>
-		<div class="mark notion">N</div>
-		<div class="meta">
-			<div class="title">{$t('integrations_notion_connect')}</div>
-			<div class="sub">{$t('integrations_hub_connect_notion_hint')}</div>
 		</div>
 		<div class="arrow">
 			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
@@ -117,14 +106,6 @@
 
 	.mark.email {
 		background: var(--success);
-	}
-
-	.mark.notion {
-		background: var(--int-brand-notion-bg);
-		color: var(--int-brand-notion-text);
-		box-shadow: inset 0 0 0 0.5px var(--border-primary);
-		font-family: 'Times New Roman', serif;
-		font-style: italic;
 	}
 
 	.meta {

@@ -22,7 +22,7 @@ library, permanently. Links rot; your library does not.
   summarize long reads, using your own provider key.
 - **Content in, from anywhere.** Personal email-in
   addresses, RSS feeds, and file uploads.
-- **Your tools, connected.** Sync to Notion.
+- **Your tools, connected.** Sync to Obsidian.
 
 <img alt="Four Indelible screens: the Home dashboard, full-text and semantic search, Collections, and the RSS feed" src="https://assets.useindelible.com/readme/wall.webp" width="100%" />
 

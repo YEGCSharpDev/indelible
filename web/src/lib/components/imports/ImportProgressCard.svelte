@@ -47,11 +47,7 @@
 	}
 
 	const source = $derived(
-		job.import_source === 'readwise_import'
-			? 'Readwise Reader'
-			: job.import_source === 'notion_import'
-				? 'Notion'
-				: job.import_source
+		job.import_source === 'readwise_import' ? 'Readwise Reader' : job.import_source
 	);
 	const method = $derived(methodLabel(job.import_method));
 </script>

@@ -11,7 +11,6 @@
 		sevenDayItems: number;
 		sevenDayDelta: SevenDayDelta | null;
 		onCopyInbox: () => void;
-		onStartNotion: () => void;
 	}
 
 	let {
@@ -20,8 +19,7 @@
 		ringDash,
 		sevenDayItems,
 		sevenDayDelta,
-		onCopyInbox,
-		onStartNotion
+		onCopyInbox
 	}: Props = $props();
 </script>
 
@@ -105,7 +103,7 @@
 			</div>
 		</div>
 	{:else}
-		<QuickstartGrid {onCopyInbox} {onStartNotion} />
+		<QuickstartGrid {onCopyInbox} />
 	{/if}
 </SettingsHero>
 

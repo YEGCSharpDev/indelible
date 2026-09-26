@@ -2,11 +2,13 @@
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
     import { t } from '$lib/i18n';
-    import SettingsGroup from '$lib/components/settings/SettingsGroup.svelte';
     import SettingsHero from '$lib/components/settings/SettingsHero.svelte';
     import type { IntegrationConnectionDto } from '$lib/api';
-    import { loadIntegrationConnections, dispatchIntegrationSync } from '$lib/api/integrations';
-    import { getAccessToken } from '$lib/auth-tokens';
+    import {
+        loadIntegrationConnections,
+        dispatchIntegrationSync,
+        setupMinifluxConnection
+    } from '$lib/api/integrations';
     import { onMount } from 'svelte';
     import { relativeTime } from '$lib/utils/relative-time';
 
@@ -24,10 +26,10 @@
     const connection = $derived(connections.find(c => c.provider === 'miniflux'));
     
     const statusLabel = $derived.by(() => {
-        if (!connection) return 'Disconnected';
-        if (syncState === 'pending') return 'Syncing...';
-        if (connection.status === 'error') return 'Error';
-        return 'Connected';
+        if (!connection) return $t('settings_miniflux_status_disconnected');
+        if (syncState === 'pending') return $t('settings_miniflux_status_syncing');
+        if (connection.status === 'error') return $t('settings_miniflux_status_error');
+        return $t('settings_miniflux_status_connected');
     });
     
     const heroState = $derived.by(() => {
@@ -38,7 +40,7 @@
     });
 
     const lastSyncLabel = $derived.by(() => {
-        return relativeTime(connection?.last_sync_at) ?? 'Never';
+        return relativeTime(connection?.last_sync_at) ?? $t('settings_miniflux_never');
     });
 
     onMount(async () => {
@@ -59,23 +61,12 @@
         connecting = true;
         error = null;
         try {
-            const token = getAccessToken();
-            const res = await fetch('/api/v1/integrations/miniflux/connect', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ url, api_key: apiKey }),
-            });
-            if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
-                error = data.message || 'Failed to connect to Miniflux';
+            const result = await setupMinifluxConnection(url, apiKey);
+            if (!result.success) {
+                error = result.error;
             } else {
                 await refresh();
             }
-        } catch (err) {
-            error = 'Network error occurred.';
         } finally {
             connecting = false;
         }
@@ -125,11 +116,11 @@
                     <path d="M4 4a16 16 0 0 1 16 16" />
                     <circle cx="5" cy="19" r="1" />
                 </svg>
-                Miniflux
+                {$t('settings_miniflux')}
             </div>
-            <h1 class="hero-headline">Miniflux Integration</h1>
+            <h1 class="hero-headline">{$t('settings_miniflux_title')}</h1>
             <p class="hero-sub">
-                Keep Indelible in sync with Miniflux unread/read states and articles.
+                {$t('settings_miniflux_description')}
             </p>
             <div class="hero-ops">
                 <span class="hero-status-pill" data-status={heroState}>
@@ -137,7 +128,7 @@
                 </span>
                 {#if heroState !== 'disconnected'}
                     <span class="ops-sep" aria-hidden="true"></span>
-                    <span>Last synced <strong>{lastSyncLabel}</strong></span>
+                    <span>{$t('settings_miniflux_last_synced')} <strong>{lastSyncLabel}</strong></span>
                 {/if}
             </div>
         </div>
@@ -154,27 +145,27 @@
     <div class="body-area">
         <div class="settings-body">
             {#if loading}
-                <p class="muted">Loading...</p>
+                <p class="muted">{$t('common_loading')}</p>
             {:else if connection}
                 <div class="card card-stack">
                     <div class="row">
                         <div>
-                            <p class="row-title">Miniflux Connection</p>
-                            <p class="row-sub">Status: {statusLabel}</p>
+                            <p class="row-title">{$t('settings_miniflux_connection')}</p>
+                            <p class="row-sub">{$t('settings_miniflux_status_label', { values: { status: statusLabel } })}</p>
                         </div>
                         <div class="row-ops">
                             <button class="btn btn-primary" onclick={handleSync} disabled={syncState === 'pending'}>
-                                {syncState === 'pending' ? 'Syncing...' : 'Force Resync'}
+                                {syncState === 'pending' ? $t('settings_miniflux_syncing') : $t('settings_miniflux_force_resync')}
                             </button>
-                            <button class="btn btn-secondary" onclick={disconnect}>Disconnect</button>
+                            <button class="btn btn-secondary" onclick={disconnect}>{$t('settings_miniflux_disconnect')}</button>
                         </div>
                     </div>
 
                     {#if syncError || connection.last_error}
                         <div class="alert-block">
                             <div class="alert">
-                                <strong>Sync Failed</strong>
-                                <p>There was an error communicating with Miniflux.</p>
+                                <strong>{$t('settings_miniflux_sync_failed')}</strong>
+                                <p>{$t('settings_miniflux_sync_error_details')}</p>
                                 <span>{syncError || connection.last_error}</span>
                             </div>
                         </div>
@@ -184,11 +175,11 @@
                 <div class="card" style="padding: 24px;">
                     <form class="connect-form" onsubmit={(e) => { e.preventDefault(); connect(); }}>
                         <div class="field">
-                            <label for="url">Miniflux URL</label>
-                            <input id="url" type="url" bind:value={url} placeholder="https://reader.miniflux.app" required class="input" />
+                            <label for="url">{$t('settings_miniflux_url')}</label>
+                            <input id="url" type="url" bind:value={url} placeholder={$t('settings_miniflux_url_placeholder')} required class="input" />
                         </div>
                         <div class="field">
-                            <label for="api_key">API Key</label>
+                            <label for="api_key">{$t('settings_miniflux_api_key')}</label>
                             <input id="api_key" type="password" bind:value={apiKey} required class="input" />
                         </div>
                         {#if error}
@@ -196,7 +187,7 @@
                         {/if}
                         <div style="margin-top: 8px;">
                             <button type="submit" class="btn btn-primary" disabled={connecting}>
-                                {connecting ? 'Connecting...' : 'Connect Miniflux'}
+                                {connecting ? $t('settings_miniflux_connecting') : $t('settings_miniflux_connect')}
                             </button>
                         </div>
                     </form>
@@ -414,9 +405,6 @@
     .btn-primary:disabled {
         opacity: 0.6;
         cursor: not-allowed;
-    }
-    .btn-secondary {
-        /* Already styled by .btn default */
     }
     .error {
         color: var(--destructive);

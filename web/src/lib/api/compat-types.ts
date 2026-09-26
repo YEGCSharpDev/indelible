@@ -49,3 +49,23 @@ export type DocumentUpdateBody = Partial<
 export type DocumentAssetListResponse = {
 	data: DocumentReaderAssetResponse[];
 };
+
+export type TestMilaConfigBodyWritable = {
+	chat_api_base?: string;
+	chat_api_key?: string;
+	chat_model?: string;
+	embedding_api_base?: string;
+	embedding_api_key?: string;
+	embedding_dim?: number;
+	embedding_model?: string;
+};
+
+export type TestConfigResponse = {
+	chat_error?: string | null;
+	chat_model_ok: boolean;
+	embedding_dim?: number | null;
+	embedding_error?: string | null;
+	embedding_model_ok: boolean;
+	error?: string | null;
+	success: boolean;
+};

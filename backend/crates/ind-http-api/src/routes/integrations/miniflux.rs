@@ -7,9 +7,11 @@ use crate::response::ApiResponse;
 use crate::state::AppState;
 use super::dto::IntegrationConnectionDto;
 
-#[derive(Debug, Deserialize, utoipa::ToSchema)]
+#[derive(Debug, Deserialize, utoipa::ToSchema, validator::Validate)]
 pub struct ConnectMinifluxRequest {
+    #[validate(url(message = "must be a valid URL"), length(min = 1, max = 2048))]
     pub url: String,
+    #[validate(length(min = 1, max = 512, message = "cannot be empty"))]
     pub api_key: String,
 }
 
@@ -32,7 +34,7 @@ pub async fn connect_miniflux(
         ..
     }: RequireIntegrationsWrite,
     State(state): State<AppState>,
-    axum::extract::Json(payload): axum::extract::Json<ConnectMinifluxRequest>,
+    crate::extract::ValidatedJson(payload): crate::extract::ValidatedJson<ConnectMinifluxRequest>,
 ) -> Result<ApiResponse<IntegrationConnectionDto>, ApiError> {
     let ops = state.integration_ops.as_ref().ok_or(ApiError::NotFound {
         entity: "integrations",

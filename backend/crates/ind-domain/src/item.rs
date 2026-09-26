@@ -5,14 +5,12 @@ use std::{fmt, str::FromStr};
 #[serde(rename_all = "snake_case")]
 pub enum ImportSource {
     ReadwiseImport,
-    NotionImport,
 }
 
 impl ImportSource {
     pub fn as_str(self) -> &'static str {
         match self {
             Self::ReadwiseImport => "readwise_import",
-            Self::NotionImport => "notion_import",
         }
     }
 }

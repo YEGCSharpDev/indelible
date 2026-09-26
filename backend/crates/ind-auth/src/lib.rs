@@ -47,8 +47,7 @@ pub use integration_oauth::{
     IntegrationOAuthProviderAdapter, IntegrationOAuthService, ProviderTokens,
     RepositoryIntegrationOAuthFlowStore, StartedIntegrationFlow,
     integration_oauth_error_to_app_error,
-    notion::NotionOAuthAdapter,
-    settings::{IntegrationNotionOAuthSettings, IntegrationOAuthSettings},
+    settings::IntegrationOAuthSettings,
 };
 pub use jwt::{JwtClaims, sign_access_token, validate_access_token};
 pub use login::{LoginRequest, LoginResponse};

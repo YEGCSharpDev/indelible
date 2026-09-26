@@ -5,7 +5,7 @@ use ind_application::repos::prepared_content::PreparedContentProvider;
 use ind_domain::{DocumentId, GenericJobEnvelope, JobOutboxId};
 use ind_ingest::prepared_content::AssetBackedPreparedContentProvider;
 use ind_persistence::repos::{
-    PgDocumentAssetRepository, PgDocumentRepository, PgMilaConfigRepository,
+    PgDocumentAssetRepository, PgDocumentRepository,
 };
 use ind_test_support::{DocumentFactory, TestAppOptions, spawn_app, spawn_app_with_options};
 use reqwest::StatusCode;
@@ -266,7 +266,6 @@ async fn epub_upload_sanitizes_chapters_extracts_cover_and_rejects_type_mismatch
     let prepared = AssetBackedPreparedContentProvider::new(
         Arc::new(PgDocumentRepository::new(app.pool().clone())),
         Arc::new(PgDocumentAssetRepository::new(app.pool().clone())),
-        Arc::new(PgMilaConfigRepository::new(app.pool().clone())),
         Some(app.storage().await),
     )
     .load_for_document(document)

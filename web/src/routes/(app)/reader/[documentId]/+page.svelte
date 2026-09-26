@@ -87,25 +87,6 @@
 		return () => store.stop();
 	});
 
-	async function retryMilaAction() {
-		if (!aiFailure || aiRetryStatus === 'pending') return;
-		const retriedFailure = aiFailure;
-		const isCurrentFailure = () =>
-			aiFailure?.documentId === retriedFailure.documentId &&
-			aiFailure.action === retriedFailure.action &&
-			aiFailure.aiRunId === retriedFailure.aiRunId;
-		aiRetryStatus = 'pending';
-		try {
-			const { data, error } = await apiSdk.retryMilaDocumentAction({
-				path: { document_id: retriedFailure.documentId, action: retriedFailure.action }
-			});
-			if (!isCurrentFailure()) return;
-			if (error || !data?.queued) throw new Error('Retry was not accepted');
-			aiRetryStatus = 'queued';
-		} catch {
-			if (isCurrentFailure()) aiRetryStatus = 'error';
-		}
-	}
 	const tocEntries = $derived(
 		tocStore && tocStore.state.kind === 'ready' ? tocStore.state.entries : []
 	);
@@ -554,16 +535,6 @@
 		};
 	});
 </script>
-
-{#if aiFailure}
-		status={aiRetryStatus}
-		onRetry={() => void retryMilaAction()}
-		onDismiss={() => {
-			aiFailure = null;
-			aiRetryStatus = 'idle';
-		}}
-	/>
-{/if}
 
 {#if loading}
 	<ReaderLoadingState />

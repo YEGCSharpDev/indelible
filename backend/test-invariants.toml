@@ -191,30 +191,6 @@ test = "generic_job_envelope_deserializes_pre_task_193_payloads_without_dedupe_k
 rationale = "Queued envelopes written before dedupe keys existed must remain readable."
 
 [[invariants]]
-id = "dashscope-rate-limit-contract"
-risk = "external-contracts"
-owner_layer = "provider-adapter"
-path = "crates/ind-ai/src/tts/dashscope/tests/errors.rs"
-test = "provider_statuses_share_one_error_classification_contract"
-rationale = "DashScope throttling responses must preserve retry guidance for worker policy."
-
-[[invariants]]
-id = "unreal-synthesis-windowing"
-risk = "media-contract"
-owner_layer = "provider-adapter"
-path = "crates/ind-ai/src/tts/unreal/split.rs"
-test = "splitter_preserves_content_within_character_limits"
-rationale = "Unreal requests must remain within provider character limits without splitting an unbreakable token."
-
-[[invariants]]
-id = "unreal-timestamp-element-mapping"
-risk = "media-contract"
-owner_layer = "provider-adapter"
-path = "crates/ind-ai/src/tts/unreal/timestamps.rs"
-test = "timestamp_aliases_map_unicode_elements_and_offsets"
-rationale = "Provider timestamp aliases and character offsets must map correctly onto Unicode reader elements."
-
-[[invariants]]
 id = "search-cursor-stability"
 risk = "search-correctness"
 owner_layer = "persistence"
@@ -223,68 +199,12 @@ test = "cursor_pagination_does_not_repeat_boundary_when_scores_decay"
 rationale = "Durable search pagination must not repeat results as recency scores change."
 
 [[invariants]]
-id = "embedding-replacement-atomicity"
-risk = "ai-safety-correctness"
-owner_layer = "ai-application"
-path = "crates/ind-ai/src/embed/tests.rs"
-test = "later_provider_failure_leaves_vectors_untouched_and_retry_restarts_deterministically"
-rationale = "A partial provider failure must not replace the document's existing embeddings."
-
-[[invariants]]
-id = "chat-citation-sanitized-before-persist"
-risk = "ai-safety-correctness"
-owner_layer = "ai-application"
-path = "crates/ind-ai/src/chat/tests/scenarios.rs"
-test = "streamed_turn_strips_hallucinated_citations_before_persistence"
-rationale = "Model-generated source tokens must be normalized before the assistant turn is stored."
-
-[[invariants]]
-id = "chat-collection-dual-scope"
-risk = "search-correctness"
-owner_layer = "ai-application"
-path = "crates/ind-ai/src/chat/tests/scenarios.rs"
-test = "collection_fallbacks_emit_precise_warnings_and_keep_dual_scope"
-rationale = "Collection chat must query vector and FTS retrieval within the owning collection and report degraded retrieval."
-
-[[invariants]]
-id = "chat-cross-document-diversity"
-risk = "search-correctness"
-owner_layer = "ai-application"
-path = "crates/ind-ai/src/chat/tests/scenarios.rs"
-test = "cross_item_applies_document_diversity_after_fusion"
-rationale = "Cross-library answers must not let one document consume all retrieval slots."
-
-[[invariants]]
-id = "chat-unsectioned-epub-snippet"
-risk = "ai-context-correctness"
-owner_layer = "ai-application"
-path = "crates/ind-ai/src/chat/tests/scenarios.rs"
-test = "unsectioned_epub_fts_uses_hit_snippet_not_first_parent"
-rationale = "EPUB text without section metadata must still provide usable grounded context."
-
-[[invariants]]
 id = "recovery-terminal-dlq-once"
 risk = "retry-recovery"
 owner_layer = "persistence"
 path = "crates/ind-persistence/tests/background_job_recovery_repo_tests.rs"
 test = "mark_recovery_terminal_does_not_double_write_dlq"
 rationale = "Repeated terminal recovery handling must not duplicate dead-letter records."
-
-[[invariants]]
-id = "tts-no-charge-on-failure"
-risk = "quotas-billing"
-owner_layer = "integration"
-path = "crates/ind-ai/tests/tts_synthesis_journey.rs"
-test = "mark_ready_failure_rolls_back_real_rows_quota_storage_and_billing"
-rationale = "A failed final persistence step must release reserved quota and emit no charge."
-
-[[invariants]]
-id = "tts-element-timing-persistence"
-risk = "media-contract"
-owner_layer = "integration"
-path = "crates/ind-ai/tests/tts_synthesis_journey.rs"
-test = "real_synthesis_persists_timings_scopes_cache_and_repairs_zero_byte_assets"
-rationale = "Successful synthesis must persist the element timings returned to playback clients."
 
 [[invariants]]
 id = "worker-rate-limit-retry"
@@ -407,62 +327,6 @@ test = "obsidian_worker_smoke_preserves_summary_precedence_and_disambiguates_pat
 rationale = "Documents with identical generated titles must receive unique artifact paths."
 
 [[invariants]]
-id = "notion-managed-target-schema"
-risk = "external-contracts"
-owner_layer = "integration-adapter"
-path = "crates/ind-integrations/src/notion/config.rs"
-test = "managed_target_round_trip_requires_complete_property_ids"
-rationale = "A managed Notion target is usable only when every required property identifier survives configuration round-trip."
-
-[[invariants]]
-id = "notion-highlight-block-contract"
-risk = "export-correctness"
-owner_layer = "integration-adapter"
-path = "crates/ind-integrations/src/notion/blocks.rs"
-test = "highlight_layouts_preserve_cursor_location_note_and_tags"
-rationale = "Notion export must retain resumable highlight cursors and the selected location, note, and tag content."
-
-[[invariants]]
-id = "notion-required-property-types"
-risk = "external-contracts"
-owner_layer = "integration-adapter"
-path = "crates/ind-integrations/src/notion/schema.rs"
-test = "managed_schema_rejects_missing_and_wrong_property_types"
-rationale = "Provisioning must fail closed when Notion omits or changes a required managed property."
-
-[[invariants]]
-id = "vector-replacement-transaction"
-risk = "atomicity"
-owner_layer = "persistence"
-path = "crates/ind-persistence/tests/critical_security_search_tests.rs"
-test = "vector_replacement_is_atomic"
-rationale = "Replacing a document's vectors must preserve the old set when any new vector is invalid."
-
-[[invariants]]
-id = "vector-search-tenant-scope"
-risk = "tenant-isolation"
-owner_layer = "persistence"
-path = "crates/ind-persistence/tests/critical_security_search_tests.rs"
-test = "vector_search_enforces_tenant_visibility_and_embedding_identity"
-rationale = "Semantic retrieval must never return another user's vectors."
-
-[[invariants]]
-id = "vector-search-visibility"
-risk = "search-correctness"
-owner_layer = "persistence"
-path = "crates/ind-persistence/tests/critical_security_search_tests.rs"
-test = "vector_search_enforces_tenant_visibility_and_embedding_identity"
-rationale = "Deleted library entries and vectors from a stale embedding model must remain invisible."
-
-[[invariants]]
-id = "vector-distinct-document-count"
-risk = "quotas-billing"
-owner_layer = "persistence"
-path = "crates/ind-persistence/tests/critical_security_search_tests.rs"
-test = "vector_search_enforces_tenant_visibility_and_embedding_identity"
-rationale = "Vector quota accounting counts distinct tenant-owned documents rather than chunks."
-
-[[invariants]]
 id = "api-token-owner-scope"
 risk = "tenant-isolation"
 owner_layer = "persistence"
@@ -477,38 +341,6 @@ owner_layer = "persistence"
 path = "crates/ind-persistence/tests/critical_security_search_tests.rs"
 test = "api_token_mutations_are_owner_scoped_and_revocation_is_immediate"
 rationale = "Revocation must remove the token hash used by authentication immediately."
-
-[[invariants]]
-id = "tts-user-scoped-cache"
-risk = "tenant-isolation"
-owner_layer = "integration"
-path = "crates/ind-ai/tests/tts_synthesis_journey.rs"
-test = "real_synthesis_persists_timings_scopes_cache_and_repairs_zero_byte_assets"
-rationale = "Identical speech from different users must not share a cached audio record."
-
-[[invariants]]
-id = "tts-managed-quota-axes"
-risk = "quotas-billing"
-owner_layer = "integration"
-path = "crates/ind-ai/tests/tts_synthesis_journey.rs"
-test = "every_real_quota_axis_and_empty_audio_roll_back_all_durable_state"
-rationale = "Character, seconds, and cost-unit limits independently block synthesis without leaking reservations."
-
-[[invariants]]
-id = "tts-empty-audio-rollback"
-risk = "data-loss"
-owner_layer = "integration"
-path = "crates/ind-ai/tests/tts_synthesis_journey.rs"
-test = "every_real_quota_axis_and_empty_audio_roll_back_all_durable_state"
-rationale = "An empty provider response must not create cache, asset, timing, storage, or billing state."
-
-[[invariants]]
-id = "tts-zero-byte-cache-repair"
-risk = "data-loss"
-owner_layer = "integration"
-path = "crates/ind-ai/tests/tts_synthesis_journey.rs"
-test = "real_synthesis_persists_timings_scopes_cache_and_repairs_zero_byte_assets"
-rationale = "A ready cache row backed by a zero-byte asset must be removed and regenerated."
 
 [[invariants]]
 id = "search-parser-precedence"
@@ -671,14 +503,6 @@ test = "search_api_crosses_engine_cursor_suggestions_recent_and_tenant_boundarie
 rationale = "Search results and recent-search deletion must remain scoped to the authenticated user at the public API boundary."
 
 [[invariants]]
-id = "ai-action-production-boundary"
-risk = "ai-safety-correctness"
-owner_layer = "worker"
-path = "apps/ind-api/tests/api/ai_action_journey_tests.rs"
-test = "ai_actions_cross_http_worker_storage_and_persistence_boundaries"
-rationale = "Summary, tag, and entity jobs must cross the production HTTP, worker, storage, provider, persistence, and event boundaries while recording provider failures durably."
-
-[[invariants]]
 id = "renderer-production-capture-boundary"
 risk = "content-integrity"
 owner_layer = "renderer"
@@ -701,14 +525,6 @@ owner_layer = "worker"
 path = "apps/ind-worker/tests/auto_heal_journey_tests.rs"
 test = "auto_heal_leases_real_maintenance_and_repairs_missing_embeddings_once"
 rationale = "An immediate second auto-heal sweep must not enqueue a duplicate embedding repair while the maintenance task is not due."
-
-[[invariants]]
-id = "notion-managed-target-provider-contract"
-risk = "external-contract"
-owner_layer = "provider-adapter"
-path = "crates/ind-integrations/tests/notion_client_journey.rs"
-test = "notion_client_crosses_managed_target_page_block_and_rate_limit_contracts"
-rationale = "Notion export must reuse a valid managed target, repair only missing views, avoid duplicate pages, preserve required provider headers, append blocks, and surface retry timing from the live HTTP contract."
 
 [[invariants]]
 id = "realtime-event-stream-boundary"

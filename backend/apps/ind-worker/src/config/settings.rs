@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use super::{
     AutoHealSettings, CaptureWorkerSettings, EmailIngestWorkerSettings,
-    FeedRetentionCleanupSettings, FeedWorkerSettings, IntegrationsWorkerSettings, RelaySettings,
+    FeedRetentionCleanupSettings, FeedWorkerSettings, RelaySettings,
     TrashCleanupSettings, WorkerAuthSettings, WorkerRuntimeSettings, WorkerServerSettings,
     default_s3_force_path_style, default_s3_region,
 };
@@ -38,8 +38,6 @@ pub struct WorkerConfig {
     pub feed_retention_cleanup: FeedRetentionCleanupSettings,
     #[serde(default)]
     pub email_ingest: EmailIngestWorkerSettings,
-    #[serde(default)]
-    pub integrations: IntegrationsWorkerSettings,
     #[serde(default)]
     pub auth: WorkerAuthSettings,
     #[serde(default)]

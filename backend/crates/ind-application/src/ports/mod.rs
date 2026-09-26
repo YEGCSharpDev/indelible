@@ -38,7 +38,7 @@ pub use integration::{
     EmailAliasCreateError, EmailAliasOperations, EmailIngestOperations, EmailSenderOperations,
     EmailSenderUnsubscribeOutcome, ExportOperations, ImportOperations, ImportUpload,
     IntegrationAuthorizeStart, IntegrationOperations, IntegrationSyncEnqueued,
-    NotionRefreshEnqueued, ObsidianAckSubject, ObsidianRefreshRequest, ObsidianRunAck,
+    ObsidianAckSubject, ObsidianRefreshRequest, ObsidianRunAck,
     ObsidianRunCreate, ReadwiseImportUpload, WebhookOperations,
 };
 pub use opml_parser::{OpmlParseError, OpmlParser};

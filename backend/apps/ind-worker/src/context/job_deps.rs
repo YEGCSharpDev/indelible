@@ -30,7 +30,7 @@ use ind_integrations::email::InboundEmailProvider;
 use ind_search::SearchIndexer;
 use sqlx::PgPool;
 
-use super::{NotionJobDeps, WorkerContext};
+use super::WorkerContext;
 use crate::jobs::email_unsubscribe::OneClickPolicy;
 
 #[derive(Clone)]
@@ -89,7 +89,6 @@ pub struct FeedJobDeps {
 
 #[derive(Clone)]
 pub struct IntegrationJobDeps {
-    pub notion_job_deps: Option<Arc<NotionJobDeps>>,
     pub document_repo: Arc<dyn DocumentRepository>,
     pub document_asset_repo: Arc<dyn DocumentAssetRepository>,
     pub object_storage: Option<Arc<dyn ObjectStorage>>,
@@ -221,7 +220,6 @@ impl WorkerContext {
 
     pub fn integration_jobs(&self) -> IntegrationJobDeps {
         IntegrationJobDeps {
-            notion_job_deps: self.notion_job_deps.clone(),
             document_repo: self.document_repo.clone(),
             document_asset_repo: self.document_asset_repo.clone(),
             object_storage: self.object_storage.clone(),

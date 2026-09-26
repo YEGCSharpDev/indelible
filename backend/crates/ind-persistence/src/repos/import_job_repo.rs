@@ -98,7 +98,6 @@ impl TryFrom<ItemOutcomeRow> for ImportJobItem {
 fn parse_import_source(s: &str) -> Result<ImportSource, AppError> {
     match s {
         "readwise_import" => Ok(ImportSource::ReadwiseImport),
-        "notion_import" => Ok(ImportSource::NotionImport),
         other => Err(AppError::Domain(DomainError::InvariantViolation {
             message: format!("invalid import source: {other}"),
         })),

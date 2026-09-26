@@ -241,17 +241,7 @@ pub struct EgressSettings {
 }
 
 #[derive(Clone, Default, Deserialize)]
-pub struct IntegrationsSettings {
-    #[serde(default)]
-    pub notion: IntegrationNotionOAuthSettings,
-}
-
-#[derive(Clone, Default, Deserialize)]
-pub struct IntegrationNotionOAuthSettings {
-    pub client_id: Option<String>,
-    pub client_secret: Option<SecretString>,
-    pub redirect_url: Option<String>,
-}
+pub struct IntegrationsSettings {}
 
 fn default_oidc_provider_name() -> String {
     "OpenID Connect".to_string()

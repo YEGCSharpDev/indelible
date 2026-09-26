@@ -15,9 +15,9 @@ use ind_domain::{
 };
 use ind_integrations::IntegrationOperationsService;
 use ind_persistence::repos::{
-    PgAiOutputRepository, PgDocumentAssetRepository, PgDocumentRepository,
-    PgExportCursorRepository, PgIntegrationConnectionRepository, PgIntegrationOAuthTokenRepository,
-    PgJobOutboxRepository, PgMilaConfigRepository, PgOAuthFlowRepository,
+    PgDocumentAssetRepository, PgDocumentRepository,
+    PgIntegrationConnectionRepository, PgIntegrationOAuthTokenRepository,
+    PgJobOutboxRepository, PgOAuthFlowRepository,
     PgObsidianPreviewRepository,
 };
 use ind_test_support::factories::UserFactory;
@@ -53,11 +53,11 @@ impl RecordingAdapter {
 #[async_trait::async_trait]
 impl IntegrationOAuthProviderAdapter for RecordingAdapter {
     fn provider(&self) -> IntegrationOAuthProvider {
-        IntegrationOAuthProvider::Notion
+        IntegrationOAuthProvider::Custom
     }
 
     fn authorize_url(&self, _state: &str, _redirect_uri: &str) -> String {
-        "https://notion.example/authorize".into()
+        "https://custom.example/authorize".into()
     }
 
     async fn exchange_code(
@@ -118,7 +118,7 @@ async fn harness(
         PgIntegrationOAuthTokenRepository::new(pool.clone())
             .upsert(
                 user.id,
-                IntegrationOAuthProvider::Notion,
+                IntegrationOAuthProvider::Custom,
                 cipher.seal(b"tok-live"),
                 None,
                 None,
@@ -138,28 +138,23 @@ async fn harness(
     ));
 
     let export_summary = Arc::new(
-        ind_application::export_summary::StoredExportSummaryProvider::new()
-            PgAiOutputRepository::new(pool.clone()),
-        )),
+        ind_application::export_summary::StoredExportSummaryProvider::new(),
     );
     let prepared_content = Arc::new(ind_ingest::AssetBackedPreparedContentProvider::new(
         Arc::new(PgDocumentRepository::new(pool.clone())),
         Arc::new(PgDocumentAssetRepository::new(pool.clone())),
-        Arc::new(PgMilaConfigRepository::new(pool.clone())),
         None,
     ));
 
     let ops = IntegrationOperationsService::new(
         Arc::new(PgIntegrationConnectionRepository::new(pool.clone())),
         Arc::new(PgIntegrationOAuthTokenRepository::new(pool.clone())),
-        Arc::new(PgExportCursorRepository::new(pool.clone())),
         Arc::new(PgJobOutboxRepository::new(pool.clone())),
         export_summary,
         prepared_content,
         Arc::new(PgObsidianPreviewRepository::new(pool.clone())),
         oauth_service,
         with_cipher.then_some(cipher),
-        "https://api.notion.com".into(),
     );
 
     Harness {
@@ -193,7 +188,7 @@ async fn disconnect_revokes_the_upstream_grant_before_deleting_local_rows() {
     let h = harness(
         &db,
         RecordingAdapter::succeeding(),
-        IntegrationProvider::Notion,
+        IntegrationProvider::Custom,
         true,
         true,
     )
@@ -214,7 +209,7 @@ async fn disconnect_fails_and_keeps_local_rows_when_revocation_fails() {
     let h = harness(
         &db,
         RecordingAdapter::failing(),
-        IntegrationProvider::Notion,
+        IntegrationProvider::Custom,
         true,
         true,
     )
@@ -239,7 +234,7 @@ async fn disconnect_with_token_but_no_cipher_fails_and_keeps_local_rows() {
     let h = harness(
         &db,
         RecordingAdapter::succeeding(),
-        IntegrationProvider::Notion,
+        IntegrationProvider::Custom,
         true,
         false,
     )
@@ -260,7 +255,7 @@ async fn disconnect_without_token_row_deletes_local_connection() {
     let h = harness(
         &db,
         RecordingAdapter::succeeding(),
-        IntegrationProvider::Notion,
+        IntegrationProvider::Custom,
         false,
         true,
     )

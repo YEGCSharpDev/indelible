@@ -3,7 +3,6 @@
 	import IntegrationConnectionCard from '$lib/components/integrations/IntegrationConnectionCard.svelte';
 	import SettingsGroup from '$lib/components/settings/SettingsGroup.svelte';
 	import type { HubConnectionStatus, StoreLink, SyncState } from '../integrations-hub-model';
-	import { notionDatabaseLabel } from '../integrations-hub-model';
 	import EmailForwardingCard from './EmailForwardingCard.svelte';
 	import { t } from '$lib/i18n';
 	import { relativeTime } from '$lib/utils/relative-time';
@@ -16,19 +15,13 @@
 		copiedInbox: boolean;
 		copiedFeed: boolean;
 		extStore: StoreLink;
-		notionConnection: IntegrationConnectionDto | undefined;
 		obsidianConnection: IntegrationConnectionDto | undefined;
 		minifluxConnection: IntegrationConnectionDto | undefined;
-		notionStatus: HubConnectionStatus;
 		obsidianStatus: HubConnectionStatus;
 		minifluxStatus: HubConnectionStatus;
 		syncStateByConnection: Record<string, SyncState>;
 		syncErrorByConnection: Record<string, string>;
-		notionConnectError: string | null;
-		notionAvailable: boolean;
 		onCopyAddress: (address: string, which: 'inbox' | 'feed') => void;
-		onStartNotion: () => void;
-		onOpenNotion: () => void;
 		onOpenObsidian: () => void;
 		onOpenMiniflux: () => void;
 		onSync: (connectionId: string) => void;
@@ -43,19 +36,13 @@
 		copiedInbox,
 		copiedFeed,
 		extStore,
-		notionConnection,
 		obsidianConnection,
 		minifluxConnection,
-		notionStatus,
 		obsidianStatus,
 		minifluxStatus,
 		syncStateByConnection,
 		syncErrorByConnection,
-		notionConnectError,
-		notionAvailable,
 		onCopyAddress,
-		onStartNotion,
-		onOpenNotion,
 		onOpenObsidian,
 		onOpenMiniflux,
 		onSync,
@@ -164,77 +151,6 @@
 				</IntegrationConnectionCard>
 
 				<IntegrationConnectionCard
-					title="Notion"
-					tagline={$t('integrations_hub_notion_tagline')}
-					statusLabel={$t(notionStatus.labelKey)}
-					statusVariant={notionStatus.variant}
-					statusPulse={notionStatus.pulse}
-					statusCheck={notionStatus.check}
-					errorMessage={notionConnection?.last_error ??
-						(notionConnection ? syncErrorByConnection[notionConnection.id] : notionConnectError)}
-					testId="notion-connection-card"
-				>
-					{#snippet body()}
-						<div class="moment">
-							{#if notionConnection}
-								{@const dbLabel = notionDatabaseLabel(notionConnection)}
-								{#if dbLabel}<div class="moment-eyebrow">{dbLabel}</div>{/if}
-								{#if notionConnection.last_sync_at}
-									<div class="moment-stat">
-										{$t('integrations_hub_last_sync_time', {
-											values: { time: relativeTime(notionConnection.last_sync_at) ?? '' }
-										})}
-									</div>
-								{:else}
-									<div class="moment-muted">{$t('integrations_hub_no_sync_notion')}</div>
-								{/if}
-							{:else if notionAvailable}
-								<div class="moment-muted">
-									{$t('integrations_notion_empty_hint')}
-								</div>
-							{:else}
-								<div class="moment-muted">
-									{$t('integrations_notion_unavailable')}
-								</div>
-							{/if}
-						</div>
-					{/snippet}
-					{#snippet actions()}
-						{#if notionConnection}
-							<button type="button" class="btn ghost compact" onclick={onOpenNotion}
-								>{$t('integrations_hub_manage')}</button
-							>
-							<button
-								type="button"
-								class="btn ghost compact"
-								onclick={() => onSync(notionConnection.id)}
-								disabled={syncStateByConnection[notionConnection.id] === 'pending'}
-							>
-								{syncStateByConnection[notionConnection.id] === 'pending'
-									? $t('integrations_notion_syncing')
-									: $t('integrations_hub_force_resync')}
-							</button>
-							<button
-								type="button"
-								class="btn ghost compact danger"
-								onclick={() => onDisconnect(notionConnection)}
-							>
-								{$t('integrations_disconnect')}
-							</button>
-						{:else}
-							<button
-								type="button"
-								class="btn primary compact"
-								disabled={!notionAvailable}
-								onclick={onStartNotion}
-							>
-								{$t('integrations_notion_connect')}
-							</button>
-						{/if}
-					{/snippet}
-				</IntegrationConnectionCard>
-
-				<IntegrationConnectionCard
 					title="Obsidian"
 					tagline={$t('integrations_hub_obsidian_tagline')}
 					statusLabel={$t(obsidianStatus.labelKey)}
@@ -279,7 +195,7 @@
 
 				<IntegrationConnectionCard
 					title="Miniflux"
-					tagline="Sync reading state and articles"
+					tagline={$t('integrations_hub_miniflux_tagline')}
 					statusLabel={$t(minifluxStatus.labelKey)}
 					statusVariant={minifluxStatus.variant}
 					statusCheck={minifluxStatus.check}
@@ -294,10 +210,10 @@
 									})}
 								</div>
 							{:else if minifluxConnection}
-								<div class="moment-muted">Not synced yet</div>
+								<div class="moment-muted">{$t('integrations_hub_no_sync_miniflux')}</div>
 							{:else}
 								<div class="moment-muted">
-									Connect your Miniflux server
+									{$t('integrations_hub_miniflux_setup_hint')}
 								</div>
 							{/if}
 						</div>
@@ -306,7 +222,7 @@
 						<button type="button" class="btn ghost compact" onclick={onOpenMiniflux}>
 							{minifluxConnection
 								? $t('integrations_hub_manage')
-								: 'Connect'}
+								: $t('integrations_hub_connect_miniflux')}
 						</button>
 						{#if minifluxConnection}
 							<button
@@ -316,7 +232,7 @@
 								disabled={syncStateByConnection[minifluxConnection.id] === 'pending'}
 							>
 								{syncStateByConnection[minifluxConnection.id] === 'pending'
-									? 'Syncing...'
+									? $t('settings_miniflux_syncing')
 									: $t('integrations_hub_force_resync')}
 							</button>
 							<button
@@ -563,11 +479,6 @@
 		background: transparent;
 		color: var(--text-primary);
 		box-shadow: inset 0 0 0 0.5px var(--border-primary);
-	}
-
-	.btn.primary {
-		background: var(--int-ring-connected);
-		color: var(--text-on-color);
 	}
 
 	.btn.danger {

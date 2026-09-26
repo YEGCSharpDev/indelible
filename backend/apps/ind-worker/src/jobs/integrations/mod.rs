@@ -1,4 +1,3 @@
-pub mod notion;
 mod obsidian;
 mod readwise;
 mod miniflux;
@@ -9,9 +8,7 @@ use ind_domain::GenericJobEnvelope;
 use crate::context::IntegrationJobDeps;
 
 const HANDLED_JOB_TYPES: &[&str] = &[
-    "integration.notion.export_document",
     "integration.obsidian.sync_connection",
-    "integration.notion.sync_connection",
     "integration.miniflux.sync_connection",
     "integration.miniflux.push_read_state",
     "import.readwise",
@@ -39,40 +36,6 @@ pub async fn dispatch_envelope(
 
     let job_type = envelope.job_type.clone();
     match job_type.as_str() {
-        "integration.notion.export_document" => {
-            let Some(deps) = ctx.notion_job_deps.as_ref() else {
-                return Err(AppError::ExternalService {
-                    service: "notion".into(),
-                    message:
-                        "Notion export job received but Notion job dependencies are not configured"
-                            .into(),
-                });
-            };
-            let job: ind_domain::NotionExportDocumentJob = serde_json::from_value(envelope.payload)
-                .map_err(|e| AppError::ExternalService {
-                    service: "notion".into(),
-                    message: format!("invalid export_document payload: {e}"),
-                })?;
-            notion::handle_export_document(deps, job).await?;
-            Ok(Some(()))
-        }
-        "integration.notion.sync_connection" => {
-            let Some(deps) = ctx.notion_job_deps.as_ref() else {
-                return Err(AppError::ExternalService {
-                    service: "notion".into(),
-                    message:
-                        "Notion sync job received but Notion job dependencies are not configured"
-                            .into(),
-                });
-            };
-            let job: ind_domain::NotionSyncConnectionJob = serde_json::from_value(envelope.payload)
-                .map_err(|e| AppError::ExternalService {
-                    service: "notion".into(),
-                    message: format!("invalid sync_connection payload: {e}"),
-                })?;
-            notion::handle_sync_connection(deps, job).await?;
-            Ok(Some(()))
-        }
         "integration.obsidian.sync_connection" => {
             let job: ind_domain::ObsidianSyncConnectionJob =
                 serde_json::from_value(envelope.payload).map_err(|e| {

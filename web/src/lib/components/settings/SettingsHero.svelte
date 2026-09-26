@@ -6,7 +6,6 @@
 		| 'account'
 		| 'reading'
 		| 'integrations'
-		| 'notion'
 		| 'obsidian'
 		| 'miniflux'
 		| 'feed'
@@ -100,14 +99,6 @@
 		--hero-edge: var(--hero-integrations-edge);
 	}
 
-	.hero[data-variant='notion'] {
-		--hero-from: var(--hero-notion-from);
-		--hero-to: var(--hero-notion-to);
-		--hero-blob-a: var(--hero-notion-blob-a);
-		--hero-blob-b: var(--hero-notion-blob-b);
-		--hero-blob-c: transparent;
-		--hero-edge: var(--hero-notion-edge);
-	}
 
 	.hero[data-variant='obsidian'] {
 		--hero-from: var(--hero-obsidian-from);

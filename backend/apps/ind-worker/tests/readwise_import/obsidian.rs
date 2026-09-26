@@ -51,7 +51,6 @@ fn prepared_content_provider(s: &ReadwiseScenario) -> AssetBackedPreparedContent
     AssetBackedPreparedContentProvider::new(
         s.ctx.document_repo.clone(),
         s.ctx.document_asset_repo.clone(),
-        s.ctx.mila_config_repo.clone(),
         s.ctx.object_storage.clone(),
     )
 }

@@ -31,15 +31,6 @@ ALTER TABLE ONLY public.obsidian_export_refresh_queue
 ALTER TABLE ONLY public.obsidian_export_runs
     ADD CONSTRAINT obsidian_export_runs_pkey PRIMARY KEY (id);
 
-ALTER TABLE ONLY public.ai_outputs
-    ADD CONSTRAINT pk_ai_outputs PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.ai_prompt_presets
-    ADD CONSTRAINT pk_ai_prompt_presets PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.ai_runs
-    ADD CONSTRAINT pk_ai_runs PRIMARY KEY (id);
-
 ALTER TABLE ONLY public.api_tokens
     ADD CONSTRAINT pk_api_tokens PRIMARY KEY (id);
 
@@ -63,9 +54,6 @@ ALTER TABLE ONLY public.collection_entries
 
 ALTER TABLE ONLY public.collections
     ADD CONSTRAINT pk_collections PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.content_vectors
-    ADD CONSTRAINT pk_content_vectors PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.dead_letter_jobs
     ADD CONSTRAINT pk_dead_letter_jobs PRIMARY KEY (id);
@@ -166,23 +154,14 @@ ALTER TABLE ONLY public.lifecycle_actions
 ALTER TABLE ONLY public.maintenance_tasks
     ADD CONSTRAINT pk_maintenance_tasks PRIMARY KEY (task_name);
 
-ALTER TABLE ONLY public.mila_config
-    ADD CONSTRAINT pk_mila_config PRIMARY KEY (user_id);
-
-ALTER TABLE ONLY public.mila_messages
-    ADD CONSTRAINT pk_mila_messages PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.mila_sessions
-    ADD CONSTRAINT pk_mila_sessions PRIMARY KEY (id);
+ALTER TABLE ONLY public.miniflux_sync_map
+    ADD CONSTRAINT pk_miniflux_sync_map PRIMARY KEY (user_id, document_id);
 
 ALTER TABLE ONLY public.notification_preferences
     ADD CONSTRAINT pk_notification_preferences PRIMARY KEY (user_id);
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT pk_notifications PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.notion_export_item_selection
-    ADD CONSTRAINT pk_notion_export_item_selection PRIMARY KEY (connection_id, library_entry_id);
 
 ALTER TABLE ONLY public.oauth_identities
     ADD CONSTRAINT pk_oauth_identities PRIMARY KEY (id);
@@ -255,30 +234,6 @@ ALTER TABLE ONLY public.refresh_tokens
 
 ALTER TABLE ONLY public.search_index_state
     ADD CONSTRAINT search_index_state_pkey PRIMARY KEY (singleton);
-
-ALTER TABLE ONLY public.tts_audio_assets
-    ADD CONSTRAINT tts_audio_assets_chunk_record_id_key UNIQUE (chunk_record_id);
-
-ALTER TABLE ONLY public.tts_audio_assets
-    ADD CONSTRAINT tts_audio_assets_pkey PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.tts_chunks
-    ADD CONSTRAINT tts_chunks_pkey PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.tts_chunks
-    ADD CONSTRAINT tts_chunks_user_id_cache_key_key UNIQUE (user_id, cache_key);
-
-ALTER TABLE ONLY public.tts_element_timings
-    ADD CONSTRAINT tts_element_timings_pkey PRIMARY KEY (chunk_record_id, element_index);
-
-ALTER TABLE ONLY public.tts_session_chunks
-    ADD CONSTRAINT tts_session_chunks_pkey PRIMARY KEY (session_id, chunk_id);
-
-ALTER TABLE ONLY public.tts_sessions
-    ADD CONSTRAINT tts_sessions_pkey PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.tts_voice_personas
-    ADD CONSTRAINT tts_voice_personas_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.api_tokens
     ADD CONSTRAINT uq_api_tokens_token_hash UNIQUE (token_hash);
@@ -386,12 +341,6 @@ CREATE INDEX apalis_workers_last_seen_idx ON apalis.workers USING btree (last_se
 
 CREATE INDEX apalis_workers_worker_type_idx ON apalis.workers USING btree (worker_type);
 
-CREATE INDEX idx_ai_prompt_presets_user ON public.ai_prompt_presets USING btree (user_id);
-
-CREATE INDEX idx_ai_runs_document ON public.ai_runs USING btree (document_id) WHERE (document_id IS NOT NULL);
-
-CREATE INDEX idx_ai_runs_user ON public.ai_runs USING btree (user_id);
-
 CREATE INDEX idx_api_tokens_user ON public.api_tokens USING btree (user_id);
 
 CREATE INDEX idx_archive_assets_document ON public.archive_assets USING btree (document_id);
@@ -417,14 +366,6 @@ CREATE INDEX idx_collections_parent ON public.collections USING btree (parent_id
 CREATE INDEX idx_collections_user ON public.collections USING btree (user_id);
 
 CREATE INDEX idx_collections_user_pinned ON public.collections USING btree (user_id, is_pinned) WHERE (is_pinned = true);
-
-CREATE INDEX idx_content_vectors_embedding ON public.content_vectors USING hnsw (embedding public.vector_cosine_ops);
-
-CREATE INDEX idx_content_vectors_user ON public.content_vectors USING btree (user_id);
-
-CREATE INDEX idx_content_vectors_user_content_tsv ON public.content_vectors USING gin (user_id, content_tsv) WITH (fastupdate='on', gin_pending_list_limit='4096');
-
-CREATE INDEX idx_content_vectors_user_embedding_identity ON public.content_vectors USING btree (user_id, embedding_model, embedding_dim, document_id);
 
 CREATE INDEX idx_dead_letter_jobs_unresolved ON public.dead_letter_jobs USING btree (failed_at DESC, id DESC) WHERE (replayed_at IS NULL);
 
@@ -526,19 +467,9 @@ CREATE INDEX idx_lifecycle_actions_user ON public.lifecycle_actions USING btree 
 
 CREATE INDEX idx_maintenance_tasks_due ON public.maintenance_tasks USING btree (next_run_at, task_name) WHERE (lease_owner IS NULL);
 
-CREATE INDEX idx_mila_messages_session ON public.mila_messages USING btree (session_id, created_at);
-
-CREATE INDEX idx_mila_sessions_collection ON public.mila_sessions USING btree (collection_id);
-
-CREATE INDEX idx_mila_sessions_user ON public.mila_sessions USING btree (user_id);
-
-CREATE INDEX idx_mila_sessions_user_document ON public.mila_sessions USING btree (user_id, document_id) WHERE (document_id IS NOT NULL);
-
 CREATE INDEX idx_notifications_user ON public.notifications USING btree (user_id, created_at DESC);
 
 CREATE INDEX idx_notifications_user_unread ON public.notifications USING btree (user_id, read_at) WHERE (read_at IS NULL);
-
-CREATE INDEX idx_notion_export_item_selection_selected ON public.notion_export_item_selection USING btree (connection_id, selected, library_entry_id);
 
 CREATE INDEX idx_oauth_flows_expires ON public.oauth_flows USING btree (expires_at);
 
@@ -582,14 +513,6 @@ CREATE INDEX idx_tags_parent ON public.tags USING btree (parent_id);
 
 CREATE INDEX idx_tags_user ON public.tags USING btree (user_id);
 
-CREATE INDEX idx_tts_chunks_document ON public.tts_chunks USING btree (user_id, document_id);
-
-CREATE INDEX idx_tts_sessions_user_document ON public.tts_sessions USING btree (user_id, document_id);
-
-CREATE INDEX idx_tts_voice_personas_builtin ON public.tts_voice_personas USING btree (is_builtin) WHERE (is_builtin = true);
-
-CREATE INDEX idx_tts_voice_personas_user ON public.tts_voice_personas USING btree (user_id);
-
 CREATE INDEX idx_usage_counters_user ON public.usage_counters USING btree (user_id);
 
 CREATE UNIQUE INDEX idx_users_email_token ON public.users USING btree (email_token);
@@ -604,13 +527,9 @@ CREATE INDEX idx_webhook_endpoints_user ON public.webhook_endpoints USING btree 
 
 CREATE INDEX idx_webhook_projector_scan ON public.domain_events USING btree (created_at, id);
 
-CREATE UNIQUE INDEX uq_ai_outputs_document_type ON public.ai_outputs USING btree (document_id, output_type) WHERE (document_id IS NOT NULL);
-
 CREATE UNIQUE INDEX uq_archive_assets_document_kind ON public.archive_assets USING btree (document_id, asset_kind) WHERE (document_id IS NOT NULL);
 
 CREATE UNIQUE INDEX uq_collections_id_user ON public.collections USING btree (id, user_id);
-
-CREATE UNIQUE INDEX uq_content_vectors_document_section_chunk ON public.content_vectors USING btree (document_id, section_key, chunk_index) WHERE (document_id IS NOT NULL);
 
 CREATE UNIQUE INDEX uq_documents_user_canonical_url ON public.documents USING btree (user_id, canonical_url) WHERE (canonical_url IS NOT NULL);
 
@@ -657,9 +576,6 @@ ALTER TABLE ONLY public.billing_usage_events
     ADD CONSTRAINT billing_usage_events_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.document_playback_states
-    ADD CONSTRAINT document_playback_states_tts_voice_persona_id_fkey FOREIGN KEY (tts_voice_persona_id) REFERENCES public.tts_voice_personas(id) ON DELETE SET NULL;
-
-ALTER TABLE ONLY public.document_playback_states
     ADD CONSTRAINT document_playback_states_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.email_ingest_log
@@ -670,21 +586,6 @@ ALTER TABLE ONLY public.entity_aliases
 
 ALTER TABLE ONLY public.entity_aliases
     ADD CONSTRAINT entity_aliases_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.ai_outputs
-    ADD CONSTRAINT fk_ai_outputs_document FOREIGN KEY (document_id) REFERENCES public.documents(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.ai_outputs
-    ADD CONSTRAINT fk_ai_outputs_run FOREIGN KEY (ai_run_id) REFERENCES public.ai_runs(id) ON DELETE SET NULL;
-
-ALTER TABLE ONLY public.ai_prompt_presets
-    ADD CONSTRAINT fk_ai_prompt_presets_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.ai_runs
-    ADD CONSTRAINT fk_ai_runs_document FOREIGN KEY (document_id) REFERENCES public.documents(id) ON DELETE SET NULL;
-
-ALTER TABLE ONLY public.ai_runs
-    ADD CONSTRAINT fk_ai_runs_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.api_tokens
     ADD CONSTRAINT fk_api_tokens_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
@@ -720,11 +621,6 @@ ALTER TABLE ONLY public.collections
 ALTER TABLE ONLY public.collections
     ADD CONSTRAINT fk_collections_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY public.content_vectors
-    ADD CONSTRAINT fk_content_vectors_document FOREIGN KEY (document_id, user_id) REFERENCES public.documents(id, user_id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.content_vectors
-    ADD CONSTRAINT fk_content_vectors_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.dead_letter_jobs
     ADD CONSTRAINT fk_dead_letter_jobs_replay_outbox FOREIGN KEY (replay_outbox_id) REFERENCES public.job_outbox(id);
@@ -861,20 +757,11 @@ ALTER TABLE ONLY public.library_entry_tags
 ALTER TABLE ONLY public.lifecycle_actions
     ADD CONSTRAINT fk_lifecycle_actions_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY public.mila_config
-    ADD CONSTRAINT fk_mila_config_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.miniflux_sync_map
+    ADD CONSTRAINT fk_miniflux_sync_map_document FOREIGN KEY (document_id, user_id) REFERENCES public.documents(id, user_id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY public.mila_messages
-    ADD CONSTRAINT fk_mila_messages_session FOREIGN KEY (session_id) REFERENCES public.mila_sessions(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.mila_sessions
-    ADD CONSTRAINT fk_mila_sessions_collection FOREIGN KEY (collection_id) REFERENCES public.collections(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.mila_sessions
-    ADD CONSTRAINT fk_mila_sessions_document FOREIGN KEY (document_id) REFERENCES public.documents(id) ON DELETE SET NULL;
-
-ALTER TABLE ONLY public.mila_sessions
-    ADD CONSTRAINT fk_mila_sessions_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.miniflux_sync_map
+    ADD CONSTRAINT fk_miniflux_sync_map_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.notification_preferences
     ADD CONSTRAINT fk_notification_preferences_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
@@ -882,11 +769,6 @@ ALTER TABLE ONLY public.notification_preferences
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY public.notion_export_item_selection
-    ADD CONSTRAINT fk_notion_export_item_selection_connection FOREIGN KEY (connection_id) REFERENCES public.integration_connections(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.notion_export_item_selection
-    ADD CONSTRAINT fk_notion_export_item_selection_library_entry FOREIGN KEY (library_entry_id) REFERENCES public.library_entries(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.oauth_identities
     ADD CONSTRAINT fk_oauth_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
@@ -939,11 +821,6 @@ ALTER TABLE ONLY public.tags
 ALTER TABLE ONLY public.tags
     ADD CONSTRAINT fk_tags_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY public.tts_chunks
-    ADD CONSTRAINT fk_tts_chunks_document FOREIGN KEY (document_id, user_id) REFERENCES public.documents(id, user_id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.tts_sessions
-    ADD CONSTRAINT fk_tts_sessions_document FOREIGN KEY (document_id, user_id) REFERENCES public.documents(id, user_id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.user_document_state
     ADD CONSTRAINT fk_uds_document FOREIGN KEY (document_id, user_id) REFERENCES public.documents(id, user_id) ON DELETE CASCADE;
@@ -1008,32 +885,3 @@ ALTER TABLE ONLY public.refresh_tokens
 ALTER TABLE ONLY public.refresh_tokens
     ADD CONSTRAINT refresh_tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY public.tts_audio_assets
-    ADD CONSTRAINT tts_audio_assets_chunk_record_id_fkey FOREIGN KEY (chunk_record_id) REFERENCES public.tts_chunks(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.tts_audio_assets
-    ADD CONSTRAINT tts_audio_assets_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.tts_chunks
-    ADD CONSTRAINT tts_chunks_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.tts_chunks
-    ADD CONSTRAINT tts_chunks_voice_persona_id_fkey FOREIGN KEY (voice_persona_id) REFERENCES public.tts_voice_personas(id) ON DELETE SET NULL;
-
-ALTER TABLE ONLY public.tts_element_timings
-    ADD CONSTRAINT tts_element_timings_chunk_record_id_fkey FOREIGN KEY (chunk_record_id) REFERENCES public.tts_chunks(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.tts_session_chunks
-    ADD CONSTRAINT tts_session_chunks_chunk_record_id_fkey FOREIGN KEY (chunk_record_id) REFERENCES public.tts_chunks(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.tts_session_chunks
-    ADD CONSTRAINT tts_session_chunks_session_id_fkey FOREIGN KEY (session_id) REFERENCES public.tts_sessions(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.tts_sessions
-    ADD CONSTRAINT tts_sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.tts_sessions
-    ADD CONSTRAINT tts_sessions_voice_persona_id_fkey FOREIGN KEY (voice_persona_id) REFERENCES public.tts_voice_personas(id) ON DELETE SET NULL;
-
-ALTER TABLE ONLY public.tts_voice_personas
-    ADD CONSTRAINT tts_voice_personas_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;

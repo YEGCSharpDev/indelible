@@ -44,6 +44,8 @@ export function toPlaceholderEntry(result: SearchResultResponse): DocumentListEn
 		triage_state: 'later',
 		is_favorite: false,
 		is_shortlisted: false,
+		finished_at: null,
+		max_progress_percent: null,
 		source: 'document'
 	};
 }

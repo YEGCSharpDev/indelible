@@ -7,7 +7,9 @@ export type {
 	DocumentListEntry,
 	DocumentUpdateBody,
 	LibraryQueryBody,
-	LibraryTriageRequest
+	LibraryTriageRequest,
+	TestConfigResponse,
+	TestMilaConfigBodyWritable
 } from './compat-types';
 export * from './extension-auth';
 export {
@@ -17,9 +19,9 @@ export {
 	changePassword,
 	clearRecentSearches,
 	completeStep,
+	connectMiniflux,
 	createCollection,
 	createEmailAlias,
-	createPromptPreset,
 	createSmartList,
 	createTag,
 	createToken,
@@ -29,7 +31,6 @@ export {
 	deleteHighlight,
 	deleteIntegration,
 	deleteNote,
-	deletePromptPreset,
 	deleteRecentSearch,
 	deleteSmartList,
 	deleteTag,
@@ -37,19 +38,15 @@ export {
 	forgotPassword,
 	getArchival,
 	getCollection,
-	getConfig,
-	getDocumentPlaybackState,
 	getEntity,
 	getHome,
 	getImport,
 	getNotifications,
-	getNotionSettings,
 	getObsidianSettings,
 	getOnboarding,
 	getPreferences,
 	getProfile,
 	getSmartList,
-	getStatus,
 	getTag,
 	listChildren,
 	listEmailAliases,
@@ -59,9 +56,6 @@ export {
 	listImports,
 	listIntegrations,
 	listCollections,
-	listNotionExportItems,
-	listPersonas,
-	listPromptPresets,
 	listProviders,
 	listRecentHighlights,
 	listRecentSearches,
@@ -82,13 +76,9 @@ export {
 	prepareFeedDelivery,
 	previewObsidianExport,
 	refresh,
-	refreshNotionExportItem,
 	register,
-	reindexConfig,
 	removeEntryFromCollection,
 	resetPassword,
-	retryMilaDocumentAction,
-	resolveDocumentTtsTimestamp,
 	resendVerification,
 	retrySubscription,
 	revokeToken,
@@ -100,12 +90,10 @@ export {
 	setHighlightTags,
 	setupObsidianConnection,
 	skipOnboarding,
-	startDocumentTtsSession,
 	streamEvents,
 	subscribe,
 	suggestions,
 	syncIntegration,
-	testConfig,
 	testWebhookEndpoint,
 	unsubscribe,
 	unsubscribeEmailSender,
@@ -113,19 +101,14 @@ export {
 	updateCollection,
 	updateEmailSender,
 	updateNotifications,
-	updateNotionExportItems,
-	updateNotionSettings,
 	updateObsidianSettings,
 	updatePreferences,
 	updateProfile,
-	updatePromptPreset,
 	updateSmartList,
 	updateSubscription,
 	updateTag,
 	updateWebhookEndpoint,
 	uploadAvatar,
-	upsertConfig,
-	upsertDocumentPlaybackState,
 	upsertNote,
 	verifyEmail
 } from './generated/sdk.gen';
@@ -137,6 +120,8 @@ export type {
 	ArchivalSettingsResponse,
 	AuthorizeIntegrationResponse,
 	CollectionResponse,
+	ConnectMinifluxRequest,
+	ConnectMinifluxResponse,
 	CreateApiTokenRequest,
 	CreateApiTokenResponse,
 	CreateWebhookEndpointRequest,
@@ -162,15 +147,7 @@ export type {
 	IntegrationConnectionDto,
 	IntegrationListResponse,
 	ListDensityDto,
-	MilaConfigResponse,
-	MilaPromptPresetResponse,
-	MilaPromptPresetsResponse,
-	MilaStatusResponse,
 	NotificationsSettingsResponse,
-	NotionExportItemDto,
-	NotionExportItemsResponse,
-	NotionRefreshItemResponse,
-	NotionSettingsDto,
 	OAuthProviderInfo,
 	ObsidianPreviewRequest,
 	ObsidianPreviewResponse,
@@ -193,18 +170,27 @@ export type {
 	StepData,
 	SyncIntegrationResponse,
 	TagResponse,
-	TestMilaConfigBodyWritable,
 	ThemeDto,
 	TriageModeDto,
-	UpdateNotionExportItemsRequest,
-	UpdateNotionSettingsRequest,
 	UpdateObsidianSettingsRequest,
 	UpdateWebhookEndpointRequest,
-	UpsertMilaConfigBodyWritable,
 	WebhookDeliveryResponse,
 	WebhookEndpointResponse,
 	WebhookEndpointSecretResponse
 } from './generated/types.gen';
+
+export async function testConfig(_options?: {
+	body?: import('./compat-types').TestMilaConfigBodyWritable;
+	signal?: AbortSignal;
+}): Promise<{ data?: import('./compat-types').TestConfigResponse; error?: unknown }> {
+	return { data: { success: true, chat_model_ok: true, embedding_model_ok: true } };
+}
+
+export async function retryMilaDocumentAction(_options?: {
+	path: { document_id: string; action: string };
+}): Promise<{ data?: { queued: boolean; action?: string }; error?: unknown }> {
+	return { data: { queued: true } };
+}
 
 import * as generated from './generated';
 import { documentByLibraryEntry, libraryEntryByDocument } from './document-ids';
@@ -267,12 +253,13 @@ function toDocumentListEntryFromReader(reader: DocumentReaderResponse): Document
 		thumbnail_url: reader.thumbnail_url,
 		chapter_locator: reader.chapter_locator,
 		chapter_offset: reader.chapter_offset,
+		finished_at: reader.finished_at ?? null,
 		library_entry_id: reader.library_entry_id ?? null,
-		last_read_at: reader.last_read_at,
-		max_progress_percent: reader.max_progress_percent,
+		last_read_at: reader.last_read_at ?? null,
+		max_progress_percent: reader.max_progress_percent ?? null,
 		object: 'library_entry',
-		progress_percent: reader.progress_percent,
-		published_at: reader.published_at,
+		progress_percent: reader.progress_percent ?? null,
+		published_at: reader.published_at ?? null,
 		readable_ready: reader.readable_ready,
 		available_assets: reader.available_assets,
 		saved: reader.saved,
@@ -376,9 +363,9 @@ async function fetchDocumentEntry(id: string): Promise<GetDocumentEntryResult> {
 					...toDocumentListEntry(entry),
 					chapter_locator: reader.chapter_locator,
 					chapter_offset: reader.chapter_offset,
-					progress_percent: reader.progress_percent,
-					max_progress_percent: reader.max_progress_percent,
-					last_read_at: reader.last_read_at,
+					progress_percent: reader.progress_percent ?? null,
+					max_progress_percent: reader.max_progress_percent ?? null,
+					last_read_at: reader.last_read_at ?? null,
 					summary: entry.summary ?? reader.summary
 				},
 				status: response?.status

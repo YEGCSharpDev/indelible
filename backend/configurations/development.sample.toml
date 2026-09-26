@@ -79,16 +79,6 @@ api_key              = "replace-with-unreal-speech-api-key"
 api_base             = "https://api.v8.unrealspeech.com"
 transcript_supported = true
 
-# ---------------------------------------------------------------------------
-# Integration OAuth credentials
-# ---------------------------------------------------------------------------
-
-[integrations.notion]
-# Obtain from https://www.notion.so/my-integrations — create a Public integration.
-# Set the redirect URI in Notion to: http://localhost:38473/api/v1/integrations/notion/callback
-client_id     = ""
-client_secret = ""  # stored as SecretString; never logged
-redirect_url  = "http://localhost:38473/api/v1/integrations/notion/callback"
 
 # ---------------------------------------------------------------------------
 # ind-renderer: S3 credentials (Silo or compatible)

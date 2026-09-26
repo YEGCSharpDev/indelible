@@ -2,7 +2,6 @@ pub mod dto;
 
 mod auth;
 mod connections;
-mod notion;
 mod obsidian;
 mod miniflux;
 
@@ -22,20 +21,12 @@ pub use connections::{
 };
 pub use dto::{
     AuthorizeIntegrationRequest, AuthorizeIntegrationResponse, CallbackQuery,
-    IntegrationConnectionDto, IntegrationListResponse, ListNotionExportItemsQuery,
-    NotionExportItemSelectionDto, NotionExportItemsResponse, NotionRefreshItemResponse,
-    NotionSettingsDto, ObsidianPreviewRequest, ObsidianPreviewResponse, ObsidianSettingsDto,
-    SyncIntegrationResponse, UpdateNotionExportItemsRequest, UpdateNotionSettingsRequest,
+    IntegrationConnectionDto, IntegrationListResponse, ObsidianPreviewRequest,
+    ObsidianPreviewResponse, ObsidianSettingsDto, SyncIntegrationResponse,
     UpdateObsidianSettingsRequest,
 };
 pub use miniflux::{
     __path_connect_miniflux, connect_miniflux, ConnectMinifluxRequest,
-};
-pub use notion::{
-    __path_get_notion_settings, __path_list_notion_export_items, __path_refresh_notion_export_item,
-    __path_update_notion_export_items, __path_update_notion_settings, get_notion_settings,
-    list_notion_export_items, refresh_notion_export_item, update_notion_export_items,
-    update_notion_settings,
 };
 pub use obsidian::{
     __path_get_obsidian_settings, __path_preview_obsidian_export, __path_setup_obsidian_connection,
@@ -56,18 +47,6 @@ pub fn integration_routes(_rate_limiters: RateLimiters) -> Router<AppState> {
         )
         .route("/api/v1/integrations/{id}", delete(delete_integration))
         .route("/api/v1/integrations/{id}/sync", post(sync_integration))
-        .route(
-            "/api/v1/integrations/{id}/notion/settings",
-            get(get_notion_settings).patch(update_notion_settings),
-        )
-        .route(
-            "/api/v1/integrations/{id}/notion/export-entries",
-            get(list_notion_export_items).patch(update_notion_export_items),
-        )
-        .route(
-            "/api/v1/integrations/{id}/notion/export-entries/{library_entry_id}/refresh",
-            post(refresh_notion_export_item),
-        )
         .route(
             "/api/v1/integrations/{id}/obsidian/settings",
             get(get_obsidian_settings).patch(update_obsidian_settings),

@@ -39,31 +39,6 @@ pub struct WorkerAuthSettings {
     pub credential_key: Option<SecretString>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize)]
-pub struct IntegrationsWorkerSettings {
-    #[serde(default)]
-    pub notion: NotionWorkerSettings,
-}
-
-#[derive(Clone, Debug, Deserialize)]
-pub struct NotionWorkerSettings {
-    pub catch_up_enabled: bool,
-    pub catch_up_interval_secs: u64,
-    pub export_max_concurrency: usize,
-    pub sync_max_concurrency: usize,
-}
-
-impl Default for NotionWorkerSettings {
-    fn default() -> Self {
-        Self {
-            catch_up_enabled: true,
-            catch_up_interval_secs: 86_400,
-            export_max_concurrency: 2,
-            sync_max_concurrency: 1,
-        }
-    }
-}
-
 #[derive(Clone, Debug, Deserialize, Default)]
 pub struct EmailIngestWorkerSettings {
     pub provider: Option<String>,
@@ -231,28 +206,6 @@ impl WorkerConfig {
                 "feed_retention_cleanup.compact_orphaned_source_entries",
                 false,
             )?
-            .set_default("integrations.notion.catch_up_enabled", true)?
-            .set_default("integrations.notion.catch_up_interval_secs", 86_400_i64)?
-            .set_default("integrations.notion.export_max_concurrency", 2_i64)?
-            .set_default("integrations.notion.sync_max_concurrency", 1_i64)?
-            .set_default("mila.enabled", false)?
-            .set_default("mila.chat_api_base", "https://api.openai.com/v1")?
-            .set_default("mila.chat_model", "gpt-4.1-mini")?
-            .set_default("mila.embedding_api_base", "https://api.openai.com/v1")?
-            .set_default("mila.embedding_model", "text-embedding-3-small")?
-            .set_default("mila.embedding_dim", 768_i64)?
-            .set_default("mila.model_context_window", 12000_i64)?
-            .set_default("mila.summary_max_output_tokens", 1024_i64)?
-            .set_default("mila.tags_max_output_tokens", 1024_i64)?
-            .set_default("mila.entities_max_output_tokens", 2000_i64)?
-            .set_default("mila.chat_max_output_tokens", 1024_i64)?
-            .set_default("mila.chunk_size", 512_i64)?
-            .set_default("mila.chunk_overlap", 64_i64)?
-            .set_default("mila.top_k", 6_i64)?
-            .set_default("mila.cross_item_top_k", 20_i64)?
-            .set_default("mila.cross_item_max_per_item", 3_i64)?
-            .set_default("mila.supports_structured_output", true)?
-            .set_default("mila.supports_reasoning_effort", false)?
             // TOML config files (optional; env-specific overlays base)
             .add_source(File::new("configurations/base.toml", FileFormat::Toml).required(false))
             .add_source(
@@ -406,79 +359,12 @@ impl WorkerConfig {
                 "feed_retention_cleanup.compact_orphaned_source_entries",
                 parse_bool(env, "FEED_RETENTION_COMPACT_ORPHANED_SOURCE_ENTRIES"),
             )?
-            .set_override_option("mila.enabled", parse_bool(env, "MILA_ENABLED"))?
-            .set_override_option("mila.chat_api_base", env.get("MILA_CHAT_API_BASE"))?
-            .set_override_option("mila.chat_model", env.get("MILA_CHAT_MODEL"))?
-            .set_override_option(
-                "mila.embedding_api_base",
-                env.get("MILA_EMBEDDING_API_BASE"),
-            )?
-            .set_override_option("mila.embedding_model", env.get("MILA_EMBEDDING_MODEL"))?
-            .set_override_option(
-                "mila.model_context_window",
-                parse_i64(env, "MILA_MODEL_CONTEXT_WINDOW"),
-            )?
-            .set_override_option(
-                "mila.summary_max_output_tokens",
-                parse_i64(env, "MILA_SUMMARY_MAX_OUTPUT_TOKENS"),
-            )?
-            .set_override_option(
-                "mila.tags_max_output_tokens",
-                parse_i64(env, "MILA_TAGS_MAX_OUTPUT_TOKENS"),
-            )?
-            .set_override_option(
-                "mila.entities_max_output_tokens",
-                parse_i64(env, "MILA_ENTITIES_MAX_OUTPUT_TOKENS"),
-            )?
-            .set_override_option(
-                "mila.chat_max_output_tokens",
-                parse_i64(env, "MILA_CHAT_MAX_OUTPUT_TOKENS"),
-            )?
-            .set_override_option(
-                "mila.chat_context_pct",
-                parse_i64(env, "MILA_CHAT_CONTEXT_PCT"),
-            )?
-            .set_override_option("mila.chunk_size", parse_i64(env, "MILA_CHUNK_SIZE"))?
-            .set_override_option("mila.chunk_overlap", parse_i64(env, "MILA_CHUNK_OVERLAP"))?
-            .set_override_option("mila.top_k", parse_i64(env, "MILA_TOP_K"))?
-            .set_override_option(
-                "mila.cross_item_top_k",
-                parse_i64(env, "MILA_CROSS_ITEM_TOP_K"),
-            )?
-            .set_override_option(
-                "mila.cross_item_max_per_item",
-                parse_i64(env, "MILA_CROSS_ITEM_MAX_PER_ITEM"),
-            )?
-            .set_override_option(
-                "mila.supports_structured_output",
-                parse_bool(env, "MILA_SUPPORTS_STRUCTURED_OUTPUT"),
-            )?
-            .set_override_option(
-                "mila.supports_reasoning_effort",
-                parse_bool(env, "MILA_SUPPORTS_REASONING_EFFORT"),
-            )?
             .set_override_option("email_ingest.provider", env.get("EMAIL_INGEST_PROVIDER"))?
             .set_override_option(
                 "email_ingest.webhook_secret",
                 env.get("EMAIL_INGEST_WEBHOOK_SECRET"),
             )?
             .set_override_option("email_ingest.resend_api_key", env.get("RESEND_API_KEY"))?
-            .set_override_option(
-                "integrations.notion.catch_up_enabled",
-                parse_bool(env, "NOTION_CATCH_UP_ENABLED"),
-            )?
-            .set_override_option(
-                "integrations.notion.catch_up_interval_secs",
-                parse_i64(env, "NOTION_CATCH_UP_INTERVAL_SECS"),
-            )?
-            .set_override_option(
-                "integrations.notion.export_max_concurrency",
-                parse_i64(env, "NOTION_EXPORT_MAX_CONCURRENCY"),
-            )?
-            .set_override_option(
-                "integrations.notion.sync_max_concurrency",
-                parse_i64(env, "NOTION_SYNC_MAX_CONCURRENCY"),
-            )?
             .set_override_option(
                 "egress.allow_private_targets",
                 parse_bool(env, "EGRESS_ALLOW_PRIVATE_TARGETS"),
@@ -498,14 +384,6 @@ impl WorkerConfig {
         validate_positive_usize("worker.max_concurrency", cfg.worker.max_concurrency)?;
         validate_positive_usize("worker.claim_buffer_size", cfg.worker.claim_buffer_size)?;
         validate_positive_usize("capture.max_concurrency", cfg.capture.max_concurrency)?;
-        validate_positive_usize(
-            "integrations.notion.export_max_concurrency",
-            cfg.integrations.notion.export_max_concurrency,
-        )?;
-        validate_positive_usize(
-            "integrations.notion.sync_max_concurrency",
-            cfg.integrations.notion.sync_max_concurrency,
-        )?;
 
         if cfg.auto_heal.enabled {
             validate_positive_u64("auto_heal.interval_secs", cfg.auto_heal.interval_secs)?;
