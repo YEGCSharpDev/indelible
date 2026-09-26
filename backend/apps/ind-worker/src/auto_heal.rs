@@ -144,7 +144,6 @@ pub enum IntegrityStatsLogSeverity {
 
 pub fn integrity_stats_log_severity(stats: &IntegrityStats) -> IntegrityStatsLogSeverity {
     if stats.documents_missing_search_rows > 0
-        || stats.documents_missing_vectors > 0
         || stats.failed_derived_assets > 0
         || stats.dead_letter_jobs > 0
     {
@@ -158,14 +157,12 @@ fn log_integrity_stats(stats: &IntegrityStats) {
     match integrity_stats_log_severity(stats) {
         IntegrityStatsLogSeverity::Info => tracing::info!(
             documents_missing_search_rows = stats.documents_missing_search_rows,
-            documents_missing_vectors = stats.documents_missing_vectors,
             failed_derived_assets = stats.failed_derived_assets,
             dead_letter_jobs = stats.dead_letter_jobs,
             "integrity stats sweep finished"
         ),
         IntegrityStatsLogSeverity::Warn => tracing::warn!(
             documents_missing_search_rows = stats.documents_missing_search_rows,
-            documents_missing_vectors = stats.documents_missing_vectors,
             failed_derived_assets = stats.failed_derived_assets,
             dead_letter_jobs = stats.dead_letter_jobs,
             "integrity stats sweep found issues"
