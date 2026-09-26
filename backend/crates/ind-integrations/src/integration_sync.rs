@@ -5,7 +5,7 @@ use ind_application::ports::IntegrationSyncEnqueued;
 use ind_application::repos::integration_connection::IntegrationConnectionRepository;
 use ind_application::repos::outbox::JobOutboxRepository;
 use ind_domain::{
-    DomainError, IntegrationConnectionId, IntegrationProvider, NotionSyncConnectionJob,
+    DomainError, IntegrationConnectionId, IntegrationProvider,
     ObsidianSyncConnectionJob, UserId, job_types,
 };
 
@@ -55,15 +55,6 @@ impl IntegrationSyncService {
                     run_id: None,
                 })
                 .expect("ObsidianSyncConnectionJob is serializable"),
-            ),
-            IntegrationProvider::Notion => (
-                job_types::INTEGRATION_NOTION_SYNC_CONNECTION,
-                serde_json::to_value(NotionSyncConnectionJob {
-                    connection_id: connection.id,
-                    user_id,
-                    requested_by_user: true,
-                })
-                .expect("NotionSyncConnectionJob is serializable"),
             ),
             IntegrationProvider::Miniflux => (
                 job_types::INTEGRATION_MINIFLUX_SYNC_CONNECTION,

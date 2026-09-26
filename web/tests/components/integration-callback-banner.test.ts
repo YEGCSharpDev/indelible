@@ -13,35 +13,19 @@ describe('IntegrationCallbackBanner', () => {
 	it('renders the success state with the provider display name', () => {
 		render(IntegrationCallbackBanner, {
 			props: {
-				callback: { kind: 'success', provider: 'notion' },
+				callback: { kind: 'success', provider: 'obsidian' },
 				onDismiss: () => {}
 			}
 		});
 		const banner = screen.getByTestId('integration-callback-banner');
 		expect(banner.dataset.kind).toBe('success');
-		expect(screen.getByText(/Notion connected/)).toBeTruthy();
-	});
-
-	it('shows the Notion CTA on success and fires onAction', async () => {
-		const onAction = vi.fn();
-		render(IntegrationCallbackBanner, {
-			props: {
-				callback: { kind: 'success', provider: 'notion' },
-				onDismiss: () => {},
-				onAction
-			}
-		});
-		await fireEvent.click(screen.getByText('Open Notion settings'));
-		expect(onAction).toHaveBeenCalledWith({
-			kind: 'success',
-			provider: 'notion'
-		});
+		expect(screen.getByText(/Obsidian connected/)).toBeTruthy();
 	});
 
 	it('renders the denied state with cancellation copy', () => {
 		render(IntegrationCallbackBanner, {
 			props: {
-				callback: { kind: 'denied', provider: 'notion' },
+				callback: { kind: 'denied', provider: 'obsidian' },
 				onDismiss: () => {}
 			}
 		});
@@ -52,7 +36,7 @@ describe('IntegrationCallbackBanner', () => {
 	it('renders the provider_error state', () => {
 		render(IntegrationCallbackBanner, {
 			props: {
-				callback: { kind: 'provider_error', provider: 'notion' },
+				callback: { kind: 'provider_error', provider: 'obsidian' },
 				onDismiss: () => {}
 			}
 		});
@@ -62,7 +46,7 @@ describe('IntegrationCallbackBanner', () => {
 	it('renders the server_error state', () => {
 		render(IntegrationCallbackBanner, {
 			props: {
-				callback: { kind: 'server_error', provider: 'notion' },
+				callback: { kind: 'server_error', provider: 'obsidian' },
 				onDismiss: () => {}
 			}
 		});
@@ -83,7 +67,7 @@ describe('IntegrationCallbackBanner', () => {
 		const onDismiss = vi.fn();
 		render(IntegrationCallbackBanner, {
 			props: {
-				callback: { kind: 'success', provider: 'notion' },
+				callback: { kind: 'success', provider: 'obsidian' },
 				onDismiss
 			}
 		});

@@ -18,10 +18,6 @@ pub struct TestAppOptions {
     /// `(feed_domain, library_domain)` for email ingest; `None` mirrors the
     /// unconfigured self-hosted default.
     pub email_ingest_domains: Option<(String, String)>,
-    /// When true the app is configured with (fake) Notion OAuth credentials,
-    /// so the Notion adapter is constructed; false mirrors the unconfigured
-    /// self-hosted default.
-    pub notion_oauth_configured: bool,
     /// When false the app boots without `AUTH_CREDENTIAL_KEY`, so no
     /// credential cipher exists to seal integration tokens.
     pub credential_key_configured: bool,
@@ -39,7 +35,6 @@ impl Default for TestAppOptions {
             asset_serving_mode: "passthrough",
             frontend_url: None,
             email_ingest_domains: None,
-            notion_oauth_configured: false,
             credential_key_configured: true,
             max_upload_bytes: ind_ingest::MAX_UPLOAD_BYTES,
         }
@@ -86,15 +81,6 @@ fn test_config(base_url: &str, options: &TestAppOptions) -> ind_api::config::Ser
         && let Some(auth) = config.get_mut("auth").and_then(|a| a.as_object_mut())
     {
         auth.remove("credential_key");
-    }
-    if options.notion_oauth_configured {
-        config["integrations"] = serde_json::json!({
-            "notion": {
-                "client_id": "test-notion-client-id",
-                "client_secret": "test-notion-client-secret",
-                "redirect_url": format!("{base_url}/api/v1/integrations/notion/callback")
-            }
-        });
     }
     if let Some(issuer_url) = options.oidc_issuer_url.as_ref() {
         config["oauth"] = serde_json::json!({

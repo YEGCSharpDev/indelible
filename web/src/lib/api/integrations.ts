@@ -1,28 +1,19 @@
 import {
 	authorizeIntegration,
+	connectMiniflux,
 	deleteIntegration,
 	getObsidianSettings,
-	getNotionSettings,
 	listIntegrations,
-	listNotionExportItems,
 	previewObsidianExport,
-	refreshNotionExportItem,
 	setupObsidianConnection,
 	syncIntegration,
 	updateObsidianSettings,
-	updateNotionExportItems,
-	updateNotionSettings,
 	type AuthorizeIntegrationResponse,
 	type IntegrationConnectionDto,
 	type IntegrationListResponse,
-	type NotionExportItemsResponse,
-	type NotionRefreshItemResponse,
-	type NotionSettingsDto,
 	type ObsidianPreviewRequest,
 	type ObsidianPreviewResponse,
 	type ObsidianSettingsDto,
-	type UpdateNotionExportItemsRequest,
-	type UpdateNotionSettingsRequest,
 	type UpdateObsidianSettingsRequest,
 	type SyncIntegrationResponse
 } from '$lib/api';
@@ -110,84 +101,6 @@ export async function disconnectIntegration(connectionId: string): Promise<ApiRe
 	}
 }
 
-export async function loadNotionSettings(
-	connectionId: string
-): Promise<ApiResult<NotionSettingsDto>> {
-	try {
-		const { data, error } = await getNotionSettings({ path: { id: connectionId } });
-		if (data) {
-			return { success: true, data };
-		}
-		return { success: false, error: extractMessage(error, 'Failed to load Notion settings') };
-	} catch (err) {
-		return failure(err, 'loading Notion settings');
-	}
-}
-
-export async function saveNotionSettings(
-	connectionId: string,
-	body: UpdateNotionSettingsRequest
-): Promise<ApiResult<NotionSettingsDto>> {
-	try {
-		const { data, error } = await updateNotionSettings({ path: { id: connectionId }, body });
-		if (data) {
-			return { success: true, data };
-		}
-		return { success: false, error: extractMessage(error, 'Failed to update Notion settings') };
-	} catch (err) {
-		return failure(err, 'updating Notion settings');
-	}
-}
-
-export async function loadNotionExportItems(
-	connectionId: string,
-	query: { q?: string | null; limit?: number; offset?: number } = {}
-): Promise<ApiResult<NotionExportItemsResponse>> {
-	try {
-		const { data, error } = await listNotionExportItems({
-			path: { id: connectionId },
-			query
-		});
-		if (data) {
-			return { success: true, data };
-		}
-		return { success: false, error: extractMessage(error, 'Failed to load Notion export items') };
-	} catch (err) {
-		return failure(err, 'loading Notion export items');
-	}
-}
-
-export async function saveNotionExportItems(
-	connectionId: string,
-	body: UpdateNotionExportItemsRequest
-): Promise<ApiResult<void>> {
-	try {
-		const { error, response } = await updateNotionExportItems({ path: { id: connectionId }, body });
-		if (response?.ok) {
-			return { success: true, data: undefined };
-		}
-		return { success: false, error: extractMessage(error, 'Failed to update export selection') };
-	} catch (err) {
-		return failure(err, 'updating Notion export selection');
-	}
-}
-
-export async function refreshNotionDocumentExport(
-	connectionId: string,
-	libraryEntryId: string
-): Promise<ApiResult<NotionRefreshItemResponse>> {
-	try {
-		const { data, error } = await refreshNotionExportItem({
-			path: { id: connectionId, library_entry_id: libraryEntryId }
-		});
-		if (data) {
-			return { success: true, data };
-		}
-		return { success: false, error: extractMessage(error, 'Failed to refresh Notion document') };
-	} catch (err) {
-		return failure(err, 'refreshing Notion document');
-	}
-}
 
 export async function loadObsidianSettings(
 	connectionId: string
@@ -247,5 +160,22 @@ export async function setupObsidianExportConnection(): Promise<
 		};
 	} catch (err) {
 		return failure(err, 'setting up Obsidian export');
+	}
+}
+
+export async function setupMinifluxConnection(
+	url: string,
+	apiKey: string
+): Promise<ApiResult<IntegrationConnectionDto>> {
+	try {
+		const { data, error } = await connectMiniflux({
+			body: { url, api_key: apiKey }
+		});
+		if (data) {
+			return { success: true, data };
+		}
+		return { success: false, error: extractMessage(error, 'Failed to connect Miniflux') };
+	} catch (err) {
+		return failure(err, 'connecting Miniflux');
 	}
 }

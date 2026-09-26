@@ -89,7 +89,21 @@ impl MinifluxSyncWorker {
             }));
         }
 
-        let client = reqwest::Client::new();
+        if !url.starts_with("http://") && !url.starts_with("https://") {
+            return Err(AppError::Domain(ind_domain::DomainError::Validation {
+                field: "url".to_string(),
+                message: "Miniflux URL must start with http:// or https://".to_string(),
+            }));
+        }
+
+        let client = reqwest::Client::builder()
+            .connect_timeout(std::time::Duration::from_secs(10))
+            .timeout(std::time::Duration::from_secs(30))
+            .build()
+            .map_err(|e| AppError::ExternalService {
+                service: "miniflux".into(),
+                message: format!("Failed to build HTTP client: {e}"),
+            })?;
         let res = client
             .get(format!("{}/v1/entries?status=unread&limit=10000", url.trim_end_matches('/')))
             .header("X-Auth-Token", api_key)
@@ -298,7 +312,21 @@ impl MinifluxSyncWorker {
             return Ok(()); // Connection broken, skip
         }
 
-        let client = reqwest::Client::new();
+        if !url.starts_with("http://") && !url.starts_with("https://") {
+            return Err(AppError::Domain(ind_domain::DomainError::Validation {
+                field: "url".to_string(),
+                message: "Miniflux URL must start with http:// or https://".to_string(),
+            }));
+        }
+
+        let client = reqwest::Client::builder()
+            .connect_timeout(std::time::Duration::from_secs(10))
+            .timeout(std::time::Duration::from_secs(30))
+            .build()
+            .map_err(|e| AppError::ExternalService {
+                service: "miniflux".into(),
+                message: format!("Failed to build HTTP client: {e}"),
+            })?;
         let res = client
             .put(format!("{}/v1/entries", url.trim_end_matches('/')))
             .header("X-Auth-Token", api_key)
@@ -323,5 +351,102 @@ impl MinifluxSyncWorker {
 
         tracing::info!("Successfully pushed read state to Miniflux for entry {}", miniflux_id);
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_deserialize_miniflux_response_full() {
+        let json = r#"{
+            "total": 2,
+            "entries": [
+                {
+                    "id": 42,
+                    "title": "Article Title",
+                    "url": "https://example.com/article",
+                    "tags": ["rust", "tech"],
+                    "feed": {
+                        "category": {
+                            "title": "Technology"
+                        }
+                    }
+                },
+                {
+                    "id": 43,
+                    "title": "Another Article",
+                    "url": "https://example.com/article2",
+                    "tags": [],
+                    "feed": {
+                        "category": null
+                    }
+                }
+            ]
+        }"#;
+
+        let res: MinifluxResponse = serde_json::from_str(json).expect("deserialize miniflux response");
+        assert_eq!(res.total, 2);
+        assert_eq!(res.entries.len(), 2);
+
+        let entry = &res.entries[0];
+        assert_eq!(entry.id, 42);
+        assert_eq!(entry.title, "Article Title");
+        assert_eq!(entry.url, "https://example.com/article");
+        assert_eq!(entry.tags.as_deref(), Some(&["rust".to_string(), "tech".to_string()][..]));
+        assert_eq!(
+            entry.feed.as_ref().and_then(|f| f.category.as_ref()).map(|c| c.title.as_str()),
+            Some("Technology")
+        );
+
+        let entry2 = &res.entries[1];
+        assert_eq!(entry2.id, 43);
+        assert_eq!(entry2.tags.as_deref(), Some(&[][..]));
+        assert!(entry2.feed.as_ref().and_then(|f| f.category.as_ref()).is_none());
+    }
+
+    #[test]
+    fn test_deserialize_miniflux_response_optional_empty_fields() {
+        let json = r#"{
+            "total": 0,
+            "entries": [
+                {
+                    "id": 100,
+                    "title": "",
+                    "url": "https://example.com/empty",
+                    "tags": null,
+                    "feed": null
+                }
+            ]
+        }"#;
+
+        let res: MinifluxResponse = serde_json::from_str(json).expect("deserialize empty fields");
+        assert_eq!(res.total, 0);
+        assert_eq!(res.entries.len(), 1);
+        assert_eq!(res.entries[0].id, 100);
+        assert_eq!(res.entries[0].title, "");
+        assert!(res.entries[0].tags.is_none());
+        assert!(res.entries[0].feed.is_none());
+    }
+
+    #[test]
+    fn test_deserialize_miniflux_response_missing_optional_fields() {
+        let json = r#"{
+            "total": 0,
+            "entries": [
+                {
+                    "id": 101,
+                    "title": "Minimal",
+                    "url": "https://example.com/minimal"
+                }
+            ]
+        }"#;
+
+        let res: MinifluxResponse = serde_json::from_str(json).expect("deserialize missing optional fields");
+        assert_eq!(res.entries.len(), 1);
+        assert_eq!(res.entries[0].id, 101);
+        assert!(res.entries[0].tags.is_none());
+        assert!(res.entries[0].feed.is_none());
     }
 }

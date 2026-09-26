@@ -7,10 +7,9 @@
 	interface Props {
 		callback: IntegrationCallback | null;
 		onDismiss: () => void;
-		onAction?: ((callback: IntegrationCallback) => void) | null;
 	}
 
-	let { callback, onDismiss, onAction = null }: Props = $props();
+	let { callback, onDismiss }: Props = $props();
 
 	const providerLabel = $derived.by(() => {
 		if (!callback?.provider) return $t('integrations_generic_name');
@@ -58,14 +57,6 @@
 				return $t('integrations_callback_server_error_body');
 		}
 	});
-
-	const actionLabel = $derived.by(() => {
-		if (!callback) return null;
-		if (callback.kind === 'success' && callback.provider === 'notion') {
-			return $t('integrations_open_notion_settings');
-		}
-		return null;
-	});
 </script>
 
 {#if callback}
@@ -80,11 +71,6 @@
 			<p class="body">{body}</p>
 		</div>
 		<div class="banner-actions">
-			{#if actionLabel && onAction}
-				<Button variant="primary" size="sm" onclick={() => onAction?.(callback)}>
-					{actionLabel}
-				</Button>
-			{/if}
 			<Button variant="tertiary" size="sm" onclick={onDismiss}>{$t('integrations_dismiss')}</Button>
 		</div>
 	</aside>

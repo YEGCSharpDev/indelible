@@ -4,7 +4,6 @@ use crate::config::ServerConfig;
 use crate::services::repositories::Repositories;
 use ind_application::export_summary::{ExportSummaryProvider, StoredExportSummaryProvider};
 use ind_application::ports::{ExportOperations, ImportOperations, WebhookOperations};
-use ind_application::repos::export_cursor::ExportCursorRepository;
 use ind_application::repos::import_job::ImportJobRepository;
 use ind_application::repos::integration_connection::IntegrationConnectionRepository;
 use ind_application::repos::integration_oauth_token::IntegrationOAuthTokenRepository;
@@ -38,8 +37,6 @@ pub(super) fn build_integration_services(
 ) -> anyhow::Result<IntegrationServices> {
     let integration_oauth_token_repo: Arc<dyn IntegrationOAuthTokenRepository> =
         Arc::new(PgIntegrationOAuthTokenRepository::new(pool.clone()));
-    let integration_export_cursor_repo: Arc<dyn ExportCursorRepository> =
-        repos.export_cursor.clone();
     let import_job_repo: Arc<dyn ImportJobRepository> =
         Arc::new(PgImportJobRepository::new(pool.clone()));
 
@@ -68,39 +65,9 @@ pub(super) fn build_integration_services(
             oauth_flow_repo,
         ));
 
-    let mut integration_oauth_adapters: Vec<
+    let integration_oauth_adapters: Vec<
         Arc<dyn ind_auth::integration_oauth::IntegrationOAuthProviderAdapter>,
     > = Vec::new();
-    if let (Some(client_id), Some(client_secret), Some(redirect_url)) = (
-        config.integrations.notion.client_id.clone(),
-        config
-            .integrations
-            .notion
-            .client_secret
-            .as_ref()
-            .map(|s| s.expose_secret().to_owned()),
-        config.integrations.notion.redirect_url.clone(),
-    ) {
-        let expected_callback = format!(
-            "{}/api/v1/integrations/notion/callback",
-            config.server.base_url.trim_end_matches('/')
-        );
-        if redirect_url != expected_callback {
-            tracing::warn!(
-                configured_redirect_url = %redirect_url,
-                expected_callback = %expected_callback,
-                "Notion OAuth redirect URL differs from server base URL; using configured redirect URL"
-            );
-        }
-        let notion_adapter = Arc::new(ind_auth::NotionOAuthAdapter::new(
-            client_id,
-            client_secret,
-            "https://api.notion.com".into(),
-            redirect_url,
-        ));
-        integration_oauth_adapters.push(notion_adapter);
-        tracing::info!("Notion OAuth integration enabled");
-    }
 
     let integration_oauth_service =
         Arc::new(ind_auth::integration_oauth::IntegrationOAuthService::new(
@@ -132,14 +99,12 @@ pub(super) fn build_integration_services(
         ind_integrations::IntegrationOperationsService::new(
             integration_connection_repo.clone(),
             integration_oauth_token_repo,
-            integration_export_cursor_repo,
             outbox_repo.clone(),
             export_summary_provider.clone(),
             prepared_content_provider,
             Arc::new(PgObsidianPreviewRepository::new(pool.clone())),
             integration_oauth_service,
             credential_cipher.clone(),
-            "https://api.notion.com".into(),
         ),
     )
         as Arc<dyn IntegrationOperations>);

@@ -101,16 +101,6 @@ redirect_uris = [
 # oidc_scopes = ["openid", "email", "profile"]
 # oidc_auto_create_users = true
 
-# ---------------------------------------------------------------------------
-# Integration OAuth credentials (all optional — enable each provider by filling in)
-# ---------------------------------------------------------------------------
-
-[integrations.notion]
-# Obtain from https://www.notion.so/my-integrations — create a Public integration.
-# Env: NOTION_CLIENT_ID, NOTION_CLIENT_SECRET, NOTION_REDIRECT_URL
-# client_id     = ""
-# client_secret = ""   # SecretString — never appears in logs or debug output
-# redirect_url  = "https://your-domain.com/api/v1/integrations/notion/callback"
 
 # ---------------------------------------------------------------------------
 # Object storage (S3-compatible)

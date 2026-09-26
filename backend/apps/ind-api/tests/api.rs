@@ -4,7 +4,6 @@ mod api {
     mod access_policy_extractor_tests;
     mod account_email_capture_tests;
     mod account_locale_tests;
-    mod ai_action_journey_tests;
     mod ai_asset_route_permission_tests;
     mod api_credential_boundary_tests;
     mod api_permission_enforcement_tests;
@@ -18,7 +17,6 @@ mod api {
     mod disconnect_revocation_tests;
     mod document_annotation_journey_tests;
     mod document_search_tests;
-    mod entity_resolution_journey_tests;
     mod extension_auth_journey_tests;
     mod feed_route_permission_tests;
     mod feed_subscription_journey_tests;
@@ -34,10 +32,7 @@ mod api {
     mod library_route_permission_tests;
     mod mark_unread_tests;
     mod media_journey_tests;
-    mod mila_action_retry_journey_tests;
-    mod mila_journey_tests;
-    mod notion_control_journey_tests;
-    mod notion_refresh_journey_tests;
+    mod miniflux_connect_tests;
     mod oauth_journey_tests;
     mod platform_journey_tests;
     mod product_journey_tests;

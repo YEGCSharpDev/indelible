@@ -4,35 +4,30 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ContentSource, DocumentId, DocumentType, HighlightId, ImportJobId, IntegrationConnectionId,
-    LibraryEntryId, UserId,
+    HighlightId, ImportJobId, IntegrationConnectionId, LibraryEntryId, UserId,
 };
-
-// Notion API version header value used by both ind-integrations
-// (worker HTTP client) and ind-auth (OAuth callback). Bump here once.
-pub const NOTION_API_VERSION: &str = "2026-03-11";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum IntegrationProvider {
     Obsidian,
-    Notion,
     Logseq,
     BrowserExtension,
     EmailIngest,
     Miniflux,
+    Custom,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum IntegrationOAuthProvider {
-    Notion,
+    Custom,
 }
 
 impl IntegrationOAuthProvider {
     pub fn as_str(self) -> &'static str {
         match self {
-            Self::Notion => "notion",
+            Self::Custom => "custom",
         }
     }
 }
@@ -121,25 +116,6 @@ pub struct IntegrationConnection {
     /// silently overwriting each other.
     #[serde(default)]
     pub version: i64,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct NotionExportSettings {
-    pub export_automatically: bool,
-    pub include_highlight_locations: bool,
-    pub compact_layout: bool,
-    pub selection_enabled: bool,
-}
-
-impl Default for NotionExportSettings {
-    fn default() -> Self {
-        Self {
-            export_automatically: true,
-            include_highlight_locations: true,
-            compact_layout: true,
-            selection_enabled: false,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -234,23 +210,6 @@ pub fn default_highlight_template() -> String {
 
 pub fn default_sync_notification_template() -> String {
     "- {{date}} {{time}}: Synced {{document_count}} documents".to_string()
-}
-
-/// A saved Library entry offered in the Notion export picker (TASK-236). Keyed on the
-/// `library_entry_id` (selectable + cursor key) with its backing `document_id`; only saved Library
-/// content is enumerable, so the legacy "explicitly-saved feed item" filter is unnecessary.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct NotionExportItem {
-    pub library_entry_id: LibraryEntryId,
-    pub document_id: DocumentId,
-    pub title: String,
-    pub url: Option<String>,
-    pub document_type: DocumentType,
-    pub source: ContentSource,
-    pub selected: bool,
-    pub exported_page_id: Option<String>,
-    pub last_synced_at: Option<DateTime<Utc>>,
-    pub last_error: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

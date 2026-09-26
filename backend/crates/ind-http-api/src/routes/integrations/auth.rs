@@ -43,11 +43,8 @@ pub async fn authorize_integration(
     // the response and gives the operator the exact configuration to fix.
     if !ops.configured_oauth_providers().contains(&provider) {
         let message = match provider {
-            IntegrationOAuthProvider::Notion => {
-                "The Notion integration is not configured on this server. An administrator \
-                 must set NOTION_CLIENT_ID, NOTION_CLIENT_SECRET, NOTION_REDIRECT_URL and \
-                 AUTH_CREDENTIAL_KEY."
-                    .to_string()
+            IntegrationOAuthProvider::Custom => {
+                "The integration is not configured on this server.".to_string()
             }
         };
         return Err(ApiError::ServiceUnavailable { message });
@@ -201,7 +198,7 @@ pub async fn integration_callback(
 }
 fn parse_oauth_provider(raw: &str) -> Result<IntegrationOAuthProvider, ApiError> {
     match raw {
-        "notion" => Ok(IntegrationOAuthProvider::Notion),
+        "custom" => Ok(IntegrationOAuthProvider::Custom),
         _ => Err(ApiError::NotFound {
             entity: "integration_provider",
             id: raw.to_string(),

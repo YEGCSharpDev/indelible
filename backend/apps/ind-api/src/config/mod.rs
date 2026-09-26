@@ -371,15 +371,6 @@ impl ServerConfig {
                 "egress.allow_private_targets",
                 parse_bool(env, "EGRESS_ALLOW_PRIVATE_TARGETS"),
             )?
-            .set_override_option("integrations.notion.client_id", env.get("NOTION_CLIENT_ID"))?
-            .set_override_option(
-                "integrations.notion.client_secret",
-                env.get("NOTION_CLIENT_SECRET"),
-            )?
-            .set_override_option(
-                "integrations.notion.redirect_url",
-                env.get("NOTION_REDIRECT_URL"),
-            )?
             .build()?
             .try_deserialize()?;
 
@@ -517,20 +508,6 @@ impl ServerConfig {
             anyhow::bail!(
                 "Apple Sign-In requires APPLE_TEAM_ID, APPLE_KEY_ID, and APPLE_PRIVATE_KEY \
                  when APPLE_CLIENT_ID is set"
-            );
-        }
-
-
-        // M.9: integration OAuth tokens are encrypted with auth.credential_key.
-        // In production, refuse to boot with integrations configured but no key
-        // rather than silently degrading to a broken integration flow.
-        if !is_dev
-            && self.integrations.notion.client_id.is_some()
-            && self.auth.credential_key.is_none()
-        {
-            anyhow::bail!(
-                "AUTH_CREDENTIAL_KEY is required in production when integrations are configured \
-                 (NOTION_CLIENT_ID is set): integration tokens cannot be encrypted without it"
             );
         }
 

@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::{
     ArchiveAssetKind, CollectionId, DocumentId, EmailSenderId, FeedDeliveryId, FeedSourceEntryId,
-    FeedSourceId, ImportJobId, IntegrationConnectionId, JobOutboxId, LibraryEntryId, UserId,
+    FeedSourceId, ImportJobId, IntegrationConnectionId, JobOutboxId, UserId,
 };
 
 /// Readable-content preparation for a feed-discovered document. Carries the document
@@ -139,29 +139,12 @@ pub struct AccountStoragePurgeJob {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct NotionExportDocumentJob {
-    pub connection_id: IntegrationConnectionId,
-    pub user_id: UserId,
-    pub library_entry_id: LibraryEntryId,
-    pub document_id: DocumentId,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub replaced_page_id: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ObsidianSyncConnectionJob {
     pub connection_id: IntegrationConnectionId,
     pub user_id: UserId,
     pub requested_by_user: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub run_id: Option<Uuid>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct NotionSyncConnectionJob {
-    pub connection_id: IntegrationConnectionId,
-    pub user_id: UserId,
-    pub requested_by_user: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

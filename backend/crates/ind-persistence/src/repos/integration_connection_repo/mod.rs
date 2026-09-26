@@ -6,16 +6,13 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use ind_application::AppError;
-use ind_application::repos::integration_connection::{
-    IntegrationConnectionLock, IntegrationConnectionRepository,
-};
+use ind_application::repos::integration_connection::IntegrationConnectionRepository;
 use ind_domain::{
     DomainError, IntegrationConnection, IntegrationConnectionId, IntegrationProvider,
-    LibraryEntryId, UserId,
+    UserId,
 };
 
 mod model;
-mod notion_export;
 
 use model::{ConnectionRow, provider_to_str};
 
@@ -23,29 +20,10 @@ pub struct PgIntegrationConnectionRepository {
     pool: PgPool,
 }
 
-struct PgIntegrationConnectionLock {
-    _tx: sqlx::Transaction<'static, sqlx::Postgres>,
-}
-
-impl IntegrationConnectionLock for PgIntegrationConnectionLock {}
-
 impl PgIntegrationConnectionRepository {
     pub fn new(pool: PgPool) -> Self {
         Self { pool }
     }
-}
-
-pub(super) fn escape_like_pattern(raw: &str) -> String {
-    let mut escaped = String::with_capacity(raw.len());
-    for ch in raw.chars() {
-        match ch {
-            '\\' => escaped.push_str("\\\\"),
-            '%' => escaped.push_str("\\%"),
-            '_' => escaped.push_str("\\_"),
-            _ => escaped.push(ch),
-        }
-    }
-    escaped
 }
 
 pub(super) fn map_err(err: sqlx::Error) -> AppError {
@@ -163,33 +141,13 @@ impl IntegrationConnectionRepository for PgIntegrationConnectionRepository {
         &self,
         user_id: UserId,
     ) -> Result<Vec<IntegrationConnection>, AppError> {
-        let rows = sqlx::query_as!(
-            ConnectionRow,
+        let rows = sqlx::query_as::<_, ConnectionRow>(
             r#"SELECT id, user_id, provider, config, status, last_sync_at, last_error, created_at, updated_at, version
                FROM integration_connections
-               WHERE user_id = $1 AND status = 'active' AND provider IN ('obsidian', 'notion')
-               ORDER BY created_at ASC"#,
-            user_id.into_uuid(),
-        )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(map_err)?;
-
-        rows.into_iter()
-            .map(IntegrationConnection::try_from)
-            .collect()
-    }
-
-    async fn list_active_notion_auto_export(&self) -> Result<Vec<IntegrationConnection>, AppError> {
-        let rows = sqlx::query_as!(
-            ConnectionRow,
-            r#"SELECT id, user_id, provider, config, status, last_sync_at, last_error, created_at, updated_at, version
-               FROM integration_connections
-               WHERE status = 'active'
-                 AND provider = 'notion'
-                 AND COALESCE((config->>'export_automatically')::boolean, true)
+               WHERE user_id = $1 AND status = 'active' AND provider = 'obsidian'
                ORDER BY created_at ASC"#,
         )
+        .bind(user_id.into_uuid())
         .fetch_all(&self.pool)
         .await
         .map_err(map_err)?;
@@ -409,68 +367,5 @@ impl IntegrationConnectionRepository for PgIntegrationConnectionRepository {
             out.insert(id, count);
         }
         Ok(out)
-    }
-
-    async fn list_notion_export_items(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-        query: Option<String>,
-        limit: i64,
-        offset: i64,
-    ) -> Result<ind_application::repos::integration_connection::NotionExportItemsPage, AppError>
-    {
-        self.list_notion_export_items_impl(user_id, connection_id, query, limit, offset)
-            .await
-    }
-
-    async fn find_notion_export_item(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-        library_entry_id: LibraryEntryId,
-    ) -> Result<Option<ind_domain::NotionExportItem>, AppError> {
-        self.find_notion_export_item_impl(user_id, connection_id, library_entry_id)
-            .await
-    }
-
-    async fn list_notion_export_candidates(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-        selected_only: bool,
-        after: Option<ind_application::repos::integration_connection::NotionExportCursor>,
-        limit: i64,
-    ) -> Result<Vec<ind_application::repos::integration_connection::NotionExportCandidate>, AppError>
-    {
-        self.list_notion_export_candidates_impl(user_id, connection_id, selected_only, after, limit)
-            .await
-    }
-
-    async fn set_notion_export_item_selections_batch(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-        selections: &[(LibraryEntryId, bool)],
-    ) -> Result<(), AppError> {
-        self.set_notion_export_item_selections_batch_impl(user_id, connection_id, selections)
-            .await
-    }
-
-    async fn acquire_notion_managed_target_lock(
-        &self,
-        connection_id: IntegrationConnectionId,
-    ) -> Result<Box<dyn IntegrationConnectionLock>, AppError> {
-        let mut tx = self.pool.begin().await.map_err(map_err)?;
-        let lock_key = format!("notion-managed-target:{connection_id}");
-        sqlx::query!(
-            "SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))",
-            lock_key
-        )
-        .execute(&mut *tx)
-        .await
-        .map_err(map_err)?;
-
-        Ok(Box::new(PgIntegrationConnectionLock { _tx: tx }))
     }
 }

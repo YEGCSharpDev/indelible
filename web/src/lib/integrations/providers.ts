@@ -2,7 +2,7 @@ import type { MessageKey } from '$lib/i18n';
 
 export type IntegrationCapability = 'sync' | 'oauth' | 'pat' | 'importUpload';
 
-export type IntegrationProviderId = 'obsidian' | 'notion' | 'readwise';
+export type IntegrationProviderId = 'obsidian' | 'readwise';
 
 export interface IntegrationProvider {
 	id: IntegrationProviderId;
@@ -27,12 +27,6 @@ export const INTEGRATION_PROVIDERS: IntegrationProvider[] = [
 		displayName: 'Obsidian',
 		descriptionKey: 'integrations_provider_obsidian_description',
 		capabilities: ['sync', 'pat']
-	},
-	{
-		id: 'notion',
-		displayName: 'Notion',
-		descriptionKey: 'integrations_provider_notion_description',
-		capabilities: ['sync', 'oauth']
 	},
 	{
 		id: 'readwise',

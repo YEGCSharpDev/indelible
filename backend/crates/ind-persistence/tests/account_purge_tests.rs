@@ -58,7 +58,7 @@ async fn every_user_owned_column_cascades_from_users() {
 
     // Anti-vacuity: if the catalog query breaks, fail loudly rather than pass empty.
     assert!(
-        rows.len() >= 50,
+        rows.len() >= 45,
         "only {} user-owned columns discovered; the catalog query is broken",
         rows.len()
     );
@@ -208,14 +208,11 @@ async fn purge_account_leaves_other_tenants_untouched() {
 /// `every_user_owned_column_cascades_from_users`; a direct seed adds runtime
 /// proof and should migrate rows out of this ledger over time.
 const UNSEEDED_ACKNOWLEDGED: &[(&str, &str)] = &[
-    ("ai_prompt_presets", "user_id"),
-    ("ai_runs", "user_id"),
     ("authorization_codes", "user_id"),
     ("billing_account_members", "user_id"),
     ("billing_accounts", "owner_user_id"),
     ("billing_usage_events", "user_id"),
     ("collection_entries", "user_id"),
-    ("content_vectors", "user_id"),
     ("document_origins", "user_id"),
     ("document_playback_states", "user_id"),
     ("email_aliases", "user_id"),
@@ -231,7 +228,7 @@ const UNSEEDED_ACKNOWLEDGED: &[(&str, &str)] = &[
     ("integration_oauth_tokens", "user_id"),
     ("library_entry_tags", "user_id"),
     ("lifecycle_actions", "user_id"),
-    ("mila_sessions", "user_id"),
+    ("miniflux_sync_map", "user_id"),
     ("notification_preferences", "user_id"),
     ("oauth_identities", "user_id"),
     ("obsidian_export_artifacts", "user_id"),
@@ -243,10 +240,6 @@ const UNSEEDED_ACKNOWLEDGED: &[(&str, &str)] = &[
     ("review_cards", "user_id"),
     ("search_documents", "user_id"),
     ("storage_add_ons", "user_id"),
-    ("tts_audio_assets", "user_id"),
-    ("tts_chunks", "user_id"),
-    ("tts_sessions", "user_id"),
-    ("tts_voice_personas", "user_id"),
     ("user_document_state", "user_id"),
 ];
 
@@ -287,8 +280,6 @@ async fn seed_user_owned_rows(
         "INSERT INTO smart_lists (id, user_id, name, filter_expression, created_at, updated_at) \
          VALUES (gen_random_uuid(), $1, 'seeded view', '{}'::jsonb, now(), now())",
         "INSERT INTO user_preferences (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING",
-        "INSERT INTO mila_config (user_id, chat_model, embedding_model, embedding_dim, model_context_window, created_at, updated_at) \
-         VALUES ($1, 'seed-chat', 'seed-embed', 768, 16000, now(), now())",
     ] {
         sqlx::query(sql)
             .bind(uid)
@@ -315,7 +306,6 @@ async fn seed_user_owned_rows(
         "recent_searches",
         "smart_lists",
         "user_preferences",
-        "mila_config",
     ]
     .into_iter()
     .collect()

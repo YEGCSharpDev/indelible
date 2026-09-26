@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use ind_domain::ObsidianExportSettings;
 use ind_domain::{IntegrationConnection, IntegrationProvider};
 use serde::{Deserialize, Serialize};
-use utoipa::{IntoParams, ToSchema};
+use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct IntegrationListResponse {
@@ -10,14 +10,14 @@ pub struct IntegrationListResponse {
     /// Lowercase ids of OAuth providers this instance holds credentials for.
     /// A provider absent here cannot be connected until an administrator
     /// configures it.
-    #[schema(example = json!(["notion"]))]
+    #[schema(example = json!([]))]
     pub available_oauth_providers: Vec<String>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct IntegrationConnectionDto {
     pub id: String,
-    #[schema(value_type = String, example = "notion")]
+    #[schema(value_type = String, example = "obsidian")]
     pub provider: IntegrationProvider,
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -66,22 +66,6 @@ pub enum IntegrationConnectionConfigDto {
         export_all_reader_documents: bool,
         sync_notifications: bool,
     },
-    Notion {
-        #[serde(skip_serializing_if = "Option::is_none")]
-        workspace_id: Option<String>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        workspace_name: Option<String>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        workspace_icon: Option<String>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        database_id: Option<String>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        data_source_id: Option<String>,
-        export_automatically: bool,
-        include_highlight_locations: bool,
-        compact_layout: bool,
-        selection_enabled: bool,
-    },
     EmailIngest {
         address: String,
     },
@@ -110,19 +94,11 @@ impl IntegrationConnectionConfigDto {
                     sync_notifications: settings.sync_notifications,
                 }
             }
-            IntegrationProvider::Notion => IntegrationConnectionConfigDto::Notion {
-                workspace_id: string_field(raw, "workspace_id"),
-                workspace_name: string_field(raw, "workspace_name"),
-                workspace_icon: string_field(raw, "workspace_icon"),
-                database_id: string_field(raw, "database_id"),
-                data_source_id: string_field(raw, "data_source_id"),
-                export_automatically: bool_field(raw, "export_automatically", true),
-                include_highlight_locations: bool_field(raw, "include_highlight_locations", true),
-                compact_layout: bool_field(raw, "compact_layout", true),
-                selection_enabled: bool_field(raw, "selection_enabled", false),
-            },
             IntegrationProvider::EmailIngest => IntegrationConnectionConfigDto::EmailIngest {
                 address: string_field(raw, "address").unwrap_or_default(),
+            },
+            IntegrationProvider::Custom => IntegrationConnectionConfigDto::Other {
+                provider_name: "custom".to_string(),
             },
             IntegrationProvider::Logseq => IntegrationConnectionConfigDto::Other {
                 provider_name: "logseq".to_string(),
@@ -139,103 +115,6 @@ impl IntegrationConnectionConfigDto {
 
 fn string_field(raw: &serde_json::Value, key: &str) -> Option<String> {
     raw.get(key).and_then(|v| v.as_str()).map(|s| s.to_string())
-}
-
-fn bool_field(raw: &serde_json::Value, key: &str, default: bool) -> bool {
-    raw.get(key).and_then(|v| v.as_bool()).unwrap_or(default)
-}
-
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct NotionSettingsDto {
-    pub export_automatically: bool,
-    pub include_highlight_locations: bool,
-    pub compact_layout: bool,
-    pub selection_enabled: bool,
-}
-
-#[derive(Debug, Deserialize, ToSchema, validator::Validate)]
-pub struct UpdateNotionSettingsRequest {
-    #[serde(default)]
-    pub export_automatically: Option<bool>,
-    #[serde(default)]
-    pub include_highlight_locations: Option<bool>,
-    #[serde(default)]
-    pub compact_layout: Option<bool>,
-    #[serde(default)]
-    pub selection_enabled: Option<bool>,
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub struct NotionExportItemDto {
-    pub library_entry_id: String,
-    pub title: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub url: Option<String>,
-    pub item_type: String,
-    pub selected: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub exported_page_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schema(value_type = Option<String>, format = DateTime)]
-    pub last_synced_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub last_error: Option<String>,
-}
-
-impl From<ind_domain::NotionExportItem> for NotionExportItemDto {
-    fn from(value: ind_domain::NotionExportItem) -> Self {
-        Self {
-            library_entry_id: value.library_entry_id.to_string(),
-            title: value.title,
-            url: value.url,
-            item_type: value.document_type.as_str().to_string(),
-            selected: value.selected,
-            exported_page_id: value.exported_page_id,
-            last_synced_at: value.last_synced_at,
-            last_error: value.last_error,
-        }
-    }
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub struct NotionExportItemsResponse {
-    pub items: Vec<NotionExportItemDto>,
-    pub total_count: i64,
-    pub filtered_count: i64,
-}
-
-#[derive(Debug, Deserialize, ToSchema, IntoParams, validator::Validate)]
-pub struct ListNotionExportItemsQuery {
-    #[serde(default)]
-    pub q: Option<String>,
-    #[serde(default = "default_export_item_limit")]
-    pub limit: i64,
-    #[serde(default)]
-    pub offset: i64,
-}
-
-fn default_export_item_limit() -> i64 {
-    50
-}
-
-#[derive(Debug, Deserialize, ToSchema, validator::Validate)]
-pub struct UpdateNotionExportItemsRequest {
-    #[schema(max_items = 200)]
-    pub selections: Vec<NotionExportItemSelectionDto>,
-}
-
-#[derive(Debug, Deserialize, ToSchema)]
-pub struct NotionExportItemSelectionDto {
-    pub library_entry_id: String,
-    pub selected: bool,
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub struct NotionRefreshItemResponse {
-    pub library_entry_id: String,
-    pub job_id: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub archived_page_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]

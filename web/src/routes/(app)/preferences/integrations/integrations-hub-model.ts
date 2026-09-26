@@ -88,18 +88,6 @@ export function isOauthProviderAvailable(
 	return available.includes(providerId);
 }
 
-export function notionHubStatus(
-	connection: IntegrationConnectionDto | null | undefined
-): HubConnectionStatus {
-	if (!connection) return { labelKey: 'integrations_hub_status_not_connected', variant: 'coming' };
-	const state = deriveConnectionState(connection);
-	if (state === 'syncing')
-		return { labelKey: 'integrations_hub_status_syncing', variant: 'syncing', pulse: true };
-	if (state === 'failed')
-		return { labelKey: 'integrations_hub_status_needs_attention', variant: 'attention' };
-	return { labelKey: 'integrations_hub_status_connected', variant: 'active', check: true };
-}
-
 export function obsidianHubStatus(
 	connection: IntegrationConnectionDto | null | undefined
 ): HubConnectionStatus {
@@ -117,17 +105,6 @@ export function minifluxHubStatus(
 	if (state === 'failed')
 		return { labelKey: 'integrations_hub_status_needs_attention', variant: 'attention' };
 	return { labelKey: 'integrations_hub_status_connected', variant: 'active', check: true };
-}
-
-export function notionDatabaseLabel(
-	connection: IntegrationConnectionDto | undefined
-): string | null {
-	if (!connection || connection.config.provider !== 'notion') return null;
-	const workspace = connection.config.workspace_name;
-	const databaseId = connection.config.database_id;
-	if (workspace && databaseId) return `${workspace} / ${databaseId.slice(0, 8)}…`;
-	if (workspace) return workspace;
-	return null;
 }
 
 export function connectionRingCounts(connections: IntegrationConnectionDto[]): RingCounts {

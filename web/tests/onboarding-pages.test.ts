@@ -49,7 +49,7 @@ describe('Welcome page (step 1)', () => {
 		render(WelcomePage);
 		expect(screen.getByText('Save anything from the web')).toBeTruthy();
 		expect(screen.getByText('AI-powered reading with Mila')).toBeTruthy();
-		expect(screen.getByText('Sync highlights to Obsidian & Notion')).toBeTruthy();
+		expect(screen.getByText('Sync highlights to Obsidian')).toBeTruthy();
 	});
 
 	it('Get Started navigates to account step', async () => {

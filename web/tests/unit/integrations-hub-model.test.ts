@@ -80,12 +80,12 @@ describe('integrations hub model', () => {
 
 describe('isOauthProviderAvailable', () => {
 	it('fails open when the server does not report availability', () => {
-		expect(isOauthProviderAvailable(undefined, 'notion')).toBe(true);
-		expect(isOauthProviderAvailable(null, 'notion')).toBe(true);
+		expect(isOauthProviderAvailable(undefined, 'custom_oauth')).toBe(true);
+		expect(isOauthProviderAvailable(null, 'custom_oauth')).toBe(true);
 	});
 
 	it('reads the reported provider list', () => {
-		expect(isOauthProviderAvailable([], 'notion')).toBe(false);
-		expect(isOauthProviderAvailable(['notion'], 'notion')).toBe(true);
+		expect(isOauthProviderAvailable([], 'custom_oauth')).toBe(false);
+		expect(isOauthProviderAvailable(['custom_oauth'], 'custom_oauth')).toBe(true);
 	});
 });

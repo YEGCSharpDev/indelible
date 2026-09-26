@@ -13,7 +13,6 @@ use ind_application::repos::document_asset::DocumentAssetRepository;
 use ind_application::repos::document_lifecycle::DocumentLifecycle;
 use ind_application::repos::document_reprocess::DocumentReprocessRepository;
 use ind_application::repos::event::EventRepository;
-use ind_application::repos::export_cursor::ExportCursorRepository;
 use ind_application::repos::feed::FeedRepository;
 use ind_application::repos::feed_delivery::FeedDeliveryRepository;
 use ind_application::repos::highlight::HighlightRepository;
@@ -34,14 +33,10 @@ use sqlx::PgPool;
 use ind_application::repos::email_ingest::EmailIngestLogRepository;
 use ind_application::repos::email_sender::EmailSenderRepository;
 use ind_application::repos::email_unsubscribe_target::EmailUnsubscribeTargetRepository;
-use std::collections::HashMap;
-use std::sync::Mutex;
 
 use ind_application::storage::ObjectStorage;
-use ind_domain::IntegrationConnectionId;
 use ind_ingest::AssetBackedPreparedContentProvider;
 use ind_integrations::email::InboundEmailProvider;
-use ind_integrations::notion::NotionRateLimiter;
 use ind_persistence::repos::{
        PgApalisJobRepository,
     PgBackgroundJobRecoveryRepository, PgCollectionRepository, 
@@ -67,48 +62,6 @@ pub use job_deps::{
     AiSearchJobDeps, CaptureJobDeps, EmailJobDeps, FeedJobDeps, IndexQueueContext,
     IntegrationJobDeps, RecoveryJobDeps, WebhookJobDeps,
 };
-
-// Notion's 3-RPS cap is per-integration token, not per-host. A single
-// shared limiter would serialize unrelated users behind one bucket. The
-// registry hands out a separate limiter per connection, lazily.
-pub struct NotionRateLimiterRegistry {
-    rate_per_second: f64,
-    map: Mutex<HashMap<IntegrationConnectionId, Arc<NotionRateLimiter>>>,
-}
-
-impl NotionRateLimiterRegistry {
-    pub fn new(rate_per_second: f64) -> Self {
-        Self {
-            rate_per_second,
-            map: Mutex::new(HashMap::new()),
-        }
-    }
-
-    pub fn for_connection(&self, connection_id: IntegrationConnectionId) -> Arc<NotionRateLimiter> {
-        #[expect(
-            clippy::expect_used,
-            reason = "registry mutex is never held across an await; poisoning implies an already-fatal prior panic"
-        )]
-        let mut map = self.map.lock().expect("notion rate limiter mutex poisoned");
-        map.entry(connection_id)
-            .or_insert_with(|| Arc::new(NotionRateLimiter::new(self.rate_per_second)))
-            .clone()
-    }
-}
-
-pub struct NotionJobDeps {
-    pub connection_repo: Arc<dyn IntegrationConnectionRepository>,
-    pub oauth_token_repo: Arc<dyn IntegrationOAuthTokenRepository>,
-    pub export_cursor_repo: Arc<dyn ExportCursorRepository>,
-    pub highlight_repo: Arc<dyn HighlightRepository>,
-    pub tag_repo: Arc<dyn TagRepository>,
-    pub document_repo: Arc<dyn DocumentRepository>,
-    pub library_repo: Arc<dyn LibraryRepository>,
-    pub outbox_repo: Arc<dyn JobOutboxRepository>,
-    pub cipher: Arc<ind_auth::CredentialCipher>,
-    pub rate_limiters: Arc<NotionRateLimiterRegistry>,
-    pub notion_api_base: String,
-}
 
 pub struct WorkerContext {
     pub renderer: Arc<dyn RendererClient>,
@@ -167,7 +120,6 @@ pub struct WorkerContext {
     pub integration_connection_repo: Option<Arc<dyn IntegrationConnectionRepository>>,
     pub highlight_repo: Option<Arc<dyn HighlightRepository>>,
     pub credential_cipher: Option<Arc<ind_auth::CredentialCipher>>,
-    pub notion_job_deps: Option<Arc<NotionJobDeps>>,
     /// SSRF policy for outbound fetches (feed polling, Readwise import).
     pub egress_policy: ind_egress::EgressPolicy,
     /// Hoisted guarded client for webhook delivery (built once; webhook-surface
@@ -279,7 +231,6 @@ impl WorkerServicesBuilder {
                 )),
                 highlight_repo: Some(Arc::new(PgHighlightRepository::new(pool.clone()))),
                 credential_cipher,
-                notion_job_deps: None,
                 egress_policy,
                 webhook_http,
             },
@@ -390,16 +341,6 @@ impl WorkerServicesBuilder {
         policy: crate::jobs::email_unsubscribe::OneClickPolicy,
     ) -> Self {
         self.context.email_unsubscribe_url_policy = policy;
-        self
-    }
-
-    pub fn with_notion_job_deps(mut self, deps: Arc<NotionJobDeps>) -> Self {
-        self.context.notion_job_deps = Some(deps);
-        self
-    }
-
-    pub fn with_notion_job_deps_option(mut self, deps: Option<Arc<NotionJobDeps>>) -> Self {
-        self.context.notion_job_deps = deps;
         self
     }
 

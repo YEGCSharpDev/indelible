@@ -53,12 +53,6 @@ impl AccountPurgeRepository for PgAccountPurgeRepository {
         .await
         .map_err(map_sqlx_error)?;
 
-        let tts_keys: Vec<String> =
-            sqlx::query_scalar("DELETE FROM tts_audio_assets WHERE user_id = $1 RETURNING s3_key")
-                .bind(uid)
-                .fetch_all(&mut *tx)
-                .await
-                .map_err(map_sqlx_error)?;
 
         let import_blobs: Vec<Option<String>> = sqlx::query_scalar(
             "DELETE FROM import_jobs WHERE user_id = $1 RETURNING raw_artifact_key",
@@ -96,7 +90,6 @@ impl AccountPurgeRepository for PgAccountPurgeRepository {
         // delete below and the worker retries until the bucket is clean.
         let prefixes = storage_prefixes(user_id);
         let mut keys = archive_keys;
-        keys.extend(tts_keys);
         for blob in &import_blobs {
             keys.extend(import_artifact_keys(blob.as_deref()));
         }

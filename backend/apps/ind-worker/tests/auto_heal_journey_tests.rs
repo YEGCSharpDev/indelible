@@ -5,20 +5,16 @@ use std::sync::Arc;
 use ind_domain::job_types;
 use ind_test_support::{
     DocumentFactory, LibraryEntryFactory, StorageBackedMockRenderer, TestDb, UserFactory,
-    test_mila_defaults,
 };
 use ind_worker::context::WorkerServicesBuilder;
 
 async fn recovery_context(db: &TestDb) -> ind_worker::context::RecoveryJobDeps {
     let renderer = Arc::new(StorageBackedMockRenderer::new(db.storage().await));
-    let mut defaults = test_mila_defaults();
-    defaults.enabled = true;
     WorkerServicesBuilder::new(
         db.pool().clone(),
         renderer,
         None,
         db.bucket().to_string(),
-        defaults,
         ind_egress::EgressPolicy::permissive(),
         None,
     )

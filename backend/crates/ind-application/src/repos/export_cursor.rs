@@ -2,8 +2,7 @@ use chrono::{DateTime, Utc};
 
 use crate::error::AppError;
 use ind_domain::{
-    DocumentId, ExportCursor, HighlightId, IntegrationConnectionId, JobOutbox, LibraryEntryId,
-    UserId,
+    ExportCursor, HighlightId, IntegrationConnectionId, LibraryEntryId,
 };
 
 #[async_trait::async_trait]
@@ -52,15 +51,6 @@ pub trait ExportCursorRepository: Send + Sync {
         last_highlight_id: HighlightId,
         at: DateTime<Utc>,
     ) -> Result<(), AppError>;
-
-    async fn reset_document_export_and_enqueue_notion(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-        library_entry_id: LibraryEntryId,
-        document_id: DocumentId,
-        replaced_page_id: Option<String>,
-    ) -> Result<JobOutbox, AppError>;
 
     async fn record_generated_path(
         &self,

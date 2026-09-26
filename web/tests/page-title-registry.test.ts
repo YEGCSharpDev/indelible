@@ -78,8 +78,8 @@ describe('routeTitleKey', () => {
 		['/preferences', 'settings_preferences'],
 		['/preferences/account', 'settings_account'],
 		['/preferences/integrations', 'settings_integrations'],
-		['/preferences/integrations/notion', 'settings_notion_page_title'],
 		['/preferences/integrations/obsidian', 'settings_obsidian_page_title'],
+		['/preferences/integrations/miniflux', 'settings_miniflux_page_title'],
 		['/login', 'auth_sign_in_title'],
 		['/auth/callback', 'auth_callback_page_title'],
 		['/extension/auth', 'extension_auth_page_title']
@@ -100,7 +100,7 @@ describe('routeTitleKey', () => {
 	});
 
 	it('prefers the more specific rule over its prefix', () => {
-		expect(routeTitleKey('/preferences/integrations/notion')).not.toBe(
+		expect(routeTitleKey('/preferences/integrations/obsidian')).not.toBe(
 			routeTitleKey('/preferences/integrations')
 		);
 		expect(routeTitleKey('/library/books')).not.toBe(routeTitleKey('/library'));

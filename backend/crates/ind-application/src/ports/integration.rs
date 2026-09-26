@@ -2,7 +2,7 @@ use futures::future::BoxFuture;
 use ind_domain::{
     EmailAlias, EmailAliasId, EmailDestination, EmailSender, EmailSenderId,
     EmailSenderRenderDefault, ImportJob, ImportJobId, IntegrationConnection,
-    IntegrationConnectionId, IntegrationOAuthProvider, LibraryEntryId, NotionExportSettings,
+    IntegrationConnectionId, IntegrationOAuthProvider, LibraryEntryId,
     ObsidianExportSettings, User, UserId, WebhookDelivery, WebhookEndpoint, WebhookEndpointId,
 };
 
@@ -11,7 +11,6 @@ use crate::outputs::export::{
     ObsidianArtifactDownload, ObsidianExportPreview, ObsidianRefreshResult, ObsidianRunStatus,
 };
 use crate::outputs::import::ImportStatusOutput;
-use crate::repos::integration_connection::NotionExportItemsPage;
 
 pub trait WebhookOperations: Send + Sync {
     fn list_endpoints(
@@ -122,12 +121,6 @@ pub struct IntegrationSyncEnqueued {
     pub job_id: String,
 }
 
-#[derive(Debug)]
-pub struct NotionRefreshEnqueued {
-    pub job_id: String,
-    pub archived_page_url: Option<String>,
-}
-
 pub trait IntegrationOperations: Send + Sync {
     /// OAuth providers this instance holds credentials for. A provider absent
     /// here cannot complete an authorization; clients use this to disable
@@ -169,42 +162,6 @@ pub trait IntegrationOperations: Send + Sync {
         user_id: UserId,
         connection_id: IntegrationConnectionId,
     ) -> BoxFuture<'_, Result<IntegrationSyncEnqueued, AppError>>;
-
-    fn get_notion_settings(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-    ) -> BoxFuture<'_, Result<NotionExportSettings, AppError>>;
-
-    fn update_notion_settings(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-        settings: NotionExportSettings,
-    ) -> BoxFuture<'_, Result<NotionExportSettings, AppError>>;
-
-    fn list_notion_export_items(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-        query: Option<String>,
-        limit: i64,
-        offset: i64,
-    ) -> BoxFuture<'_, Result<NotionExportItemsPage, AppError>>;
-
-    fn update_notion_export_items(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-        selections: Vec<(LibraryEntryId, bool)>,
-    ) -> BoxFuture<'_, Result<(), AppError>>;
-
-    fn refresh_notion_export_item(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-        library_entry_id: LibraryEntryId,
-    ) -> BoxFuture<'_, Result<NotionRefreshEnqueued, AppError>>;
 
     fn get_obsidian_settings(
         &self,

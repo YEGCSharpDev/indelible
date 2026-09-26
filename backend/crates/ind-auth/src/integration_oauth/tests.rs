@@ -9,16 +9,16 @@ use super::{
     ProviderTokens, RepositoryIntegrationOAuthFlowStore, integration_oauth_error_to_app_error,
 };
 
-struct NotionAdapter;
+struct CustomAdapter;
 
 #[async_trait::async_trait]
-impl IntegrationOAuthProviderAdapter for NotionAdapter {
+impl IntegrationOAuthProviderAdapter for CustomAdapter {
     fn provider(&self) -> IntegrationOAuthProvider {
-        IntegrationOAuthProvider::Notion
+        IntegrationOAuthProvider::Custom
     }
 
     fn authorize_url(&self, state: &str, redirect_uri: &str) -> String {
-        format!("https://notion.example/authorize?state={state}&redirect_uri={redirect_uri}")
+        format!("https://custom.example/authorize?state={state}&redirect_uri={redirect_uri}")
     }
 
     async fn exchange_code(
@@ -29,8 +29,8 @@ impl IntegrationOAuthProviderAdapter for NotionAdapter {
         assert_eq!(code, "provider-code");
         assert!(!state.is_empty());
         Ok(ProviderTokens {
-            access_token: "notion-access".into(),
-            refresh_token: Some("notion-refresh".into()),
+            access_token: "custom-access".into(),
+            refresh_token: Some("custom-refresh".into()),
             expires_at: None,
             extra: serde_json::json!({"workspace_id": "workspace-1"}),
         })
@@ -49,21 +49,21 @@ async fn sealed_flow_round_trips_once_with_provider_scope_and_error_projection()
         PgOAuthFlowRepository::new(db.pool().clone()),
     )));
     let service = IntegrationOAuthService::new(
-        vec![Arc::new(NotionAdapter)],
+        vec![Arc::new(CustomAdapter)],
         store,
         b"integration-oauth-boundary-secret",
         "https://api.example.com".into(),
     );
     assert_eq!(
         service.configured_providers(),
-        vec![IntegrationOAuthProvider::Notion]
+        vec![IntegrationOAuthProvider::Custom]
     );
-    assert!(service.has_provider(IntegrationOAuthProvider::Notion));
+    assert!(service.has_provider(IntegrationOAuthProvider::Custom));
     let user_id = UserId::new();
     let started = service
         .start(
             user_id,
-            IntegrationOAuthProvider::Notion,
+            IntegrationOAuthProvider::Custom,
             Some("/settings/integrations".into()),
         )
         .await
@@ -72,20 +72,20 @@ async fn sealed_flow_round_trips_once_with_provider_scope_and_error_projection()
     assert!(
         started
             .authorize_url
-            .contains("/api/v1/integrations/notion/callback")
+            .contains("/api/v1/integrations/custom/callback")
     );
 
     let completed = service
         .complete(
-            IntegrationOAuthProvider::Notion,
+            IntegrationOAuthProvider::Custom,
             "provider-code",
             &started.state,
         )
         .await
         .unwrap();
     assert_eq!(completed.user_id, user_id);
-    assert_eq!(completed.provider, IntegrationOAuthProvider::Notion);
-    assert_eq!(completed.tokens.access_token, "notion-access");
+    assert_eq!(completed.provider, IntegrationOAuthProvider::Custom);
+    assert_eq!(completed.tokens.access_token, "custom-access");
     assert_eq!(
         completed.redirect_after.as_deref(),
         Some("/settings/integrations")
@@ -93,7 +93,7 @@ async fn sealed_flow_round_trips_once_with_provider_scope_and_error_projection()
     assert!(matches!(
         service
             .complete(
-                IntegrationOAuthProvider::Notion,
+                IntegrationOAuthProvider::Custom,
                 "provider-code",
                 &started.state,
             )
@@ -111,10 +111,10 @@ async fn sealed_flow_round_trips_once_with_provider_scope_and_error_projection()
     );
     assert!(matches!(
         unconfigured
-            .start(user_id, IntegrationOAuthProvider::Notion, None)
+            .start(user_id, IntegrationOAuthProvider::Custom, None)
             .await,
         Err(IntegrationOAuthError::ProviderNotConfigured(
-            IntegrationOAuthProvider::Notion
+            IntegrationOAuthProvider::Custom
         ))
     ));
 

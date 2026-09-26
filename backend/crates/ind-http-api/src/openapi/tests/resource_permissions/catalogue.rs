@@ -146,15 +146,11 @@ pub(super) const INTEGRATION_OPERATIONS: &[OperationContract] = &[
     OperationContract::new("post", "/api/v1/integrations/{provider}/authorize", "integrations:write"),
     OperationContract::new("delete", "/api/v1/integrations/{id}", "integrations:write"),
     OperationContract::new("post", "/api/v1/integrations/{id}/sync", "integrations:write"),
-    OperationContract::new("get", "/api/v1/integrations/{id}/notion/settings", "integrations:read"),
-    OperationContract::new("patch", "/api/v1/integrations/{id}/notion/settings", "integrations:write"),
-    OperationContract::new("get", "/api/v1/integrations/{id}/notion/export-entries", "integrations:read"),
-    OperationContract::new("patch", "/api/v1/integrations/{id}/notion/export-entries", "integrations:write"),
-    OperationContract::new("post", "/api/v1/integrations/{id}/notion/export-entries/{library_entry_id}/refresh", "integrations:write"),
     OperationContract::new("get", "/api/v1/integrations/{id}/obsidian/settings", "integrations:read"),
     OperationContract::new("patch", "/api/v1/integrations/{id}/obsidian/settings", "integrations:write"),
     OperationContract::new("post", "/api/v1/integrations/{id}/obsidian/preview", "integrations:read"),
     OperationContract::new("post", "/api/v1/integrations/obsidian/setup", "integrations:write"),
+    OperationContract::new("post", "/api/v1/integrations/miniflux/connect", "integrations:write"),
 ];
 
 #[rustfmt::skip]
@@ -169,30 +165,7 @@ pub(super) const WEBHOOK_OPERATIONS: &[OperationContract] = &[
 ];
 
 #[rustfmt::skip]
-pub(super) const AI_OPERATIONS: &[CompositeOperationContract] = &[
-    CompositeOperationContract::new("get", "/api/v1/mila/status", &["ai:read"]),
-    CompositeOperationContract::new("get", "/api/v1/mila/config", &["ai:read"]),
-    CompositeOperationContract::new("post", "/api/v1/mila/config", &["ai:write"]),
-    CompositeOperationContract::new("post", "/api/v1/mila/config/reindex", &["ai:write", "ai:use", "library:read"]),
-    CompositeOperationContract::new("post", "/api/v1/mila/config/test", &["ai:use"]),
-    CompositeOperationContract::new("get", "/api/v1/mila/presets", &["ai:read"]),
-    CompositeOperationContract::new("post", "/api/v1/mila/presets", &["ai:write"]),
-    CompositeOperationContract::new("patch", "/api/v1/mila/presets/{preset_id}", &["ai:write"]),
-    CompositeOperationContract::new("delete", "/api/v1/mila/presets/{preset_id}", &["ai:write"]),
-    CompositeOperationContract::new("get", "/api/v1/mila/sessions", &["ai:read"]),
-    CompositeOperationContract::new("post", "/api/v1/mila/sessions", &["ai:write"]),
-    CompositeOperationContract::new("get", "/api/v1/mila/sessions/{session_id}/messages", &["ai:read"]),
-    CompositeOperationContract::new("delete", "/api/v1/mila/sessions/{session_id}", &["ai:write"]),
-    CompositeOperationContract::new("get", "/api/v1/mila/stream", &["ai:use", "library:read"]),
-    CompositeOperationContract::new("post", "/api/v1/mila/documents/{document_id}/actions/{action}/retry", &["ai:use", "library:read"]),
-    CompositeOperationContract::new("get", "/api/v1/tts/voice-personas", &["ai:read"]),
-    CompositeOperationContract::new("post", "/api/v1/tts/voice-personas", &["ai:write", "ai:use"]),
-    CompositeOperationContract::new("post", "/api/v1/documents/{document_id}/tts/sessions", &["ai:use", "library:read"]),
-    CompositeOperationContract::new("get", "/api/v1/documents/{document_id}/tts/chunks/{chunk_id}", &["ai:read", "library:read"]),
-    CompositeOperationContract::new("get", "/api/v1/documents/{document_id}/tts/timestamp", &["ai:read", "library:read"]),
-    CompositeOperationContract::new("patch", "/api/v1/documents/{document_id}/playback", &["ai:write"]),
-    CompositeOperationContract::new("get", "/api/v1/documents/{document_id}/playback", &["ai:read"]),
-];
+pub(super) const AI_OPERATIONS: &[CompositeOperationContract] = &[];
 
 #[rustfmt::skip]
 pub(super) const OBSIDIAN_SYNC_OPERATIONS: &[CompositeOperationContract] = &[

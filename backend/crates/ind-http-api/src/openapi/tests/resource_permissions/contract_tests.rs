@@ -145,17 +145,6 @@ fn asset_operations_publish_bearer_pat_and_cookie_boundaries_truthfully() {
     );
     assert_eq!(document["x-indelible-permissions"], json!(["library:read"]));
 
-    let tts = &spec["paths"]["/api/v1/assets/documents/{document_id}/tts/{session_id}/{chunk_file}"]
-        ["get"];
-    assert_eq!(
-        tts["security"],
-        json!([{"bearer": []}, {"api_token": []}, {"asset_cookie": []}])
-    );
-    assert_eq!(
-        tts["x-indelible-permissions"],
-        json!(["ai:read", "library:read"])
-    );
-
     let avatar = &spec["paths"]["/api/v1/assets/{user_id}/avatars/{filename}"]["get"];
     assert_eq!(
         avatar["security"],
@@ -262,10 +251,6 @@ fn forbidden_responses_describe_permissions_or_verified_jwt_access() {
         ),
         ("post", "/api/v1/library/query"),
         ("post", "/api/v1/integrations/{id}/obsidian/preview"),
-        (
-            "get",
-            "/api/v1/assets/documents/{document_id}/tts/{session_id}/{chunk_file}",
-        ),
         ("get", "/api/v1/documents/{document_id}/toc"),
     ] {
         assert_eq!(

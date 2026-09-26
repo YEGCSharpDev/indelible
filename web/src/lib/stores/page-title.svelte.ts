@@ -24,12 +24,12 @@ const ROUTE_TITLE_RULES: Rule[] = [
 	{ pattern: /^\/entities\/[^/]+(?:\/|$)/, key: 'entity_page_title' },
 	{ pattern: /^\/onboarding(?:\/|$)/, key: 'onboarding_page_title' },
 	{
-		pattern: /^\/preferences\/integrations\/notion(?:\/|$)/,
-		key: 'settings_notion_page_title'
-	},
-	{
 		pattern: /^\/preferences\/integrations\/obsidian(?:\/|$)/,
 		key: 'settings_obsidian_page_title'
+	},
+	{
+		pattern: /^\/preferences\/integrations\/miniflux(?:\/|$)/,
+		key: 'settings_miniflux_page_title'
 	},
 	{ pattern: /^\/preferences\/integrations(?:\/|$)/, key: 'settings_integrations' },
 	{ pattern: /^\/preferences\/account(?:\/|$)/, key: 'settings_account' },

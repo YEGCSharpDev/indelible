@@ -12,7 +12,7 @@ use secrecy::{ExposeSecret, SecretString};
 
 use crate::concurrency::ConcurrencyLimiter;
 use crate::config::WorkerConfig;
-use crate::context::{NotionRateLimiterRegistry, WorkerContext};
+use crate::context::WorkerContext;
 use crate::renderer_client::HttpRendererClient;
 use crate::repositories::Repositories;
 use crate::{auto_heal, failure, jobs, providers, relay, schedulers, shutdown};
@@ -29,7 +29,7 @@ pub async fn run() -> anyhow::Result<()> {
 
     // Fail closed at boot: in production a set-but-invalid credential key must
     // abort startup rather than silently disabling integration token decryption
-    // and surfacing as failing Notion jobs later.
+    // and surfacing as failing integration jobs later.
     validate_credential_key(
         &config.server.environment,
         config.auth.credential_key.as_ref(),
@@ -152,19 +152,10 @@ async fn build_context(
     .with_worker_id(worker_id)
     .with_search_reindex_repo(search_reindex_repo)
     .with_concurrency(
-        ConcurrencyLimiter::new()
-            .with_limit(
-                ind_domain::job_types::FEED_PREPARE_DOCUMENT,
-                config.capture.max_concurrency,
-            )
-            .with_limit(
-                ind_domain::job_types::INTEGRATION_NOTION_EXPORT_DOCUMENT,
-                config.integrations.notion.export_max_concurrency,
-            )
-            .with_limit(
-                ind_domain::job_types::INTEGRATION_NOTION_SYNC_CONNECTION,
-                config.integrations.notion.sync_max_concurrency,
-            ),
+        ConcurrencyLimiter::new().with_limit(
+            ind_domain::job_types::FEED_PREPARE_DOCUMENT,
+            config.capture.max_concurrency,
+        ),
     )
     .with_recovery_settings(&config.auto_heal)
     .with_feed_poll_schedule(schedulers::feed_poll_schedule(config))
@@ -174,7 +165,6 @@ async fn build_context(
         repos.integration_connection.clone(),
         repos.highlight.clone(),
     )
-    .with_notion_job_deps_option(build_notion_job_deps(config, repos))
     .with_webhook_http(webhook_http)
     .build())
 }
@@ -188,32 +178,6 @@ async fn build_object_storage(
 
     let s3 = ind_persistence::storage::S3Client::from_config(config.s3_config()?);
     Ok(Some(Arc::new(s3)))
-}
-
-fn build_notion_job_deps(
-    config: &WorkerConfig,
-    repos: &Repositories,
-) -> Option<Arc<crate::context::NotionJobDeps>> {
-    let key = config.auth.credential_key.as_ref()?;
-    match ind_auth::CredentialCipher::from_base64(key.expose_secret()) {
-        Ok(cipher) => Some(Arc::new(crate::context::NotionJobDeps {
-            connection_repo: repos.integration_connection.clone(),
-            oauth_token_repo: repos.integration_oauth_token.clone(),
-            export_cursor_repo: repos.export_cursor.clone(),
-            highlight_repo: repos.highlight.clone(),
-            tag_repo: repos.tag.clone(),
-            document_repo: repos.document.clone(),
-            library_repo: repos.library.clone(),
-            outbox_repo: repos.job_outbox.clone(),
-            cipher: Arc::new(cipher),
-            rate_limiters: Arc::new(NotionRateLimiterRegistry::new(3.0)),
-            notion_api_base: "https://api.notion.com".into(),
-        })),
-        Err(e) => {
-            tracing::warn!(error = %e, "auth.credential_key is set but invalid; Notion export disabled");
-            None
-        }
-    }
 }
 
 fn spawn_feed_source_entry_canonical_url_backfill(ctx: Arc<WorkerContext>) {
@@ -292,17 +256,6 @@ fn spawn_background_loops(
         None
     };
 
-    let notion_catch_up_handle = if config.integrations.notion.catch_up_enabled {
-        let notion_job_deps = ctx.notion_job_deps.clone();
-        let notion_config = config.clone();
-        Some(tokio::spawn(async move {
-            schedulers::run_notion_catch_up_loop(notion_job_deps, notion_config).await;
-        }))
-    } else {
-        tracing::info!("notion catch-up scheduler disabled");
-        None
-    };
-
     let webhook_projector_handle = {
         let webhook_deps = ctx.webhook_jobs();
         tokio::spawn(async move {
@@ -316,7 +269,6 @@ fn spawn_background_loops(
         feed_scheduler_handle,
         trash_cleanup_handle,
         retention_cleanup_handle,
-        notion_catch_up_handle,
         webhook_projector_handle,
     }
 }
@@ -327,7 +279,6 @@ struct WorkerHandles {
     feed_scheduler_handle: Option<tokio::task::JoinHandle<()>>,
     trash_cleanup_handle: Option<tokio::task::JoinHandle<()>>,
     retention_cleanup_handle: Option<tokio::task::JoinHandle<()>>,
-    notion_catch_up_handle: Option<tokio::task::JoinHandle<()>>,
     webhook_projector_handle: tokio::task::JoinHandle<()>,
 }
 
@@ -344,9 +295,6 @@ impl WorkerHandles {
             handle.abort();
         }
         if let Some(handle) = self.retention_cleanup_handle {
-            handle.abort();
-        }
-        if let Some(handle) = self.notion_catch_up_handle {
             handle.abort();
         }
         self.webhook_projector_handle.abort();

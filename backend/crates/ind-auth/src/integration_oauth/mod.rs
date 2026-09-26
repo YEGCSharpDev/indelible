@@ -1,4 +1,3 @@
-pub mod notion;
 pub mod settings;
 
 #[cfg(test)]

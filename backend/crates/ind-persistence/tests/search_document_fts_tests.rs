@@ -1,6 +1,5 @@
 #![allow(clippy::unwrap_used)]
 
-use ind_application::repos::content_vector::{ContentVectorRepository, SingleDocumentFtsQuery};
 use ind_application::repos::document::DocumentRepository;
 use ind_application::repos::email_sender::EmailSenderRepository;
 use ind_application::repos::feed::FeedRepository;
@@ -10,8 +9,7 @@ use ind_domain::{
     SearchDocumentId, SearchDocumentKind, SearchDocumentSource, UserId,
 };
 use ind_persistence::repos::{
-    PgContentVectorRepository, PgDocumentRepository, PgEmailSenderRepository, PgFeedRepository,
-    PgSearchRepository,
+    PgDocumentRepository, PgEmailSenderRepository, PgFeedRepository, PgSearchRepository,
 };
 use ind_test_support::{
     DocumentFactory, FeedDeliveryFactory, FeedSourceFactory, FeedSubscriptionFactory,
@@ -152,7 +150,6 @@ async fn adaptive_vectors_support_english_morphology_simple_tokens_mila_and_gin(
     let pool = db.pool().clone();
     let search_repo = PgSearchRepository::new(pool.clone());
     let document_repo = PgDocumentRepository::new(pool.clone());
-    let mila_repo = PgContentVectorRepository::new(pool.clone());
     let user = UserFactory::default().insert(&pool).await;
 
     let english = DocumentFactory::new(user.id)
@@ -188,18 +185,6 @@ async fn adaptive_vectors_support_english_morphology_simple_tokens_mila_and_gin(
             .to_lowercase()
             .contains("<mark>running</mark>")
     );
-
-    let mila_hits = mila_repo
-        .fts_single_document(&SingleDocumentFtsQuery {
-            user_id: user.id,
-            document_id: english.id,
-            text_query: "run".into(),
-            limit: 10,
-        })
-        .await
-        .unwrap();
-    assert_eq!(mila_hits.len(), 1);
-    assert_eq!(mila_hits[0].document_id, Some(english.id));
 
     let non_english = DocumentFactory::new(user.id)
         .with_title("Crónica española")

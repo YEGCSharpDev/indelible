@@ -49,7 +49,7 @@ impl TryFrom<TokenRow> for IntegrationOAuthToken {
 
 fn parse_provider(s: &str) -> Result<IntegrationOAuthProvider, AppError> {
     match s {
-        "notion" => Ok(IntegrationOAuthProvider::Notion),
+        "custom" => Ok(IntegrationOAuthProvider::Custom),
         other => Err(AppError::Domain(DomainError::InvariantViolation {
             message: format!("invalid integration oauth provider: {other}"),
         })),

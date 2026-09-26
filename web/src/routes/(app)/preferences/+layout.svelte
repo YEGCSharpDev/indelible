@@ -32,8 +32,8 @@
 		'add-to-feed': 'settings_add_to_feed',
 		'add-to-library': 'settings_add_to_library',
 		'import-export': 'settings_import_export',
-		notion: 'settings_notion',
-		obsidian: 'settings_obsidian'
+		obsidian: 'settings_obsidian',
+		miniflux: 'settings_miniflux'
 	};
 
 	const pageSlug = $derived(page.url.pathname.split('/').filter(Boolean).pop() ?? '');

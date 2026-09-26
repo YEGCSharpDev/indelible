@@ -180,6 +180,11 @@ export type CompleteStepRequest = {
 	data: StepData;
 };
 
+export type ConnectMinifluxRequest = {
+	api_key: string;
+	url: string;
+};
+
 export type ContinueReadingWidget = {
 	items: Array<HomeItemResponse>;
 };
@@ -216,20 +221,6 @@ export type CreateHighlightBody = {
 	text_content: string;
 };
 
-export type CreateMilaPromptPresetBody = {
-	action: string;
-	is_default?: boolean;
-	name: string;
-	system_prompt: string;
-};
-
-export type CreateMilaSessionBody = {
-	collection_id?: string | null;
-	delivery_id?: string | null;
-	document_id?: string | null;
-	session_type: string;
-};
-
 export type CreateObsidianRunRequest = {
 	auto?: boolean;
 	force_subject_ids?: Array<string>;
@@ -248,27 +239,6 @@ export type CreateTagBody = {
 	color?: string | null;
 	name: string;
 	parent_id?: string | null;
-};
-
-export type CreateVoicePersonaBody = {
-	description?: string | null;
-	design_prompt?: string | null;
-	display_name: string;
-	energy?: string | null;
-	formality?: string | null;
-	pace?: string | null;
-	pronunciation_prefs?: {
-		[key: string]: string;
-	} | null;
-	/**
-	 * Provider string: one of dashscope, elevenlabs, unreal_speech, inworld,
-	 * gemini, polly, mock.
-	 */
-	provider: string;
-	provider_model?: string | null;
-	provider_voice_id?: string | null;
-	style_prompt?: string | null;
-	warmth?: string | null;
 };
 
 export type CreateWebhookEndpointRequest = {
@@ -383,13 +353,6 @@ export type DuplicateDetectionSettingsDto = {
 };
 
 export type DuplicateSensitivityDto = 'low' | 'medium' | 'high';
-
-export type ElementTimestampResponse = {
-	chunk_record_id: string;
-	element_index: number;
-	end_timestamp?: number | null;
-	start_timestamp: number;
-};
 
 export type EmailAliasResponse = {
 	address?: string | null;
@@ -719,10 +682,6 @@ export type FullArchiveRequest = {
 	url: string;
 };
 
-export type GetPlaybackStateParams = {
-	kind: string;
-};
-
 export type HighlightListResponse = {
 	count: number;
 	highlights: Array<HighlightWithNoteResponse>;
@@ -874,18 +833,6 @@ export type IntegrationConnectionConfigDto =
 			sync_notifications: boolean;
 	  }
 	| {
-			compact_layout: boolean;
-			data_source_id?: string | null;
-			database_id?: string | null;
-			export_automatically: boolean;
-			include_highlight_locations: boolean;
-			provider: 'notion';
-			selection_enabled: boolean;
-			workspace_icon?: string | null;
-			workspace_id?: string | null;
-			workspace_name?: string | null;
-	  }
-	| {
 			address: string;
 			provider: 'email_ingest';
 	  }
@@ -949,6 +896,7 @@ export type LibraryEntryResponse = {
 	document_type: string;
 	domain?: string | null;
 	excerpt?: string | null;
+	finished_at: string | null;
 	/**
 	 * Why readable-content ingestion terminally failed. Always serialized:
 	 * null means the entry is healthy (or still processing); a string is the
@@ -958,9 +906,16 @@ export type LibraryEntryResponse = {
 	is_favorite: boolean;
 	is_shortlisted: boolean;
 	language?: string | null;
+	last_read_at: string | null;
 	lead_image_url?: string | null;
 	library_entry_id: string;
+	max_progress_percent: number | null;
 	object: string;
+	/**
+	 * Reader progress for the signed-in user. Always serialized so a client can tell
+	 * unread (`null`) apart from unknown.
+	 */
+	progress_percent: number | null;
 	published_at?: string | null;
 	reading_time_minutes?: number | null;
 	saved_at: string;
@@ -1081,10 +1036,6 @@ export type ListLibraryParams = {
 	 * Filter by triage state: inbox, later, archive.
 	 */
 	triage_state?: string | null;
-};
-
-export type ListSessionsParams = {
-	limit?: number;
 };
 
 export type ListSmartListsParams = {
@@ -1208,127 +1159,6 @@ export type MessageResponse = {
 	message: string;
 };
 
-export type MilaConfigResponse = {
-	byo_enabled: boolean;
-	chat_api_base: string;
-	chat_context_pct: number;
-	chat_model: string;
-	cross_item_max_per_item: number;
-	cross_item_top_k: number;
-	embedding_api_base: string;
-	embedding_dim: number;
-	embedding_model: string;
-	enabled: boolean;
-	has_chat_api_key: boolean;
-	has_embedding_api_key: boolean;
-	model_context_window: number;
-	supports_reasoning_effort: boolean;
-	supports_structured_output: boolean;
-	top_k: number;
-};
-
-export type MilaConversationResponse = {
-	messages: Array<MilaMessageResponse>;
-	session: MilaSessionResponse;
-};
-
-/**
- * Composed document provenance (TASK-234 AC#6). Concretely typed (no `serde_json::Value`) so
- * generated clients get a real type. Distinguishes Library-backed documents from prepared
- * unsaved documents with durable capability rows.
- */
-export type MilaDocumentProvenanceResponse = {
-	has_highlights: boolean;
-	has_mila_session: boolean;
-	has_note: boolean;
-	is_saved: boolean;
-	library_source?: string | null;
-	origins: Array<string>;
-};
-
-export type MilaMessageResponse = {
-	content: string;
-	created_at: string;
-	id: string;
-	role: string;
-	source_refs: Array<MilaSourceRef>;
-};
-
-export type MilaPromptPresetGroupResponse = {
-	action: string;
-	presets: Array<MilaPromptPresetResponse>;
-};
-
-export type MilaPromptPresetResponse = {
-	action: string;
-	id?: string | null;
-	is_built_in: boolean;
-	is_default: boolean;
-	name: string;
-	system_prompt: string;
-};
-
-export type MilaPromptPresetsResponse = {
-	groups: Array<MilaPromptPresetGroupResponse>;
-};
-
-export type MilaSessionListResponse = {
-	sessions: Array<MilaSessionPreviewResponse>;
-};
-
-export type MilaSessionPreviewResponse = {
-	collection_id?: string | null;
-	created_at: string;
-	document_id?: string | null;
-	id: string;
-	last_active: string;
-	preview_content?: string | null;
-	preview_role?: string | null;
-	session_type: string;
-};
-
-export type MilaSessionResponse = {
-	collection_id?: string | null;
-	created_at: string;
-	document_id?: string | null;
-	id: string;
-	last_active: string;
-	provenance?: null | MilaDocumentProvenanceResponse;
-	session_type: string;
-};
-
-export type MilaSourceRef = {
-	document_id: string;
-	item_title: string;
-	source_label: string;
-};
-
-export type MilaStatusResponse = {
-	eligible_items: number;
-	enabled: boolean;
-	indexed_items: number;
-	is_indexing: boolean;
-	progress_percent: number;
-	reindex_required: boolean;
-	stale_items: number;
-};
-
-export type MilaStreamDeltaResponse = {
-	delta: string;
-	retrieval_degraded?: string | null;
-};
-
-export type MilaStreamErrorResponse = {
-	error: string;
-};
-
-export type MilaStreamParams = {
-	highlight_offset?: number | null;
-	highlight_text?: string | null;
-	question: string;
-	session_id: string;
-};
-
 export type NativeOAuthErrorResponse = {
 	error: string;
 	error_description: string;
@@ -1357,41 +1187,6 @@ export type NotificationsSettingsResponse = {
 	new_highlights_sync: boolean;
 	updated_at: string;
 	weekly_digest_enabled: boolean;
-};
-
-export type NotionExportItemDto = {
-	exported_page_id?: string | null;
-	item_type: string;
-	last_error?: string | null;
-	last_synced_at?: string | null;
-	library_entry_id: string;
-	selected: boolean;
-	title: string;
-	url?: string | null;
-};
-
-export type NotionExportItemSelectionDto = {
-	library_entry_id: string;
-	selected: boolean;
-};
-
-export type NotionExportItemsResponse = {
-	filtered_count: number;
-	items: Array<NotionExportItemDto>;
-	total_count: number;
-};
-
-export type NotionRefreshItemResponse = {
-	archived_page_url?: string | null;
-	job_id: string;
-	library_entry_id: string;
-};
-
-export type NotionSettingsDto = {
-	compact_layout: boolean;
-	export_automatically: boolean;
-	include_highlight_locations: boolean;
-	selection_enabled: boolean;
 };
 
 export type OAuthCallbackForm = {
@@ -1565,39 +1360,6 @@ export type PinnedCollectionEntry = {
 
 export type PinnedCollectionsWidget = {
 	collections: Array<PinnedCollectionEntry>;
-};
-
-export type PlannedChunkResponse = {
-	audio_url?: string | null;
-	cache_hit?: boolean | null;
-	chunk_id: string;
-	chunk_record_id?: string | null;
-	duration_seconds?: number | null;
-	end_element_index: number;
-	position: number;
-	start_element_index: number;
-	state: string;
-	timing_source: TtsTimingSourceDto;
-	timings: Array<PlannedChunkTimingResponse>;
-};
-
-export type PlannedChunkTimingResponse = {
-	element_index: number;
-	end_timestamp?: number | null;
-	start_timestamp: number;
-};
-
-export type PlaybackKindDto = 'tts' | 'audio' | 'video';
-
-export type PlaybackStateResponse = {
-	element_index?: number | null;
-	is_playing: boolean;
-	playback_kind: PlaybackKindDto;
-	playback_speed: number;
-	position_seconds: number;
-	tts_chunk_id?: string | null;
-	tts_voice_persona_id?: string | null;
-	updated_at: string;
 };
 
 export type PreferencesSettingsResponse = {
@@ -1818,25 +1580,6 @@ export type ResetPasswordRequest = {
 };
 
 /**
- * Response for resolving a single chunk in a session. When the chunk has
- * audio ready, `audio_url` is populated with the document/session-scoped API
- * proxy path.
- */
-export type ResolveChunkResponse = {
-	audio_url?: string | null;
-	chunk_id: string;
-	chunk_record_id?: string | null;
-	duration_seconds?: number | null;
-	position: number;
-	status: string;
-};
-
-export type RetryMilaActionResponse = {
-	action: string;
-	queued: boolean;
-};
-
-/**
  * Save a feed delivery into the Library.
  */
 export type SaveFromDeliveryBody = {
@@ -1955,31 +1698,6 @@ export type SearchSuggestionsResponse = {
 	suggestions: Array<SearchSuggestionResponse>;
 };
 
-export type SessionManifestResponse = {
-	chunks: Array<PlannedChunkResponse>;
-	document_title: string;
-	persona: VoicePersonaResponse;
-	session: SessionResponse;
-	start: SessionStartResponse;
-};
-
-export type SessionResponse = {
-	audio_format: string;
-	created_at: string;
-	document_id: string;
-	generation_scope: string;
-	id: string;
-	speed: number;
-	voice_persona_id?: string | null;
-};
-
-export type SessionStartResponse = {
-	chunk_id: string;
-	chunk_record_id: string;
-	element_index: number;
-	start_timestamp: number;
-};
-
 export type SidePanelModeDto = 'auto' | 'open' | 'closed';
 
 export type SidebarModeDto = 'expanded' | 'collapsed' | 'auto';
@@ -2010,28 +1728,16 @@ export type SourceLocatorSchemaFlat = {
 	url?: string | null;
 };
 
-export type StartSessionBody = {
-	audio_format?: string;
-	chunking_version?: number;
-	generation_scope?: string;
-	pronunciation_version?: number;
-	sample_rate?: number;
-	speed?: number;
-	start_element_index?: number | null;
-	voice_persona_id?: string | null;
-};
-
-/**
- * Freeform step-completion payload. All fields are optional; each step
- * uses only the fields relevant to it.
- */
 export type StepData = {
 	chat_api_key?: string | null;
 	chat_endpoint?: string | null;
+	chat_model?: string | null;
 	chat_provider?: string | null;
 	display_name?: string | null;
 	embedding_api_key?: string | null;
+	embedding_dim?: number | null;
 	embedding_endpoint?: string | null;
+	embedding_model?: string | null;
 	embedding_provider?: string | null;
 	feed_urls?: Array<string> | null;
 	source?: string | null;
@@ -2065,25 +1771,6 @@ export type TagResponse = {
 	parent_id?: string | null;
 };
 
-export type TestMilaConfigBody = {
-	chat_api_base: string;
-	chat_model: string;
-	embedding_api_base: string;
-	embedding_dim?: number;
-	embedding_model: string;
-	supports_reasoning_effort?: boolean;
-};
-
-export type TestMilaConfigResponse = {
-	chat_error?: string | null;
-	chat_model_ok: boolean;
-	embedding_dim?: number | null;
-	embedding_error?: string | null;
-	embedding_model_ok: boolean;
-	error?: string | null;
-	success: boolean;
-};
-
 export type TestWebhookEndpointRequest = {
 	event: string;
 };
@@ -2095,8 +1782,6 @@ export type TokenListResponse = {
 };
 
 export type TriageModeDto = 'manual' | 'focus';
-
-export type TtsTimingSourceDto = 'provider_transcript' | 'heuristic';
 
 export type UnsubscribeEmailSenderResponse = {
 	blocked_at: string;
@@ -2134,23 +1819,6 @@ export type UpdateEntityBody = {
 export type UpdateHomeSettingsBody = {
 	hidden_widgets?: Array<string> | null;
 	widget_order?: Array<string> | null;
-};
-
-export type UpdateMilaPromptPresetBody = {
-	is_default?: boolean | null;
-	name?: string | null;
-	system_prompt?: string | null;
-};
-
-export type UpdateNotionExportItemsRequest = {
-	selections: Array<NotionExportItemSelectionDto>;
-};
-
-export type UpdateNotionSettingsRequest = {
-	compact_layout?: boolean | null;
-	export_automatically?: boolean | null;
-	include_highlight_locations?: boolean | null;
-	selection_enabled?: boolean | null;
 };
 
 export type UpdateObsidianSettingsRequest = {
@@ -2215,77 +1883,12 @@ export type UploadLimitsResponse = {
 	max_upload_bytes: number;
 };
 
-export type UpsertMilaConfigBody = {
-	byo_enabled?: boolean;
-	chat_api_base: string;
-	chat_context_pct?: number;
-	chat_model: string;
-	clear_chat_api_key?: boolean;
-	clear_embedding_api_key?: boolean;
-	cross_item_max_per_item?: number;
-	cross_item_top_k?: number;
-	embedding_api_base: string;
-	embedding_dim: number;
-	embedding_model: string;
-	enabled?: boolean;
-	model_context_window: number;
-	supports_reasoning_effort?: boolean;
-	supports_structured_output?: boolean;
-	top_k?: number;
-};
-
 export type UpsertNoteBody = {
 	body: string;
 };
 
-export type UpsertPlaybackStateBody = {
-	element_index?: number | null;
-	is_playing: boolean;
-	playback_kind: string;
-	playback_speed: number;
-	position_seconds: number;
-	tts_chunk_id?: string | null;
-	tts_voice_persona_id?: string | null;
-};
-
 export type VerifyEmailRequest = {
 	token: string;
-};
-
-export type VoicePersonaListResponse = {
-	personas: Array<VoicePersonaResponse>;
-};
-
-/**
- * Persona response — represents a voice persona owned by the user (or a
- * built-in persona shipped with the product).
- */
-export type VoicePersonaResponse = {
-	created_at: string;
-	description?: string | null;
-	design_prompt?: string | null;
-	display_name: string;
-	energy?: string | null;
-	formality?: string | null;
-	id: string;
-	is_builtin: boolean;
-	pace?: string | null;
-	prompt_hash: string;
-	/**
-	 * Opaque string->string map of pronunciation overrides (regex ->
-	 * replacement is the typical shape). Treated as an opaque bag at the
-	 * API layer.
-	 */
-	pronunciation_prefs: {
-		[key: string]: string;
-	};
-	provider: string;
-	provider_model?: string | null;
-	provider_voice_id?: string | null;
-	status: string;
-	style_prompt?: string | null;
-	updated_at: string;
-	warmth?: string | null;
 };
 
 export type WebhookDeliveryListResponse = {
@@ -2335,87 +1938,6 @@ export type WorkflowSettingsDto = {
 	auto_advance: boolean;
 	triage_mode: TriageModeDto;
 };
-
-export type TestMilaConfigBodyWritable = {
-	chat_api_base: string;
-	chat_api_key?: string | null;
-	chat_model: string;
-	embedding_api_base: string;
-	embedding_api_key?: string | null;
-	embedding_dim?: number;
-	embedding_model: string;
-	supports_reasoning_effort?: boolean;
-};
-
-export type UpsertMilaConfigBodyWritable = {
-	byo_enabled?: boolean;
-	chat_api_base: string;
-	chat_api_key?: string | null;
-	chat_context_pct?: number;
-	chat_model: string;
-	clear_chat_api_key?: boolean;
-	clear_embedding_api_key?: boolean;
-	cross_item_max_per_item?: number;
-	cross_item_top_k?: number;
-	embedding_api_base: string;
-	embedding_api_key?: string | null;
-	embedding_dim: number;
-	embedding_model: string;
-	enabled?: boolean;
-	model_context_window: number;
-	supports_reasoning_effort?: boolean;
-	supports_structured_output?: boolean;
-	top_k?: number;
-};
-
-export type StreamSessionChunkAudioData = {
-	body?: never;
-	path: {
-		/**
-		 * Document id with doc_ prefix
-		 */
-		document_id: string;
-		/**
-		 * Session id with tss_ prefix
-		 */
-		session_id: string;
-		/**
-		 * Chunk id plus audio extension
-		 */
-		chunk_file: string;
-	};
-	query?: never;
-	url: '/api/v1/assets/documents/{document_id}/tts/{session_id}/{chunk_file}';
-};
-
-export type StreamSessionChunkAudioErrors = {
-	/**
-	 * Insufficient permissions
-	 */
-	403: unknown;
-	/**
-	 * Chunk not found
-	 */
-	404: unknown;
-	/**
-	 * Range not satisfiable
-	 */
-	416: unknown;
-};
-
-export type StreamSessionChunkAudioResponses = {
-	/**
-	 * Full audio body
-	 */
-	200: Blob | File;
-	/**
-	 * Partial content
-	 */
-	206: Blob | File;
-};
-
-export type StreamSessionChunkAudioResponse =
-	StreamSessionChunkAudioResponses[keyof StreamSessionChunkAudioResponses];
 
 export type StreamDocumentAssetData = {
 	body?: never;
@@ -3724,67 +3246,6 @@ export type UpsertDocumentNoteResponses = {
 export type UpsertDocumentNoteResponse =
 	UpsertDocumentNoteResponses[keyof UpsertDocumentNoteResponses];
 
-export type GetDocumentPlaybackStateData = {
-	body?: never;
-	path: {
-		/**
-		 * Document id
-		 */
-		document_id: string;
-	};
-	query: {
-		kind: string;
-	};
-	url: '/api/v1/documents/{document_id}/playback';
-};
-
-export type GetDocumentPlaybackStateErrors = {
-	/**
-	 * Document or playback state not found
-	 */
-	404: unknown;
-};
-
-export type GetDocumentPlaybackStateResponses = {
-	/**
-	 * Playback state
-	 */
-	200: PlaybackStateResponse;
-};
-
-export type GetDocumentPlaybackStateResponse =
-	GetDocumentPlaybackStateResponses[keyof GetDocumentPlaybackStateResponses];
-
-export type UpsertDocumentPlaybackStateData = {
-	body: UpsertPlaybackStateBody;
-	path: {
-		document_id: string;
-	};
-	query?: never;
-	url: '/api/v1/documents/{document_id}/playback';
-};
-
-export type UpsertDocumentPlaybackStateErrors = {
-	/**
-	 * Document not found
-	 */
-	404: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-};
-
-export type UpsertDocumentPlaybackStateResponses = {
-	/**
-	 * Playback state persisted
-	 */
-	204: void;
-};
-
-export type UpsertDocumentPlaybackStateResponse =
-	UpsertDocumentPlaybackStateResponses[keyof UpsertDocumentPlaybackStateResponses];
-
 export type UpdateDocumentProgressData = {
 	body: UpdateDocumentProgressBody;
 	path: {
@@ -3906,111 +3367,6 @@ export type GetArticleTocResponses = {
 };
 
 export type GetArticleTocResponse = GetArticleTocResponses[keyof GetArticleTocResponses];
-
-export type ResolveDocumentTtsChunkData = {
-	body?: never;
-	path: {
-		/**
-		 * Document id
-		 */
-		document_id: string;
-		/**
-		 * Stable chunk id
-		 */
-		chunk_id: string;
-	};
-	query: {
-		/**
-		 * TTS session id
-		 */
-		session_id: string;
-	};
-	url: '/api/v1/documents/{document_id}/tts/chunks/{chunk_id}';
-};
-
-export type ResolveDocumentTtsChunkErrors = {
-	/**
-	 * Chunk not found
-	 */
-	404: unknown;
-};
-
-export type ResolveDocumentTtsChunkResponses = {
-	/**
-	 * Chunk metadata
-	 */
-	200: ResolveChunkResponse;
-};
-
-export type ResolveDocumentTtsChunkResponse =
-	ResolveDocumentTtsChunkResponses[keyof ResolveDocumentTtsChunkResponses];
-
-export type StartDocumentTtsSessionData = {
-	body: StartSessionBody;
-	path: {
-		document_id: string;
-	};
-	query?: never;
-	url: '/api/v1/documents/{document_id}/tts/sessions';
-};
-
-export type StartDocumentTtsSessionErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Document not found
-	 */
-	404: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-};
-
-export type StartDocumentTtsSessionResponses = {
-	/**
-	 * TTS session manifest
-	 */
-	200: SessionManifestResponse;
-};
-
-export type StartDocumentTtsSessionResponse =
-	StartDocumentTtsSessionResponses[keyof StartDocumentTtsSessionResponses];
-
-export type ResolveDocumentTtsTimestampData = {
-	body?: never;
-	path: {
-		/**
-		 * Document id
-		 */
-		document_id: string;
-	};
-	query: {
-		session_id: string;
-		chunk_id: string;
-		element_index: number;
-	};
-	url: '/api/v1/documents/{document_id}/tts/timestamp';
-};
-
-export type ResolveDocumentTtsTimestampErrors = {
-	/**
-	 * Timestamp not found
-	 */
-	404: unknown;
-};
-
-export type ResolveDocumentTtsTimestampResponses = {
-	/**
-	 * Element timestamp
-	 */
-	200: ElementTimestampResponse;
-};
-
-export type ResolveDocumentTtsTimestampResponse =
-	ResolveDocumentTtsTimestampResponses[keyof ResolveDocumentTtsTimestampResponses];
 
 export type ListEmailAliasesData = {
 	body?: never;
@@ -5948,6 +5304,33 @@ export type ListIntegrationsResponses = {
 
 export type ListIntegrationsResponse = ListIntegrationsResponses[keyof ListIntegrationsResponses];
 
+export type ConnectMinifluxData = {
+	body: ConnectMinifluxRequest;
+	path?: never;
+	query?: never;
+	url: '/api/v1/integrations/miniflux/connect';
+};
+
+export type ConnectMinifluxErrors = {
+	/**
+	 * Invalid Miniflux credentials
+	 */
+	400: unknown;
+	/**
+	 * Authentication required
+	 */
+	401: unknown;
+};
+
+export type ConnectMinifluxResponses = {
+	/**
+	 * Miniflux connected
+	 */
+	200: IntegrationConnectionDto;
+};
+
+export type ConnectMinifluxResponse = ConnectMinifluxResponses[keyof ConnectMinifluxResponses];
+
 export type SetupObsidianConnectionData = {
 	body?: never;
 	path?: never;
@@ -6004,124 +5387,6 @@ export type DeleteIntegrationResponses = {
 
 export type DeleteIntegrationResponse =
 	DeleteIntegrationResponses[keyof DeleteIntegrationResponses];
-
-export type ListNotionExportItemsData = {
-	body?: never;
-	path: {
-		/**
-		 * Integration connection ID
-		 */
-		id: string;
-	};
-	query?: {
-		q?: string | null;
-		limit?: number;
-		offset?: number;
-	};
-	url: '/api/v1/integrations/{id}/notion/export-entries';
-};
-
-export type ListNotionExportItemsResponses = {
-	/**
-	 * Notion export item selection list
-	 */
-	200: NotionExportItemsResponse;
-};
-
-export type ListNotionExportItemsResponse =
-	ListNotionExportItemsResponses[keyof ListNotionExportItemsResponses];
-
-export type UpdateNotionExportItemsData = {
-	body: UpdateNotionExportItemsRequest;
-	path: {
-		/**
-		 * Integration connection ID
-		 */
-		id: string;
-	};
-	query?: never;
-	url: '/api/v1/integrations/{id}/notion/export-entries';
-};
-
-export type UpdateNotionExportItemsResponses = {
-	/**
-	 * Selection updated
-	 */
-	204: void;
-};
-
-export type UpdateNotionExportItemsResponse =
-	UpdateNotionExportItemsResponses[keyof UpdateNotionExportItemsResponses];
-
-export type RefreshNotionExportItemData = {
-	body?: never;
-	path: {
-		/**
-		 * Integration connection ID
-		 */
-		id: string;
-		/**
-		 * Library entry ID to refresh
-		 */
-		library_entry_id: string;
-	};
-	query?: never;
-	url: '/api/v1/integrations/{id}/notion/export-entries/{library_entry_id}/refresh';
-};
-
-export type RefreshNotionExportItemResponses = {
-	/**
-	 * Prior Notion page archived and replacement queued
-	 */
-	200: NotionRefreshItemResponse;
-};
-
-export type RefreshNotionExportItemResponse =
-	RefreshNotionExportItemResponses[keyof RefreshNotionExportItemResponses];
-
-export type GetNotionSettingsData = {
-	body?: never;
-	path: {
-		/**
-		 * Integration connection ID
-		 */
-		id: string;
-	};
-	query?: never;
-	url: '/api/v1/integrations/{id}/notion/settings';
-};
-
-export type GetNotionSettingsResponses = {
-	/**
-	 * Notion export settings
-	 */
-	200: NotionSettingsDto;
-};
-
-export type GetNotionSettingsResponse =
-	GetNotionSettingsResponses[keyof GetNotionSettingsResponses];
-
-export type UpdateNotionSettingsData = {
-	body: UpdateNotionSettingsRequest;
-	path: {
-		/**
-		 * Integration connection ID
-		 */
-		id: string;
-	};
-	query?: never;
-	url: '/api/v1/integrations/{id}/notion/settings';
-};
-
-export type UpdateNotionSettingsResponses = {
-	/**
-	 * Updated Notion export settings
-	 */
-	200: NotionSettingsDto;
-};
-
-export type UpdateNotionSettingsResponse =
-	UpdateNotionSettingsResponses[keyof UpdateNotionSettingsResponses];
 
 export type PreviewObsidianExportData = {
 	body: ObsidianPreviewRequest;
@@ -7109,444 +6374,6 @@ export type ChangePasswordResponses = {
 	200: unknown;
 };
 
-export type GetConfigData = {
-	body?: never;
-	path?: never;
-	query?: never;
-	url: '/api/v1/mila/config';
-};
-
-export type GetConfigResponses = {
-	/**
-	 * Current Mila configuration
-	 */
-	200: MilaConfigResponse;
-};
-
-export type GetConfigResponse = GetConfigResponses[keyof GetConfigResponses];
-
-export type UpsertConfigData = {
-	body: UpsertMilaConfigBodyWritable;
-	path?: never;
-	query?: never;
-	url: '/api/v1/mila/config';
-};
-
-export type UpsertConfigErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-};
-
-export type UpsertConfigResponses = {
-	/**
-	 * Updated Mila configuration
-	 */
-	200: MilaConfigResponse;
-};
-
-export type UpsertConfigResponse = UpsertConfigResponses[keyof UpsertConfigResponses];
-
-export type ReindexConfigData = {
-	body: UpsertMilaConfigBodyWritable;
-	path?: never;
-	query?: never;
-	url: '/api/v1/mila/config/reindex';
-};
-
-export type ReindexConfigErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-};
-
-export type ReindexConfigResponses = {
-	/**
-	 * Updated Mila configuration and queued a full embedding reindex
-	 */
-	200: MilaConfigResponse;
-};
-
-export type ReindexConfigResponse = ReindexConfigResponses[keyof ReindexConfigResponses];
-
-export type TestConfigData = {
-	body: TestMilaConfigBodyWritable;
-	path?: never;
-	query?: never;
-	url: '/api/v1/mila/config/test';
-};
-
-export type TestConfigErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-};
-
-export type TestConfigResponses = {
-	/**
-	 * Provider connectivity test result
-	 */
-	200: TestMilaConfigResponse;
-};
-
-export type TestConfigResponse = TestConfigResponses[keyof TestConfigResponses];
-
-export type RetryMilaDocumentActionData = {
-	body?: never;
-	path: {
-		/**
-		 * Document id with doc_ prefix
-		 */
-		document_id: string;
-		/**
-		 * Retryable Mila action: summary, tags, or entities
-		 */
-		action: string;
-	};
-	query?: never;
-	url: '/api/v1/mila/documents/{document_id}/actions/{action}/retry';
-};
-
-export type RetryMilaDocumentActionErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Insufficient permissions
-	 */
-	403: unknown;
-	/**
-	 * Document not found
-	 */
-	404: unknown;
-	/**
-	 * Unsupported Mila action
-	 */
-	422: unknown;
-	/**
-	 * Mila service not configured
-	 */
-	503: unknown;
-};
-
-export type RetryMilaDocumentActionResponses = {
-	/**
-	 * Mila action retry queued
-	 */
-	200: RetryMilaActionResponse;
-};
-
-export type RetryMilaDocumentActionResponse =
-	RetryMilaDocumentActionResponses[keyof RetryMilaDocumentActionResponses];
-
-export type ListPromptPresetsData = {
-	body?: never;
-	path?: never;
-	query?: never;
-	url: '/api/v1/mila/presets';
-};
-
-export type ListPromptPresetsResponses = {
-	/**
-	 * Prompt presets grouped by action
-	 */
-	200: MilaPromptPresetsResponse;
-};
-
-export type ListPromptPresetsResponse =
-	ListPromptPresetsResponses[keyof ListPromptPresetsResponses];
-
-export type CreatePromptPresetData = {
-	body: CreateMilaPromptPresetBody;
-	path?: never;
-	query?: never;
-	url: '/api/v1/mila/presets';
-};
-
-export type CreatePromptPresetErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-};
-
-export type CreatePromptPresetResponses = {
-	/**
-	 * Created prompt preset
-	 */
-	201: MilaPromptPresetResponse;
-};
-
-export type CreatePromptPresetResponse =
-	CreatePromptPresetResponses[keyof CreatePromptPresetResponses];
-
-export type DeletePromptPresetData = {
-	body?: never;
-	path: {
-		/**
-		 * Prompt preset ID
-		 */
-		preset_id: string;
-	};
-	query?: never;
-	url: '/api/v1/mila/presets/{preset_id}';
-};
-
-export type DeletePromptPresetErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Prompt preset not found
-	 */
-	404: unknown;
-};
-
-export type DeletePromptPresetResponses = {
-	/**
-	 * Prompt preset deleted
-	 */
-	204: void;
-};
-
-export type DeletePromptPresetResponse =
-	DeletePromptPresetResponses[keyof DeletePromptPresetResponses];
-
-export type UpdatePromptPresetData = {
-	body: UpdateMilaPromptPresetBody;
-	path: {
-		/**
-		 * Prompt preset ID
-		 */
-		preset_id: string;
-	};
-	query?: never;
-	url: '/api/v1/mila/presets/{preset_id}';
-};
-
-export type UpdatePromptPresetErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Prompt preset not found
-	 */
-	404: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-};
-
-export type UpdatePromptPresetResponses = {
-	/**
-	 * Updated prompt preset
-	 */
-	200: MilaPromptPresetResponse;
-};
-
-export type UpdatePromptPresetResponse =
-	UpdatePromptPresetResponses[keyof UpdatePromptPresetResponses];
-
-export type ListSessionsData = {
-	body?: never;
-	path?: never;
-	query?: {
-		limit?: number;
-	};
-	url: '/api/v1/mila/sessions';
-};
-
-export type ListSessionsErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-};
-
-export type ListSessionsResponses = {
-	/**
-	 * User's Mila sessions ordered by last_active desc
-	 */
-	200: MilaSessionListResponse;
-};
-
-export type ListSessionsResponse = ListSessionsResponses[keyof ListSessionsResponses];
-
-export type CreateSessionData = {
-	body: CreateMilaSessionBody;
-	path?: never;
-	query?: never;
-	url: '/api/v1/mila/sessions';
-};
-
-export type CreateSessionErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Item or collection not found
-	 */
-	404: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-};
-
-export type CreateSessionResponses = {
-	/**
-	 * Created Mila chat session
-	 */
-	201: MilaSessionResponse;
-};
-
-export type CreateSessionResponse = CreateSessionResponses[keyof CreateSessionResponses];
-
-export type DeleteSessionData = {
-	body?: never;
-	path: {
-		/**
-		 * Mila session ID
-		 */
-		session_id: string;
-	};
-	query?: never;
-	url: '/api/v1/mila/sessions/{session_id}';
-};
-
-export type DeleteSessionErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Session not found
-	 */
-	404: unknown;
-};
-
-export type DeleteSessionResponses = {
-	/**
-	 * Session deleted
-	 */
-	204: void;
-};
-
-export type DeleteSessionResponse = DeleteSessionResponses[keyof DeleteSessionResponses];
-
-export type GetSessionMessagesData = {
-	body?: never;
-	path: {
-		/**
-		 * Mila session ID
-		 */
-		session_id: string;
-	};
-	query?: never;
-	url: '/api/v1/mila/sessions/{session_id}/messages';
-};
-
-export type GetSessionMessagesErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Session not found
-	 */
-	404: unknown;
-};
-
-export type GetSessionMessagesResponses = {
-	/**
-	 * Chronological Mila conversation history
-	 */
-	200: MilaConversationResponse;
-};
-
-export type GetSessionMessagesResponse =
-	GetSessionMessagesResponses[keyof GetSessionMessagesResponses];
-
-export type GetStatusData = {
-	body?: never;
-	path?: never;
-	query?: never;
-	url: '/api/v1/mila/status';
-};
-
-export type GetStatusResponses = {
-	/**
-	 * Current Mila embedding status
-	 */
-	200: MilaStatusResponse;
-};
-
-export type GetStatusResponse = GetStatusResponses[keyof GetStatusResponses];
-
-export type StreamChatData = {
-	body?: never;
-	path?: never;
-	query: {
-		session_id: string;
-		question: string;
-		highlight_text?: string | null;
-		highlight_offset?: number | null;
-	};
-	url: '/api/v1/mila/stream';
-};
-
-export type StreamChatErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Session not found
-	 */
-	404: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-	/**
-	 * AI provider unavailable (code ai_provider_unavailable, includes Retry-After)
-	 */
-	503: unknown;
-};
-
-export type StreamChatResponses = {
-	/**
-	 * SSE stream of Mila chat deltas
-	 */
-	200: string;
-};
-
-export type StreamChatResponse = StreamChatResponses[keyof StreamChatResponses];
-
 export type GetOnboardingData = {
 	body?: never;
 	path?: never;
@@ -7567,7 +6394,7 @@ export type GetOnboardingErrors = {
 
 export type GetOnboardingResponses = {
 	/**
-	 * Onboarding status
+	 * Get onboarding status
 	 */
 	200: OnboardingResponse;
 };
@@ -7594,7 +6421,7 @@ export type SkipOnboardingErrors = {
 
 export type SkipOnboardingResponses = {
 	/**
-	 * Onboarding skipped
+	 * Skip onboarding
 	 */
 	200: OnboardingResponse;
 };
@@ -7605,7 +6432,7 @@ export type CompleteStepData = {
 	body: CompleteStepRequest;
 	path: {
 		/**
-		 * Step number to complete
+		 * Step number
 		 */
 		step: number;
 	};
@@ -7622,15 +6449,11 @@ export type CompleteStepErrors = {
 	 * Verified user access JWT from a supported client and verified email required
 	 */
 	403: unknown;
-	/**
-	 * Invalid step or feed URL
-	 */
-	422: unknown;
 };
 
 export type CompleteStepResponses = {
 	/**
-	 * Step completed, updated onboarding status
+	 * Complete onboarding step
 	 */
 	200: OnboardingResponse;
 };
@@ -8514,52 +7337,6 @@ export type RevokeTokenResponses = {
 };
 
 export type RevokeTokenResponse = RevokeTokenResponses[keyof RevokeTokenResponses];
-
-export type ListPersonasData = {
-	body?: never;
-	path?: never;
-	query?: never;
-	url: '/api/v1/tts/voice-personas';
-};
-
-export type ListPersonasErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-};
-
-export type ListPersonasResponses = {
-	/**
-	 * Voice personas available to the user
-	 */
-	200: VoicePersonaListResponse;
-};
-
-export type ListPersonasResponse = ListPersonasResponses[keyof ListPersonasResponses];
-
-export type CreatePersonaData = {
-	body: CreateVoicePersonaBody;
-	path?: never;
-	query?: never;
-	url: '/api/v1/tts/voice-personas';
-};
-
-export type CreatePersonaErrors = {
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-};
-
-export type CreatePersonaResponses = {
-	/**
-	 * Persona created
-	 */
-	201: VoicePersonaResponse;
-};
-
-export type CreatePersonaResponse = CreatePersonaResponses[keyof CreatePersonaResponses];
 
 export type ListWebhookEndpointsData = {
 	body?: never;

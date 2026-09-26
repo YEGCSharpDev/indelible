@@ -29,6 +29,9 @@ import type {
 	CompleteStepData,
 	CompleteStepErrors,
 	CompleteStepResponses,
+	ConnectMinifluxData,
+	ConnectMinifluxErrors,
+	ConnectMinifluxResponses,
 	CountLibraryData,
 	CountLibraryErrors,
 	CountLibraryResponses,
@@ -44,15 +47,6 @@ import type {
 	CreateObsidianRunData,
 	CreateObsidianRunErrors,
 	CreateObsidianRunResponses,
-	CreatePersonaData,
-	CreatePersonaErrors,
-	CreatePersonaResponses,
-	CreatePromptPresetData,
-	CreatePromptPresetErrors,
-	CreatePromptPresetResponses,
-	CreateSessionData,
-	CreateSessionErrors,
-	CreateSessionResponses,
 	CreateSmartListData,
 	CreateSmartListErrors,
 	CreateSmartListResponses,
@@ -86,15 +80,9 @@ import type {
 	DeleteNoteData,
 	DeleteNoteErrors,
 	DeleteNoteResponses,
-	DeletePromptPresetData,
-	DeletePromptPresetErrors,
-	DeletePromptPresetResponses,
 	DeleteRecentSearchData,
 	DeleteRecentSearchErrors,
 	DeleteRecentSearchResponses,
-	DeleteSessionData,
-	DeleteSessionErrors,
-	DeleteSessionResponses,
 	DeleteSmartListData,
 	DeleteSmartListErrors,
 	DeleteSmartListResponses,
@@ -177,17 +165,12 @@ import type {
 	GetCollectionData,
 	GetCollectionErrors,
 	GetCollectionResponses,
-	GetConfigData,
-	GetConfigResponses,
 	GetDocumentAssetData,
 	GetDocumentAssetErrors,
 	GetDocumentAssetResponses,
 	GetDocumentNoteData,
 	GetDocumentNoteErrors,
 	GetDocumentNoteResponses,
-	GetDocumentPlaybackStateData,
-	GetDocumentPlaybackStateErrors,
-	GetDocumentPlaybackStateResponses,
 	GetDocumentReaderData,
 	GetDocumentReaderErrors,
 	GetDocumentReaderResponses,
@@ -226,8 +209,6 @@ import type {
 	GetLibraryEntryResponses,
 	GetNotificationsData,
 	GetNotificationsResponses,
-	GetNotionSettingsData,
-	GetNotionSettingsResponses,
 	GetObsidianRunData,
 	GetObsidianRunErrors,
 	GetObsidianRunResponses,
@@ -242,14 +223,9 @@ import type {
 	GetProfileData,
 	GetProfileErrors,
 	GetProfileResponses,
-	GetSessionMessagesData,
-	GetSessionMessagesErrors,
-	GetSessionMessagesResponses,
 	GetSmartListData,
 	GetSmartListErrors,
 	GetSmartListResponses,
-	GetStatusData,
-	GetStatusResponses,
 	GetTagData,
 	GetTagErrors,
 	GetTagResponses,
@@ -302,13 +278,6 @@ import type {
 	ListLibraryTrashData,
 	ListLibraryTrashErrors,
 	ListLibraryTrashResponses,
-	ListNotionExportItemsData,
-	ListNotionExportItemsResponses,
-	ListPersonasData,
-	ListPersonasErrors,
-	ListPersonasResponses,
-	ListPromptPresetsData,
-	ListPromptPresetsResponses,
 	ListProvidersData,
 	ListProvidersResponses,
 	ListRecentHighlightsData,
@@ -320,9 +289,6 @@ import type {
 	ListRefreshTokensData,
 	ListRefreshTokensErrors,
 	ListRefreshTokensResponses,
-	ListSessionsData,
-	ListSessionsErrors,
-	ListSessionsResponses,
 	ListSmartListsData,
 	ListSmartListsErrors,
 	ListSmartListsResponses,
@@ -405,8 +371,6 @@ import type {
 	RecordObsidianRenameResponses,
 	RefreshData,
 	RefreshErrors,
-	RefreshNotionExportItemData,
-	RefreshNotionExportItemResponses,
 	RefreshObsidianSubjectsData,
 	RefreshObsidianSubjectsErrors,
 	RefreshObsidianSubjectsResponses,
@@ -414,9 +378,6 @@ import type {
 	RegisterData,
 	RegisterErrors,
 	RegisterResponses,
-	ReindexConfigData,
-	ReindexConfigErrors,
-	ReindexConfigResponses,
 	RemoveEntryFromCollectionData,
 	RemoveEntryFromCollectionErrors,
 	RemoveEntryFromCollectionResponses,
@@ -429,18 +390,9 @@ import type {
 	ResetPasswordData,
 	ResetPasswordErrors,
 	ResetPasswordResponses,
-	ResolveDocumentTtsChunkData,
-	ResolveDocumentTtsChunkErrors,
-	ResolveDocumentTtsChunkResponses,
-	ResolveDocumentTtsTimestampData,
-	ResolveDocumentTtsTimestampErrors,
-	ResolveDocumentTtsTimestampResponses,
 	RestoreEntryData,
 	RestoreEntryErrors,
 	RestoreEntryResponses,
-	RetryMilaDocumentActionData,
-	RetryMilaDocumentActionErrors,
-	RetryMilaDocumentActionResponses,
 	RetrySubscriptionData,
 	RetrySubscriptionErrors,
 	RetrySubscriptionResponses,
@@ -480,16 +432,9 @@ import type {
 	SkipOnboardingData,
 	SkipOnboardingErrors,
 	SkipOnboardingResponses,
-	StartDocumentTtsSessionData,
-	StartDocumentTtsSessionErrors,
-	StartDocumentTtsSessionResponses,
 	StreamAvatarData,
 	StreamAvatarErrors,
 	StreamAvatarResponses,
-	StreamChatData,
-	StreamChatErrors,
-	StreamChatResponse,
-	StreamChatResponses,
 	StreamDocumentAssetData,
 	StreamDocumentAssetErrors,
 	StreamDocumentAssetResponses,
@@ -497,9 +442,6 @@ import type {
 	StreamEventsErrors,
 	StreamEventsResponse,
 	StreamEventsResponses,
-	StreamSessionChunkAudioData,
-	StreamSessionChunkAudioErrors,
-	StreamSessionChunkAudioResponses,
 	SubscribeData,
 	SubscribeErrors,
 	SubscribeResponses,
@@ -509,9 +451,6 @@ import type {
 	SyncIntegrationData,
 	SyncIntegrationErrors,
 	SyncIntegrationResponses,
-	TestConfigData,
-	TestConfigErrors,
-	TestConfigResponses,
 	TestWebhookEndpointData,
 	TestWebhookEndpointErrors,
 	TestWebhookEndpointResponses,
@@ -549,10 +488,6 @@ import type {
 	UpdateHomeSettingsResponses,
 	UpdateNotificationsData,
 	UpdateNotificationsResponses,
-	UpdateNotionExportItemsData,
-	UpdateNotionExportItemsResponses,
-	UpdateNotionSettingsData,
-	UpdateNotionSettingsResponses,
 	UpdateObsidianSettingsData,
 	UpdateObsidianSettingsErrors,
 	UpdateObsidianSettingsResponses,
@@ -561,9 +496,6 @@ import type {
 	UpdateProfileData,
 	UpdateProfileErrors,
 	UpdateProfileResponses,
-	UpdatePromptPresetData,
-	UpdatePromptPresetErrors,
-	UpdatePromptPresetResponses,
 	UpdateSmartListData,
 	UpdateSmartListErrors,
 	UpdateSmartListResponses,
@@ -588,15 +520,9 @@ import type {
 	UploadLimitsData,
 	UploadLimitsErrors,
 	UploadLimitsResponses,
-	UpsertConfigData,
-	UpsertConfigErrors,
-	UpsertConfigResponses,
 	UpsertDocumentNoteData,
 	UpsertDocumentNoteErrors,
 	UpsertDocumentNoteResponses,
-	UpsertDocumentPlaybackStateData,
-	UpsertDocumentPlaybackStateErrors,
-	UpsertDocumentPlaybackStateResponses,
 	UpsertNoteData,
 	UpsertNoteErrors,
 	UpsertNoteResponses,
@@ -622,33 +548,6 @@ export type Options<
 	 */
 	meta?: Record<string, unknown>;
 };
-
-/**
- * Stream a TTS audio chunk with optional HTTP Range support.
- *
- * The URL is scoped by document, session, and stable chunk id so the same
- * `chunk_id` can safely exist for multiple voices, formats, and speeds.
- */
-export const streamSessionChunkAudio = <ThrowOnError extends boolean = false>(
-	options: Options<StreamSessionChunkAudioData, ThrowOnError>
-) =>
-	(options.client ?? client).get<
-		StreamSessionChunkAudioResponses,
-		StreamSessionChunkAudioErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' },
-			{
-				in: 'cookie',
-				name: 'ind_asset',
-				type: 'apiKey'
-			}
-		],
-		url: '/api/v1/assets/documents/{document_id}/tts/{session_id}/{chunk_file}',
-		...options
-	});
 
 export const streamDocumentAsset = <ThrowOnError extends boolean = false>(
 	options: Options<StreamDocumentAssetData, ThrowOnError>
@@ -1286,42 +1185,6 @@ export const upsertDocumentNote = <ThrowOnError extends boolean = false>(
 		}
 	});
 
-export const getDocumentPlaybackState = <ThrowOnError extends boolean = false>(
-	options: Options<GetDocumentPlaybackStateData, ThrowOnError>
-) =>
-	(options.client ?? client).get<
-		GetDocumentPlaybackStateResponses,
-		GetDocumentPlaybackStateErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/documents/{document_id}/playback',
-		...options
-	});
-
-export const upsertDocumentPlaybackState = <ThrowOnError extends boolean = false>(
-	options: Options<UpsertDocumentPlaybackStateData, ThrowOnError>
-) =>
-	(options.client ?? client).patch<
-		UpsertDocumentPlaybackStateResponses,
-		UpsertDocumentPlaybackStateErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/documents/{document_id}/playback',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
 export const updateDocumentProgress = <ThrowOnError extends boolean = false>(
 	options: Options<UpdateDocumentProgressData, ThrowOnError>
 ) =>
@@ -1374,58 +1237,6 @@ export const getArticleToc = <ThrowOnError extends boolean = false>(
 			{ scheme: 'bearer', type: 'http' }
 		],
 		url: '/api/v1/documents/{document_id}/toc',
-		...options
-	});
-
-export const resolveDocumentTtsChunk = <ThrowOnError extends boolean = false>(
-	options: Options<ResolveDocumentTtsChunkData, ThrowOnError>
-) =>
-	(options.client ?? client).get<
-		ResolveDocumentTtsChunkResponses,
-		ResolveDocumentTtsChunkErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/documents/{document_id}/tts/chunks/{chunk_id}',
-		...options
-	});
-
-export const startDocumentTtsSession = <ThrowOnError extends boolean = false>(
-	options: Options<StartDocumentTtsSessionData, ThrowOnError>
-) =>
-	(options.client ?? client).post<
-		StartDocumentTtsSessionResponses,
-		StartDocumentTtsSessionErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/documents/{document_id}/tts/sessions',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const resolveDocumentTtsTimestamp = <ThrowOnError extends boolean = false>(
-	options: Options<ResolveDocumentTtsTimestampData, ThrowOnError>
-) =>
-	(options.client ?? client).get<
-		ResolveDocumentTtsTimestampResponses,
-		ResolveDocumentTtsTimestampErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/documents/{document_id}/tts/timestamp',
 		...options
 	});
 
@@ -2302,6 +2113,22 @@ export const listIntegrations = <ThrowOnError extends boolean = false>(
 		...options
 	});
 
+export const connectMiniflux = <ThrowOnError extends boolean = false>(
+	options: Options<ConnectMinifluxData, ThrowOnError>
+) =>
+	(options.client ?? client).post<ConnectMinifluxResponses, ConnectMinifluxErrors, ThrowOnError>({
+		security: [
+			{ scheme: 'bearer', type: 'http' },
+			{ scheme: 'bearer', type: 'http' }
+		],
+		url: '/api/v1/integrations/miniflux/connect',
+		...options,
+		headers: {
+			'Content-Type': 'application/json',
+			...options.headers
+		}
+	});
+
 export const setupObsidianConnection = <ThrowOnError extends boolean = false>(
 	options?: Options<SetupObsidianConnectionData, ThrowOnError>
 ) =>
@@ -2332,74 +2159,6 @@ export const deleteIntegration = <ThrowOnError extends boolean = false>(
 		],
 		url: '/api/v1/integrations/{id}',
 		...options
-	});
-
-export const listNotionExportItems = <ThrowOnError extends boolean = false>(
-	options: Options<ListNotionExportItemsData, ThrowOnError>
-) =>
-	(options.client ?? client).get<ListNotionExportItemsResponses, unknown, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/integrations/{id}/notion/export-entries',
-		...options
-	});
-
-export const updateNotionExportItems = <ThrowOnError extends boolean = false>(
-	options: Options<UpdateNotionExportItemsData, ThrowOnError>
-) =>
-	(options.client ?? client).patch<UpdateNotionExportItemsResponses, unknown, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/integrations/{id}/notion/export-entries',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const refreshNotionExportItem = <ThrowOnError extends boolean = false>(
-	options: Options<RefreshNotionExportItemData, ThrowOnError>
-) =>
-	(options.client ?? client).post<RefreshNotionExportItemResponses, unknown, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/integrations/{id}/notion/export-entries/{library_entry_id}/refresh',
-		...options
-	});
-
-export const getNotionSettings = <ThrowOnError extends boolean = false>(
-	options: Options<GetNotionSettingsData, ThrowOnError>
-) =>
-	(options.client ?? client).get<GetNotionSettingsResponses, unknown, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/integrations/{id}/notion/settings',
-		...options
-	});
-
-export const updateNotionSettings = <ThrowOnError extends boolean = false>(
-	options: Options<UpdateNotionSettingsData, ThrowOnError>
-) =>
-	(options.client ?? client).patch<UpdateNotionSettingsResponses, unknown, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/integrations/{id}/notion/settings',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
 	});
 
 export const previewObsidianExport = <ThrowOnError extends boolean = false>(
@@ -2842,230 +2601,6 @@ export const changePassword = <ThrowOnError extends boolean = false>(
 		}
 	});
 
-export const getConfig = <ThrowOnError extends boolean = false>(
-	options?: Options<GetConfigData, ThrowOnError>
-) =>
-	(options?.client ?? client).get<GetConfigResponses, unknown, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/config',
-		...options
-	});
-
-export const upsertConfig = <ThrowOnError extends boolean = false>(
-	options: Options<UpsertConfigData, ThrowOnError>
-) =>
-	(options.client ?? client).post<UpsertConfigResponses, UpsertConfigErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/config',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const reindexConfig = <ThrowOnError extends boolean = false>(
-	options: Options<ReindexConfigData, ThrowOnError>
-) =>
-	(options.client ?? client).post<ReindexConfigResponses, ReindexConfigErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/config/reindex',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const testConfig = <ThrowOnError extends boolean = false>(
-	options: Options<TestConfigData, ThrowOnError>
-) =>
-	(options.client ?? client).post<TestConfigResponses, TestConfigErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/config/test',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const retryMilaDocumentAction = <ThrowOnError extends boolean = false>(
-	options: Options<RetryMilaDocumentActionData, ThrowOnError>
-) =>
-	(options.client ?? client).post<
-		RetryMilaDocumentActionResponses,
-		RetryMilaDocumentActionErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/documents/{document_id}/actions/{action}/retry',
-		...options
-	});
-
-export const listPromptPresets = <ThrowOnError extends boolean = false>(
-	options?: Options<ListPromptPresetsData, ThrowOnError>
-) =>
-	(options?.client ?? client).get<ListPromptPresetsResponses, unknown, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/presets',
-		...options
-	});
-
-export const createPromptPreset = <ThrowOnError extends boolean = false>(
-	options: Options<CreatePromptPresetData, ThrowOnError>
-) =>
-	(options.client ?? client).post<
-		CreatePromptPresetResponses,
-		CreatePromptPresetErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/presets',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const deletePromptPreset = <ThrowOnError extends boolean = false>(
-	options: Options<DeletePromptPresetData, ThrowOnError>
-) =>
-	(options.client ?? client).delete<
-		DeletePromptPresetResponses,
-		DeletePromptPresetErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/presets/{preset_id}',
-		...options
-	});
-
-export const updatePromptPreset = <ThrowOnError extends boolean = false>(
-	options: Options<UpdatePromptPresetData, ThrowOnError>
-) =>
-	(options.client ?? client).patch<
-		UpdatePromptPresetResponses,
-		UpdatePromptPresetErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/presets/{preset_id}',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const listSessions = <ThrowOnError extends boolean = false>(
-	options?: Options<ListSessionsData, ThrowOnError>
-) =>
-	(options?.client ?? client).get<ListSessionsResponses, ListSessionsErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/sessions',
-		...options
-	});
-
-export const createSession = <ThrowOnError extends boolean = false>(
-	options: Options<CreateSessionData, ThrowOnError>
-) =>
-	(options.client ?? client).post<CreateSessionResponses, CreateSessionErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/sessions',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const deleteSession = <ThrowOnError extends boolean = false>(
-	options: Options<DeleteSessionData, ThrowOnError>
-) =>
-	(options.client ?? client).delete<DeleteSessionResponses, DeleteSessionErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/sessions/{session_id}',
-		...options
-	});
-
-export const getSessionMessages = <ThrowOnError extends boolean = false>(
-	options: Options<GetSessionMessagesData, ThrowOnError>
-) =>
-	(options.client ?? client).get<
-		GetSessionMessagesResponses,
-		GetSessionMessagesErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/sessions/{session_id}/messages',
-		...options
-	});
-
-export const getStatus = <ThrowOnError extends boolean = false>(
-	options?: Options<GetStatusData, ThrowOnError>
-) =>
-	(options?.client ?? client).get<GetStatusResponses, unknown, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/status',
-		...options
-	});
-
-export const streamChat = <ThrowOnError extends boolean = false>(
-	options: Options<StreamChatData, ThrowOnError, StreamChatResponse>
-) =>
-	(options.client ?? client).sse.get<StreamChatResponses, StreamChatErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/mila/stream',
-		...options
-	});
-
 export const getOnboarding = <ThrowOnError extends boolean = false>(
 	options?: Options<GetOnboardingData, ThrowOnError>
 ) =>
@@ -3500,40 +3035,6 @@ export const revokeToken = <ThrowOnError extends boolean = false>(
 		security: [{ scheme: 'bearer', type: 'http' }],
 		url: '/api/v1/tokens/{token_id}',
 		...options
-	});
-
-/**
- * List the user's voice personas (including built-ins).
- */
-export const listPersonas = <ThrowOnError extends boolean = false>(
-	options?: Options<ListPersonasData, ThrowOnError>
-) =>
-	(options?.client ?? client).get<ListPersonasResponses, ListPersonasErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/tts/voice-personas',
-		...options
-	});
-
-/**
- * Create a new voice persona.
- */
-export const createPersona = <ThrowOnError extends boolean = false>(
-	options: Options<CreatePersonaData, ThrowOnError>
-) =>
-	(options.client ?? client).post<CreatePersonaResponses, CreatePersonaErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/tts/voice-personas',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
 	});
 
 export const listWebhookEndpoints = <ThrowOnError extends boolean = false>(

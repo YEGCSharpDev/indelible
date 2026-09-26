@@ -132,43 +132,6 @@ CREATE TABLE apalis.workers (
     started_at timestamp with time zone
 );
 
-CREATE TABLE public.ai_outputs (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    output_type text NOT NULL,
-    content jsonb NOT NULL,
-    ai_run_id uuid,
-    created_at timestamp with time zone NOT NULL,
-    document_id uuid NOT NULL
-);
-
-CREATE TABLE public.ai_prompt_presets (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid,
-    name text NOT NULL,
-    action text NOT NULL,
-    system_prompt text NOT NULL,
-    is_default boolean DEFAULT false NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    is_system boolean DEFAULT false NOT NULL,
-    CONSTRAINT chk_ai_prompt_presets_user_or_system CHECK ((((is_system = true) AND (user_id IS NULL)) OR ((is_system = false) AND (user_id IS NOT NULL))))
-);
-
-CREATE TABLE public.ai_runs (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid NOT NULL,
-    action text NOT NULL,
-    provider text NOT NULL,
-    model text NOT NULL,
-    input_tokens integer,
-    output_tokens integer,
-    is_byok boolean NOT NULL,
-    status text NOT NULL,
-    error_message text,
-    started_at timestamp with time zone NOT NULL,
-    completed_at timestamp with time zone,
-    document_id uuid
-);
-
 CREATE TABLE public.api_tokens (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
@@ -312,24 +275,6 @@ CREATE TABLE public.collections (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     is_pinned boolean DEFAULT false NOT NULL
-);
-
-CREATE TABLE public.content_vectors (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid NOT NULL,
-    chunk_index integer NOT NULL,
-    content text NOT NULL,
-    token_count integer NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    section_kind text DEFAULT 'item'::text NOT NULL,
-    section_key text DEFAULT ''::text NOT NULL,
-    embedding public.vector(768) NOT NULL,
-    document_id uuid NOT NULL,
-    embedding_model text DEFAULT 'text-embedding-3-small'::text NOT NULL,
-    embedding_dim integer DEFAULT 768 NOT NULL,
-    search_config regconfig DEFAULT 'english'::regconfig NOT NULL,
-    content_tsv tsvector GENERATED ALWAYS AS (to_tsvector(search_config, content)) STORED NOT NULL,
-    CONSTRAINT ck_content_vectors_embedding_dim_768 CHECK ((embedding_dim = 768))
 );
 
 CREATE TABLE public.dead_letter_jobs (
@@ -760,49 +705,10 @@ CREATE TABLE public.maintenance_tasks (
     CONSTRAINT ck_maintenance_tasks_lease CHECK ((((lease_owner IS NULL) AND (lease_expires_at IS NULL)) OR ((lease_owner IS NOT NULL) AND (lease_expires_at IS NOT NULL))))
 );
 
-CREATE TABLE public.mila_config (
+CREATE TABLE public.miniflux_sync_map (
     user_id uuid NOT NULL,
-    chat_model text NOT NULL,
-    embedding_model text NOT NULL,
-    embedding_dim integer NOT NULL,
-    chunk_size integer DEFAULT 512 NOT NULL,
-    chunk_overlap integer DEFAULT 64 NOT NULL,
-    top_k integer DEFAULT 6 NOT NULL,
-    cross_item_top_k integer DEFAULT 20 NOT NULL,
-    cross_item_max_per_item integer DEFAULT 3 NOT NULL,
-    enabled boolean DEFAULT true NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
-    supports_structured_output boolean DEFAULT true NOT NULL,
-    model_context_window integer NOT NULL,
-    chat_context_pct integer DEFAULT 70 NOT NULL,
-    chat_api_base text DEFAULT 'https://api.openai.com/v1'::text NOT NULL,
-    chat_api_key_enc bytea,
-    embedding_api_base text DEFAULT 'https://api.openai.com/v1'::text NOT NULL,
-    embedding_api_key_enc bytea,
-    chat_cipher_version smallint DEFAULT 1 NOT NULL,
-    embedding_cipher_version smallint DEFAULT 1 NOT NULL,
-    byo_enabled boolean DEFAULT true NOT NULL,
-    supports_reasoning_effort boolean DEFAULT false NOT NULL
-);
-
-CREATE TABLE public.mila_messages (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    session_id uuid NOT NULL,
-    role text NOT NULL,
-    content text NOT NULL,
-    source_chunks uuid[] DEFAULT '{}'::uuid[] NOT NULL,
-    created_at timestamp with time zone NOT NULL
-);
-
-CREATE TABLE public.mila_sessions (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid NOT NULL,
-    session_type text NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    last_active timestamp with time zone NOT NULL,
-    collection_id uuid,
-    document_id uuid
+    document_id uuid NOT NULL,
+    miniflux_id integer NOT NULL
 );
 
 CREATE TABLE public.notification_preferences (
@@ -833,14 +739,6 @@ CREATE TABLE public.notifications (
     channels_sent text[] DEFAULT '{}'::text[] NOT NULL,
     read_at timestamp with time zone,
     created_at timestamp with time zone NOT NULL
-);
-
-CREATE TABLE public.notion_export_item_selection (
-    connection_id uuid NOT NULL,
-    selected boolean DEFAULT true NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    library_entry_id uuid NOT NULL
 );
 
 CREATE TABLE public.oauth_flows (
@@ -1089,88 +987,6 @@ CREATE TABLE public.tags (
     created_at timestamp with time zone NOT NULL
 );
 
-CREATE TABLE public.tts_audio_assets (
-    id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    chunk_record_id uuid NOT NULL,
-    s3_key text NOT NULL,
-    content_type text NOT NULL,
-    size_bytes bigint NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-CREATE TABLE public.tts_chunks (
-    id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    document_id uuid NOT NULL,
-    chunk_id text NOT NULL,
-    cache_key text NOT NULL,
-    voice_persona_id uuid,
-    provider text NOT NULL,
-    provider_model text,
-    provider_voice_id text,
-    pitch numeric(4,2) DEFAULT 1.00 NOT NULL,
-    audio_format text NOT NULL,
-    sample_rate integer NOT NULL,
-    pronunciation_version integer DEFAULT 1 NOT NULL,
-    chunking_version integer DEFAULT 1 NOT NULL,
-    normalized_text_hash text NOT NULL,
-    start_element_index integer NOT NULL,
-    end_element_index integer NOT NULL,
-    duration_seconds double precision,
-    status text NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-CREATE TABLE public.tts_element_timings (
-    chunk_record_id uuid NOT NULL,
-    element_index integer NOT NULL,
-    start_timestamp double precision NOT NULL,
-    end_timestamp double precision
-);
-
-CREATE TABLE public.tts_session_chunks (
-    session_id uuid NOT NULL,
-    chunk_id text NOT NULL,
-    chunk_record_id uuid NOT NULL,
-    "position" integer NOT NULL
-);
-
-CREATE TABLE public.tts_sessions (
-    id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    document_id uuid NOT NULL,
-    voice_persona_id uuid,
-    speed numeric(4,2) DEFAULT 1.00 NOT NULL,
-    audio_format text DEFAULT 'mp3'::text NOT NULL,
-    generation_scope text NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-CREATE TABLE public.tts_voice_personas (
-    id uuid NOT NULL,
-    user_id uuid,
-    display_name text NOT NULL,
-    description text,
-    provider text NOT NULL,
-    provider_voice_id text,
-    provider_model text,
-    design_prompt text,
-    style_prompt text,
-    pace text,
-    energy text,
-    warmth text,
-    formality text,
-    pronunciation_prefs jsonb DEFAULT '{}'::jsonb NOT NULL,
-    status text NOT NULL,
-    is_builtin boolean DEFAULT false NOT NULL,
-    prompt_hash text NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT tts_voice_personas_check CHECK (((is_builtin = false) OR (user_id IS NULL)))
-);
-
 CREATE TABLE public.usage_counters (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
@@ -1236,7 +1052,7 @@ CREATE TABLE public.users (
     password_hash text,
     display_name text NOT NULL,
     avatar_url text,
-    locale text DEFAULT 'en'::text NOT NULL,
+    locale text,
     theme text DEFAULT 'system'::text NOT NULL,
     email_verified boolean DEFAULT false NOT NULL,
     onboarding_completed boolean DEFAULT false NOT NULL,
@@ -1299,10 +1115,6 @@ DECLARE
     target_config regconfig;
 BEGIN
     target_config := public.fts_config_for_language(NEW.language);
-    UPDATE public.content_vectors
-    SET search_config = target_config
-    WHERE document_id = NEW.id
-      AND search_config IS DISTINCT FROM target_config;
     UPDATE public.search_documents
     SET search_config = target_config
     WHERE document_id = NEW.id

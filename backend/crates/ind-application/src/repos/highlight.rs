@@ -99,7 +99,7 @@ pub trait HighlightRepository: Send + Sync {
         user_id: UserId,
     ) -> Result<HashMap<HighlightId, Vec<Tag>>, AppError>;
 
-    /// Cursor-paginated highlights for a document, used by the Notion export job (TASK-236).
+    /// Cursor-paginated highlights for a document.
     async fn list_by_document_after_cursor(
         &self,
         document_id: DocumentId,

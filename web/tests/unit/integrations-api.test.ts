@@ -5,7 +5,8 @@ const sdkMocks = vi.hoisted(() => ({
 	authorizeIntegration: vi.fn(),
 	deleteIntegration: vi.fn(),
 	syncIntegration: vi.fn(),
-	setupObsidianConnection: vi.fn()
+	setupObsidianConnection: vi.fn(),
+	connectMiniflux: vi.fn()
 }));
 
 vi.mock('$lib/api', () => ({
@@ -13,13 +14,15 @@ vi.mock('$lib/api', () => ({
 	authorizeIntegration: sdkMocks.authorizeIntegration,
 	deleteIntegration: sdkMocks.deleteIntegration,
 	syncIntegration: sdkMocks.syncIntegration,
-	setupObsidianConnection: sdkMocks.setupObsidianConnection
+	setupObsidianConnection: sdkMocks.setupObsidianConnection,
+	connectMiniflux: sdkMocks.connectMiniflux
 }));
 
 import {
 	dispatchIntegrationSync,
 	disconnectIntegration,
 	loadIntegrationConnections,
+	setupMinifluxConnection,
 	setupObsidianExportConnection,
 	startIntegrationAuthorization
 } from '$lib/api/integrations';
@@ -69,9 +72,9 @@ describe('startIntegrationAuthorization', () => {
 			response: new Response(null, { status: 200 })
 		});
 
-		const result = await startIntegrationAuthorization('notion', '/preferences/integrations');
+		const result = await startIntegrationAuthorization('custom_oauth', '/preferences/integrations');
 		expect(sdkMocks.authorizeIntegration).toHaveBeenCalledWith({
-			path: { provider: 'notion' },
+			path: { provider: 'custom_oauth' },
 			body: { redirect_after: '/preferences/integrations' }
 		});
 		expect(result.success).toBe(true);
@@ -83,9 +86,9 @@ describe('startIntegrationAuthorization', () => {
 			error: undefined,
 			response: new Response(null, { status: 200 })
 		});
-		await startIntegrationAuthorization('notion');
+		await startIntegrationAuthorization('custom_oauth');
 		expect(sdkMocks.authorizeIntegration).toHaveBeenCalledWith({
-			path: { provider: 'notion' },
+			path: { provider: 'custom_oauth' },
 			body: { redirect_after: null }
 		});
 	});
@@ -96,9 +99,9 @@ describe('startIntegrationAuthorization', () => {
 			error: {},
 			response: new Response(null, { status: 500 })
 		});
-		const result = await startIntegrationAuthorization('notion');
+		const result = await startIntegrationAuthorization('custom_oauth');
 		expect(result.success).toBe(false);
-		if (!result.success) expect(result.error).toMatch(/notion/);
+		if (!result.success) expect(result.error).toMatch(/custom_oauth/);
 	});
 });
 
@@ -191,5 +194,65 @@ describe('setupObsidianExportConnection', () => {
 		});
 		const result = await setupObsidianExportConnection();
 		expect(result).toEqual({ success: false, error: 'limit reached' });
+	});
+});
+
+describe('setupMinifluxConnection', () => {
+	beforeEach(() => {
+		Object.values(sdkMocks).forEach((m) => m.mockReset());
+	});
+
+	it('creates or returns a Miniflux connection on success', async () => {
+		const connectionPayload = {
+			id: 'icn_mf_1',
+			provider: 'miniflux',
+			status: 'connected',
+			last_sync_at: null,
+			last_error: null,
+			config: { provider: 'other', provider_name: 'miniflux' },
+			pending_jobs: 0,
+			created_at: '2026-09-25T12:00:00Z'
+		};
+		sdkMocks.connectMiniflux.mockResolvedValueOnce({
+			data: connectionPayload,
+			error: undefined,
+			response: new Response(null, { status: 200 })
+		});
+		const result = await setupMinifluxConnection(
+			'https://miniflux.example.com',
+			'test-api-key'
+		);
+		expect(sdkMocks.connectMiniflux).toHaveBeenCalledWith({
+			body: {
+				url: 'https://miniflux.example.com',
+				api_key: 'test-api-key'
+			}
+		});
+		expect(result).toEqual({ success: true, data: connectionPayload });
+	});
+
+	it('returns error message when connection fails with an API problem', async () => {
+		sdkMocks.connectMiniflux.mockResolvedValueOnce({
+			data: undefined,
+			error: { message: 'Invalid credentials' },
+			response: new Response(null, { status: 400 })
+		});
+		const result = await setupMinifluxConnection(
+			'https://miniflux.example.com',
+			'wrong-key'
+		);
+		expect(result).toEqual({ success: false, error: 'Invalid credentials' });
+	});
+
+	it('handles unexpected exceptions and returns failure', async () => {
+		sdkMocks.connectMiniflux.mockRejectedValueOnce(new Error('connection refused'));
+		const result = await setupMinifluxConnection(
+			'https://miniflux.example.com',
+			'test-api-key'
+		);
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error).toBe('connection refused');
+		}
 	});
 });

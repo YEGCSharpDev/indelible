@@ -5,7 +5,6 @@ use ind_application::AppError;
 use ind_application::outputs::export::ObsidianExportPreview;
 use ind_application::ports::{
     IntegrationAuthorizeStart, IntegrationOperations, IntegrationSyncEnqueued,
-    NotionRefreshEnqueued,
 };
 use ind_application::repos::obsidian_preview::ObsidianPreviewRepository;
 use ind_application::repos::outbox::JobOutboxRepository;
@@ -20,13 +19,10 @@ pub struct IntegrationOperationsService {
         Arc<dyn ind_application::repos::integration_connection::IntegrationConnectionRepository>,
     oauth_token_repo:
         Arc<dyn ind_application::repos::integration_oauth_token::IntegrationOAuthTokenRepository>,
-    export_cursor_repo: Arc<dyn ind_application::repos::export_cursor::ExportCursorRepository>,
     sync_service: crate::integration_sync::IntegrationSyncService,
     obsidian_preview_renderer: crate::obsidian_workflow::ObsidianPreviewRenderer,
     oauth_service: Arc<ind_auth::integration_oauth::IntegrationOAuthService>,
     credential_cipher: Option<Arc<ind_auth::CredentialCipher>>,
-    notion_api_base: String,
-    notion_rate_limiter: Arc<crate::notion::NotionRateLimiter>,
 }
 
 impl IntegrationOperationsService {
@@ -38,7 +34,6 @@ impl IntegrationOperationsService {
         oauth_token_repo: Arc<
             dyn ind_application::repos::integration_oauth_token::IntegrationOAuthTokenRepository,
         >,
-        export_cursor_repo: Arc<dyn ind_application::repos::export_cursor::ExportCursorRepository>,
         outbox_repo: Arc<dyn JobOutboxRepository>,
         export_summary_provider: Arc<dyn ind_application::export_summary::ExportSummaryProvider>,
         prepared_content_provider: Arc<
@@ -47,7 +42,6 @@ impl IntegrationOperationsService {
         obsidian_preview_repo: Arc<dyn ObsidianPreviewRepository>,
         oauth_service: Arc<ind_auth::integration_oauth::IntegrationOAuthService>,
         credential_cipher: Option<Arc<ind_auth::CredentialCipher>>,
-        notion_api_base: String,
     ) -> Self {
         let sync_service = crate::integration_sync::IntegrationSyncService::new(
             connection_repo.clone(),
@@ -56,7 +50,6 @@ impl IntegrationOperationsService {
         Self {
             connection_repo,
             oauth_token_repo,
-            export_cursor_repo,
             sync_service,
             obsidian_preview_renderer: crate::obsidian_workflow::ObsidianPreviewRenderer::new(
                 obsidian_preview_repo,
@@ -65,8 +58,6 @@ impl IntegrationOperationsService {
             ),
             oauth_service,
             credential_cipher,
-            notion_api_base,
-            notion_rate_limiter: Arc::new(crate::notion::NotionRateLimiter::new(3.0)),
         }
     }
 
@@ -77,30 +68,6 @@ impl IntegrationOperationsService {
                 service: "integration_oauth".to_string(),
                 message: "auth.credential_key is required for integration OAuth flows".to_string(),
             })
-    }
-
-    async fn require_notion_connection(
-        &self,
-        user_id: UserId,
-        connection_id: ind_domain::IntegrationConnectionId,
-    ) -> Result<ind_domain::IntegrationConnection, AppError> {
-        let connection = self
-            .connection_repo
-            .find_by_id(user_id, connection_id)
-            .await?
-            .ok_or_else(|| {
-                AppError::Domain(ind_domain::DomainError::NotFound {
-                    entity: "IntegrationConnection",
-                    id: connection_id.to_string(),
-                })
-            })?;
-        if connection.provider != ind_domain::IntegrationProvider::Notion {
-            return Err(AppError::Domain(ind_domain::DomainError::Validation {
-                field: "provider".into(),
-                message: "connection is not a Notion integration".into(),
-            }));
-        }
-        Ok(connection)
     }
 
     async fn require_obsidian_connection(
@@ -133,30 +100,7 @@ fn integration_connection_config_from_tokens(
     extra: &serde_json::Value,
 ) -> serde_json::Value {
     match provider {
-        ind_domain::IntegrationOAuthProvider::Notion => {
-            serde_json::json!({
-                "workspace_id": extra.get("workspace_id").cloned().unwrap_or(serde_json::Value::Null),
-                "workspace_name": extra.get("workspace_name").cloned().unwrap_or(serde_json::Value::Null),
-                "workspace_icon": extra.get("workspace_icon").cloned().unwrap_or(serde_json::Value::Null),
-            })
-        }
-    }
-}
-
-fn map_notion_error(error: crate::notion::NotionError) -> AppError {
-    match error {
-        crate::notion::NotionError::RateLimited { .. } => AppError::RateLimited,
-        crate::notion::NotionError::Api {
-            status: 401 | 403, ..
-        } => AppError::Auth,
-        crate::notion::NotionError::Api { status, body } => AppError::ExternalService {
-            service: "notion".into(),
-            message: format!("HTTP {status}: {body}"),
-        },
-        other => AppError::ExternalService {
-            service: "notion".into(),
-            message: other.to_string(),
-        },
+        ind_domain::IntegrationOAuthProvider::Custom => extra.clone(),
     }
 }
 
@@ -245,8 +189,8 @@ impl IntegrationOperations for IntegrationOperationsService {
                 .await?;
 
             let connection_provider = match completed.provider {
-                ind_domain::IntegrationOAuthProvider::Notion => {
-                    ind_domain::IntegrationProvider::Notion
+                ind_domain::IntegrationOAuthProvider::Custom => {
+                    ind_domain::IntegrationProvider::Custom
                 }
             };
 
@@ -281,8 +225,8 @@ impl IntegrationOperations for IntegrationOperationsService {
                 })?;
 
             let oauth_provider = match connection.provider {
-                ind_domain::IntegrationProvider::Notion => {
-                    Some(ind_domain::IntegrationOAuthProvider::Notion)
+                ind_domain::IntegrationProvider::Custom => {
+                    Some(ind_domain::IntegrationOAuthProvider::Custom)
                 }
                 _ => None,
             };
@@ -335,154 +279,6 @@ impl IntegrationOperations for IntegrationOperationsService {
         Box::pin(self.sync_service.sync_now(user_id, connection_id))
     }
 
-    fn get_notion_settings(
-        &self,
-        user_id: UserId,
-        connection_id: ind_domain::IntegrationConnectionId,
-    ) -> BoxFuture<'_, Result<ind_domain::NotionExportSettings, AppError>> {
-        Box::pin(async move {
-            let connection = self
-                .require_notion_connection(user_id, connection_id)
-                .await?;
-            Ok(crate::notion::notion_settings_from_config(
-                &connection.config,
-            ))
-        })
-    }
-
-    fn update_notion_settings(
-        &self,
-        user_id: UserId,
-        connection_id: ind_domain::IntegrationConnectionId,
-        settings: ind_domain::NotionExportSettings,
-    ) -> BoxFuture<'_, Result<ind_domain::NotionExportSettings, AppError>> {
-        Box::pin(async move {
-            // Read the connection (capturing its version), build the
-            // merged config, then PATCH with optimistic locking so a
-            // concurrent PATCH that bumped the version between our read
-            // and write surfaces as Conflict instead of silently
-            // overwriting our fields.
-            let connection = self
-                .require_notion_connection(user_id, connection_id)
-                .await?;
-            let mut config = connection.config.clone();
-            crate::notion::write_settings_to_config(&mut config, &settings);
-            self.connection_repo
-                .update_config_with_version(connection_id, user_id, connection.version, config)
-                .await?;
-            Ok(settings)
-        })
-    }
-
-    fn list_notion_export_items(
-        &self,
-        user_id: UserId,
-        connection_id: ind_domain::IntegrationConnectionId,
-        query: Option<String>,
-        limit: i64,
-        offset: i64,
-    ) -> BoxFuture<
-        '_,
-        Result<ind_application::repos::integration_connection::NotionExportItemsPage, AppError>,
-    > {
-        Box::pin(async move {
-            self.require_notion_connection(user_id, connection_id)
-                .await?;
-            self.connection_repo
-                .list_notion_export_items(user_id, connection_id, query, limit, offset)
-                .await
-        })
-    }
-
-    fn update_notion_export_items(
-        &self,
-        user_id: UserId,
-        connection_id: ind_domain::IntegrationConnectionId,
-        selections: Vec<(ind_domain::LibraryEntryId, bool)>,
-    ) -> BoxFuture<'_, Result<(), AppError>> {
-        Box::pin(async move {
-            self.require_notion_connection(user_id, connection_id)
-                .await?;
-            self.connection_repo
-                .set_notion_export_item_selections_batch(user_id, connection_id, &selections)
-                .await
-        })
-    }
-
-    fn refresh_notion_export_item(
-        &self,
-        user_id: UserId,
-        connection_id: ind_domain::IntegrationConnectionId,
-        library_entry_id: ind_domain::LibraryEntryId,
-    ) -> BoxFuture<'_, Result<NotionRefreshEnqueued, AppError>> {
-        Box::pin(async move {
-            self.require_notion_connection(user_id, connection_id)
-                .await?;
-            let item = self
-                .connection_repo
-                .find_notion_export_item(user_id, connection_id, library_entry_id)
-                .await?
-                .ok_or_else(|| {
-                    AppError::Domain(ind_domain::DomainError::NotFound {
-                        entity: "NotionExportItem",
-                        id: library_entry_id.to_string(),
-                    })
-                })?;
-            let page_id = item.exported_page_id.as_deref().ok_or_else(|| {
-                AppError::Domain(ind_domain::DomainError::Validation {
-                    field: "library_entry_id".into(),
-                    message: "This document does not have a current Notion page to replace.".into(),
-                })
-            })?;
-            let archived_page_url = {
-                let token = self
-                    .oauth_token_repo
-                    .find_by_user_provider(user_id, ind_domain::IntegrationOAuthProvider::Notion)
-                    .await?
-                    .ok_or_else(|| {
-                        AppError::Domain(ind_domain::DomainError::NotFound {
-                            entity: "IntegrationOAuthToken",
-                            id: user_id.to_string(),
-                        })
-                    })?;
-                let cipher = self.require_cipher()?;
-                let access_token = cipher
-                    .open(&token.access_token_enc)
-                    .ok()
-                    .and_then(|bytes| String::from_utf8(bytes).ok())
-                    .ok_or_else(|| AppError::ExternalService {
-                        service: "integration_oauth".into(),
-                        message: "stored provider token could not be decrypted".into(),
-                    })?;
-                let client = crate::notion::NotionClient::new(
-                    access_token,
-                    self.notion_api_base.clone(),
-                    self.notion_rate_limiter.clone(),
-                );
-                Some(
-                    client
-                        .archive_page(page_id)
-                        .await
-                        .map_err(map_notion_error)?,
-                )
-            };
-            let outbox = self
-                .export_cursor_repo
-                .reset_document_export_and_enqueue_notion(
-                    user_id,
-                    connection_id,
-                    library_entry_id,
-                    item.document_id,
-                    item.exported_page_id,
-                )
-                .await?;
-            Ok(NotionRefreshEnqueued {
-                job_id: outbox.id.to_string(),
-                archived_page_url,
-            })
-        })
-    }
-
     fn get_obsidian_settings(
         &self,
         user_id: UserId,
@@ -503,7 +299,7 @@ impl IntegrationOperations for IntegrationOperationsService {
         settings: ObsidianExportSettings,
     ) -> BoxFuture<'_, Result<ObsidianExportSettings, AppError>> {
         Box::pin(async move {
-            // Same optimistic-lock dance as update_notion_settings.
+            // Optimistic-lock dance to prevent concurrent PATCH overwrite.
             let connection = self
                 .require_obsidian_connection(user_id, connection_id)
                 .await?;

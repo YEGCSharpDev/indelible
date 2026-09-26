@@ -10,8 +10,7 @@
 
 	const marks: Record<IntegrationProviderId, string> = {
 		readwise: 'R',
-		obsidian: 'O',
-		notion: 'N'
+		obsidian: 'O'
 	};
 
 	const mark = $derived(marks[provider] ?? provider.charAt(0).toUpperCase());
@@ -48,8 +47,7 @@
 	}
 
 	/* Fallback for any other provider rendered here */
-	.provider-obsidian,
-	.provider-notion {
+	.provider-obsidian {
 		background: var(--fill-secondary);
 		color: var(--text-primary);
 	}

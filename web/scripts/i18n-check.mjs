@@ -62,7 +62,7 @@ const PRODUCT_COPY = new Set([
 	'Indelible',
 	'JSON',
 	'Mila',
-	'Notion',
+	'Miniflux',
 	'OAuth',
 	'Obsidian',
 	'Ollama',

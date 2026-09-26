@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use ind_test_support::{StorageBackedMockRenderer, TestDb, test_mila_defaults};
+use ind_test_support::{StorageBackedMockRenderer, TestDb};
 use ind_worker::context::{WorkerContext, WorkerServicesBuilder};
 
 // Shared across worker test binaries; not every binary uses both constructors.
@@ -19,7 +19,6 @@ pub async fn build_worker_ctx_with_email_services(db: &TestDb) -> WorkerContext 
         Arc::new(StorageBackedMockRenderer::new(storage.clone())),
         Some(storage),
         db.bucket().to_string(),
-        test_mila_defaults(),
         ind_egress::EgressPolicy::permissive(),
         None,
     )
@@ -40,7 +39,6 @@ pub async fn build_worker_ctx_with_renderer(
         renderer.clone(),
         Some(storage),
         db.bucket().to_string(),
-        test_mila_defaults(),
         ind_egress::EgressPolicy::permissive(),
         None,
     )

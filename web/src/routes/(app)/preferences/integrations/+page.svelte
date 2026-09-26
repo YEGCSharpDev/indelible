@@ -39,7 +39,6 @@
 		connectionRingDash,
 		formatUploadLimit,
 		isOauthProviderAvailable,
-		notionHubStatus,
 		obsidianHubStatus,
 		minifluxHubStatus,
 		sevenDayDelta,
@@ -62,7 +61,6 @@
 	let connectionsError = $state<string | null>(null);
 	let syncStateByConnection = $state<Record<string, SyncState>>({});
 	let syncErrorByConnection = $state<Record<string, string>>({});
-	let notionConnectError = $state<string | null>(null);
 	let disconnectTarget = $state<IntegrationConnectionDto | null>(null);
 	let disconnectBusy = $state(false);
 	let disconnectError = $state<string | null>(null);
@@ -82,11 +80,8 @@
 	let history = $state<ImportJobStatusResponse[]>([]);
 	let pollHandle: PollHandle | null = null;
 
-	const notionConnection = $derived(findConnection('notion'));
-	const notionAvailable = $derived(isOauthProviderAvailable(availableOauthProviders, 'notion'));
 	const obsidianConnection = $derived(findConnection('obsidian'));
 	const minifluxConnection = $derived(findConnection('miniflux'));
-	const notionStatus = $derived(notionHubStatus(notionConnection));
 	const obsidianStatus = $derived(obsidianHubStatus(obsidianConnection));
 	const minifluxStatus = $derived(minifluxHubStatus(minifluxConnection));
 	const ringCounts = $derived(connectionRingCounts(connections));
@@ -136,12 +131,6 @@
 		callback = null;
 	}
 
-	function handleCallbackAction(cb: IntegrationCallback) {
-		if (cb.kind === 'success' && cb.provider === 'notion') {
-			void goto(resolve('/preferences/integrations/notion'));
-		}
-	}
-
 	async function refreshConnections() {
 		connectionsLoading = true;
 		connectionsError = null;
@@ -162,18 +151,6 @@
 
 	function findConnection(providerId: string): IntegrationConnectionDto | undefined {
 		return connections.find((connection) => connection.provider === providerId);
-	}
-
-	async function startNotionAuthorization() {
-		if (!notionAvailable) return;
-		notionConnectError = null;
-		const result = await startIntegrationAuthorization('notion');
-		if (result.success) window.location.href = result.data.authorize_url;
-		else notionConnectError = result.error;
-	}
-
-	function openNotionDetail() {
-		void goto(resolve('/preferences/integrations/notion'));
 	}
 
 	function openObsidianDetail() {
@@ -225,7 +202,6 @@
 
 	function disconnectProviderName(connection: IntegrationConnectionDto): string {
 		const map: Record<string, string> = {
-			notion: 'Notion',
 			obsidian: 'Obsidian',
 			email_ingest: 'Email Forwarding',
 			miniflux: 'Miniflux'
@@ -401,7 +377,6 @@
 	<IntegrationCallbackBanner
 		{callback}
 		onDismiss={dismissCallback}
-		onAction={handleCallbackAction}
 	/>
 
 	<IntegrationsHero
@@ -411,7 +386,6 @@
 		sevenDayItems={sevenDayItemCount}
 		sevenDayDelta={sevenDayDeltaValue}
 		onCopyInbox={() => copyAddress(inboxAddress, 'inbox')}
-		onStartNotion={startNotionAuthorization}
 	/>
 
 	<div class="body-area">
@@ -423,19 +397,13 @@
 			{copiedInbox}
 			{copiedFeed}
 			{extStore}
-			{notionConnection}
 			{obsidianConnection}
 			{minifluxConnection}
-			{notionStatus}
 			{obsidianStatus}
 			{minifluxStatus}
 			{syncStateByConnection}
 			{syncErrorByConnection}
-			{notionConnectError}
-			{notionAvailable}
 			onCopyAddress={copyAddress}
-			onStartNotion={startNotionAuthorization}
-			onOpenNotion={openNotionDetail}
 			onOpenObsidian={openObsidianDetail}
 			onOpenMiniflux={openMinifluxDetail}
 			onSync={handleSync}
