@@ -41,7 +41,6 @@ impl TryFrom<ConnectionRow> for IntegrationConnection {
 
 pub(super) fn parse_provider(s: &str) -> Result<IntegrationProvider, AppError> {
     match s {
-        "obsidian" => Ok(IntegrationProvider::Obsidian),
         "custom" => Ok(IntegrationProvider::Custom),
         "logseq" => Ok(IntegrationProvider::Logseq),
         "browser_extension" => Ok(IntegrationProvider::BrowserExtension),
@@ -55,7 +54,6 @@ pub(super) fn parse_provider(s: &str) -> Result<IntegrationProvider, AppError> {
 
 pub(super) fn provider_to_str(provider: IntegrationProvider) -> &'static str {
     match provider {
-        IntegrationProvider::Obsidian => "obsidian",
         IntegrationProvider::Custom => "custom",
         IntegrationProvider::Logseq => "logseq",
         IntegrationProvider::BrowserExtension => "browser_extension",

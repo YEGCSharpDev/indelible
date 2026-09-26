@@ -2,7 +2,6 @@ pub mod dto;
 
 mod auth;
 mod connections;
-mod obsidian;
 mod miniflux;
 
 use axum::Router;
@@ -21,18 +20,9 @@ pub use connections::{
 };
 pub use dto::{
     AuthorizeIntegrationRequest, AuthorizeIntegrationResponse, CallbackQuery,
-    IntegrationConnectionDto, IntegrationListResponse, ObsidianPreviewRequest,
-    ObsidianPreviewResponse, ObsidianSettingsDto, SyncIntegrationResponse,
-    UpdateObsidianSettingsRequest,
+    IntegrationConnectionDto, IntegrationListResponse, SyncIntegrationResponse,
 };
-pub use miniflux::{
-    __path_connect_miniflux, connect_miniflux, ConnectMinifluxRequest,
-};
-pub use obsidian::{
-    __path_get_obsidian_settings, __path_preview_obsidian_export, __path_setup_obsidian_connection,
-    __path_update_obsidian_settings, get_obsidian_settings, preview_obsidian_export,
-    setup_obsidian_connection, update_obsidian_settings,
-};
+pub use miniflux::{__path_connect_miniflux, ConnectMinifluxRequest, connect_miniflux};
 
 pub fn integration_routes(_rate_limiters: RateLimiters) -> Router<AppState> {
     Router::new()
@@ -47,18 +37,6 @@ pub fn integration_routes(_rate_limiters: RateLimiters) -> Router<AppState> {
         )
         .route("/api/v1/integrations/{id}", delete(delete_integration))
         .route("/api/v1/integrations/{id}/sync", post(sync_integration))
-        .route(
-            "/api/v1/integrations/{id}/obsidian/settings",
-            get(get_obsidian_settings).patch(update_obsidian_settings),
-        )
-        .route(
-            "/api/v1/integrations/{id}/obsidian/preview",
-            post(preview_obsidian_export),
-        )
-        .route(
-            "/api/v1/integrations/obsidian/setup",
-            post(setup_obsidian_connection),
-        )
         .route(
             "/api/v1/integrations/miniflux/connect",
             post(connect_miniflux),

@@ -48,7 +48,6 @@ describe('Welcome page (step 1)', () => {
 	it('renders value proposition items without Mila', () => {
 		render(WelcomePage);
 		expect(screen.getByText('Save anything from the web')).toBeTruthy();
-		expect(screen.getByText('Sync highlights to Obsidian')).toBeTruthy();
 		expect(screen.queryByText('AI-powered reading with Mila')).toBeNull();
 	});
 

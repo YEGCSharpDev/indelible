@@ -2,13 +2,11 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 use ind_application::AppError;
-use ind_application::outputs::export::ObsidianExportPreview;
 use ind_application::ports::{
     IntegrationAuthorizeStart, IntegrationOperations, IntegrationSyncEnqueued,
 };
-use ind_application::repos::obsidian_preview::ObsidianPreviewRepository;
 use ind_application::repos::outbox::JobOutboxRepository;
-use ind_domain::{ObsidianExportSettings, UserId};
+use ind_domain::UserId;
 
 // -- IntegrationOperations --
 
@@ -20,13 +18,11 @@ pub struct IntegrationOperationsService {
     oauth_token_repo:
         Arc<dyn ind_application::repos::integration_oauth_token::IntegrationOAuthTokenRepository>,
     sync_service: crate::integration_sync::IntegrationSyncService,
-    obsidian_preview_renderer: crate::obsidian_workflow::ObsidianPreviewRenderer,
     oauth_service: Arc<ind_auth::integration_oauth::IntegrationOAuthService>,
     credential_cipher: Option<Arc<ind_auth::CredentialCipher>>,
 }
 
 impl IntegrationOperationsService {
-    #[allow(clippy::too_many_arguments)]
     pub fn new(
         connection_repo: Arc<
             dyn ind_application::repos::integration_connection::IntegrationConnectionRepository,
@@ -35,11 +31,6 @@ impl IntegrationOperationsService {
             dyn ind_application::repos::integration_oauth_token::IntegrationOAuthTokenRepository,
         >,
         outbox_repo: Arc<dyn JobOutboxRepository>,
-        export_summary_provider: Arc<dyn ind_application::export_summary::ExportSummaryProvider>,
-        prepared_content_provider: Arc<
-            dyn ind_application::repos::prepared_content::PreparedContentProvider,
-        >,
-        obsidian_preview_repo: Arc<dyn ObsidianPreviewRepository>,
         oauth_service: Arc<ind_auth::integration_oauth::IntegrationOAuthService>,
         credential_cipher: Option<Arc<ind_auth::CredentialCipher>>,
     ) -> Self {
@@ -51,11 +42,6 @@ impl IntegrationOperationsService {
             connection_repo,
             oauth_token_repo,
             sync_service,
-            obsidian_preview_renderer: crate::obsidian_workflow::ObsidianPreviewRenderer::new(
-                obsidian_preview_repo,
-                export_summary_provider,
-                prepared_content_provider,
-            ),
             oauth_service,
             credential_cipher,
         }
@@ -68,30 +54,6 @@ impl IntegrationOperationsService {
                 service: "integration_oauth".to_string(),
                 message: "auth.credential_key is required for integration OAuth flows".to_string(),
             })
-    }
-
-    async fn require_obsidian_connection(
-        &self,
-        user_id: UserId,
-        connection_id: ind_domain::IntegrationConnectionId,
-    ) -> Result<ind_domain::IntegrationConnection, AppError> {
-        let connection = self
-            .connection_repo
-            .find_by_id(user_id, connection_id)
-            .await?
-            .ok_or_else(|| {
-                AppError::Domain(ind_domain::DomainError::NotFound {
-                    entity: "IntegrationConnection",
-                    id: connection_id.to_string(),
-                })
-            })?;
-        if connection.provider != ind_domain::IntegrationProvider::Obsidian {
-            return Err(AppError::Domain(ind_domain::DomainError::Validation {
-                field: "provider".into(),
-                message: "connection is not an Obsidian integration".into(),
-            }));
-        }
-        Ok(connection)
     }
 }
 
@@ -277,89 +239,6 @@ impl IntegrationOperations for IntegrationOperationsService {
         connection_id: ind_domain::IntegrationConnectionId,
     ) -> BoxFuture<'_, Result<IntegrationSyncEnqueued, AppError>> {
         Box::pin(self.sync_service.sync_now(user_id, connection_id))
-    }
-
-    fn get_obsidian_settings(
-        &self,
-        user_id: UserId,
-        connection_id: ind_domain::IntegrationConnectionId,
-    ) -> BoxFuture<'_, Result<ObsidianExportSettings, AppError>> {
-        Box::pin(async move {
-            let connection = self
-                .require_obsidian_connection(user_id, connection_id)
-                .await?;
-            Ok(crate::obsidian::settings_from_config(&connection.config))
-        })
-    }
-
-    fn update_obsidian_settings(
-        &self,
-        user_id: UserId,
-        connection_id: ind_domain::IntegrationConnectionId,
-        settings: ObsidianExportSettings,
-    ) -> BoxFuture<'_, Result<ObsidianExportSettings, AppError>> {
-        Box::pin(async move {
-            // Optimistic-lock dance to prevent concurrent PATCH overwrite.
-            let connection = self
-                .require_obsidian_connection(user_id, connection_id)
-                .await?;
-            crate::obsidian_workflow::ObsidianPreviewRenderer::validate_settings(&settings)?;
-            let mut config = connection.config.clone();
-            crate::obsidian::write_settings_to_config(&mut config, &settings);
-            self.connection_repo
-                .update_config_with_version(connection_id, user_id, connection.version, config)
-                .await?;
-            Ok(settings)
-        })
-    }
-
-    fn preview_obsidian_export(
-        &self,
-        user_id: UserId,
-        connection_id: ind_domain::IntegrationConnectionId,
-        library_entry_id: Option<ind_domain::LibraryEntryId>,
-        settings: Option<ObsidianExportSettings>,
-    ) -> BoxFuture<'_, Result<ObsidianExportPreview, AppError>> {
-        Box::pin(async move {
-            let connection = self
-                .require_obsidian_connection(user_id, connection_id)
-                .await?;
-            let settings = settings
-                .unwrap_or_else(|| crate::obsidian::settings_from_config(&connection.config));
-            self.obsidian_preview_renderer
-                .preview(user_id, library_entry_id, settings)
-                .await
-        })
-    }
-
-    fn setup_obsidian_connection(
-        &self,
-        user_id: UserId,
-    ) -> BoxFuture<'_, Result<ind_domain::IntegrationConnection, AppError>> {
-        Box::pin(async move {
-            if let Some(existing) = self
-                .connection_repo
-                .list_by_user(user_id)
-                .await?
-                .into_iter()
-                .find(|c| c.provider == ind_domain::IntegrationProvider::Obsidian)
-            {
-                return Ok(existing);
-            }
-            let mut config = serde_json::json!({});
-            crate::obsidian::write_settings_to_config(
-                &mut config,
-                &ObsidianExportSettings::default(),
-            );
-            self.connection_repo
-                .upsert_by_user_provider(
-                    user_id,
-                    ind_domain::IntegrationProvider::Obsidian,
-                    config,
-                    "pending",
-                )
-                .await
-        })
     }
 
     fn setup_miniflux_connection(

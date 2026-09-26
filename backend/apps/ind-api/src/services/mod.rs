@@ -7,7 +7,6 @@ mod integrations;
 pub(crate) mod repositories;
 mod storage;
 
-
 use crate::config::ServerConfig;
 use ind_application::ports::{
     CollectionOperations, EntityOperations, FeedOperations, HighlightOperations, HomeOperations,
@@ -269,7 +268,6 @@ pub async fn build_with_overrides(
     let email_sender_ops = email_services.sender_ops;
     let email_alias_ops = email_services.alias_ops;
 
-
     let integration_services = integrations::build_integration_services(
         config,
         &pool,
@@ -281,7 +279,6 @@ pub async fn build_with_overrides(
     )?;
     let integration_ops = integration_services.integration_ops;
     let import_ops = integration_services.import_ops;
-    let export_ops = integration_services.export_ops;
     let webhook_ops = integration_services.webhook_ops;
     let export_summary_provider = integration_services.export_summary_provider;
 
@@ -393,7 +390,6 @@ pub async fn build_with_overrides(
         smart_list_ops,
         integration_ops,
         import_ops,
-        export_ops,
         export_summary_provider: Some(export_summary_provider),
         event_repo: Some(event_repo),
         realtime_hub,

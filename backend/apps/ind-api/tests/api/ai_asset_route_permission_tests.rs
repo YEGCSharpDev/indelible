@@ -47,15 +47,6 @@ const AI_READ_AND_LIBRARY_READ_ROUTES: &[RouteCase] = &[
     RouteCase::get("/api/v1/assets/documents/bad/tts/bad/chunk.mp3"),
 ];
 
-const OBSIDIAN_SYNC_ROUTES: &[RouteCase] = &[
-    RouteCase::post("/api/v1/export/obsidian/runs"),
-    RouteCase::get("/api/v1/export/obsidian/runs/bad"),
-    RouteCase::get("/api/v1/export/obsidian/artifacts/bad"),
-    RouteCase::post("/api/v1/export/obsidian/runs/bad/ack"),
-    RouteCase::post("/api/v1/export/obsidian/refresh"),
-    RouteCase::post("/api/v1/export/obsidian/rename"),
-];
-
 #[tokio::test]
 async fn ai_routes_enforce_read_write_and_use_permissions_independently() {
     let fixture = RoutePermissionFixture::new().await;
@@ -140,36 +131,6 @@ async fn extension_jwt_is_not_relaxed_for_general_ai_or_tts_routes() {
             case.method,
             case.path,
         );
-    }
-}
-
-#[tokio::test]
-async fn obsidian_sync_remains_additive_with_unrelated_permissions() {
-    let fixture = RoutePermissionFixture::new().await;
-    let combined = fixture
-        .mint_token_with_permissions(
-            "combined obsidian automation",
-            &["library:read", "obsidian:sync"],
-        )
-        .await;
-    let unrelated = fixture
-        .mint_token_with_permissions("non-obsidian automation", &["library:read", "ai:use"])
-        .await;
-
-    for case in OBSIDIAN_SYNC_ROUTES {
-        let allowed = fixture.request(&combined, *case).await;
-        assert!(
-            !matches!(
-                allowed.status(),
-                StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN
-            ),
-            "combined PAT must reach {} {}, got {}",
-            case.method,
-            case.path,
-            allowed.status(),
-        );
-        let denied = fixture.request(&unrelated, *case).await;
-        assert_eq!(denied.status(), StatusCode::FORBIDDEN);
     }
 }
 

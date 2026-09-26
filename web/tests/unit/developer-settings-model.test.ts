@@ -5,7 +5,6 @@ import {
 	formatRelative,
 	formatTime,
 	groupCount,
-	issuePresetFromSearchParams,
 	ISSUE_DEFAULTS,
 	lastStatusClass,
 	lastStatusLabel,
@@ -39,7 +38,6 @@ function endpoint(overrides: Partial<WebhookEndpoint> = {}): WebhookEndpoint {
 describe('developer settings model', () => {
 	it('formats permissions, dates, times, and relative timestamps', () => {
 		vi.setSystemTime(new Date('2026-06-10T14:00:00Z'));
-		expect(permissionClass('obsidian:sync')).toBe('obsidian');
 		expect(formatRelative('2026-06-10T13:58:00Z')).toBe('2 minutes ago');
 		expect(formatDate(null)).toBe('—');
 		expect(formatDate('2026-06-10T12:00:00Z')).toContain('10');
@@ -80,8 +78,7 @@ describe('developer settings model', () => {
 			'webhooks:write',
 			'ai:read',
 			'ai:write',
-			'ai:use',
-			'obsidian:sync'
+			'ai:use'
 		]);
 	});
 
@@ -96,7 +93,6 @@ describe('developer settings model', () => {
 		expect(permissionClass('library:write')).toBe('write');
 		// ai:use invokes models, so it must not read as a read-only grant.
 		expect(permissionClass('ai:use')).toBe('write');
-		expect(permissionClass('obsidian:sync')).toBe('obsidian');
 	});
 
 	it('expands resource write levels to truthful read and write permissions', () => {
@@ -111,8 +107,7 @@ describe('developer settings model', () => {
 		expect(setResourceAccess(read, 'library', 'none')).toEqual(['ai:use']);
 	});
 
-	it('keeps AI use and Obsidian sync additive while enforcing write includes read', () => {
-		expect(nextIssuePermissions(['ai:use'], 'obsidian:sync')).toEqual(['ai:use', 'obsidian:sync']);
+	it('keeps AI use additive while enforcing write includes read', () => {
 		expect(nextIssuePermissions(['ai:use'], 'ai:write')).toEqual(['ai:read', 'ai:write', 'ai:use']);
 		expect(nextIssuePermissions(['ai:read', 'ai:write', 'ai:use'], 'ai:read')).toEqual(['ai:use']);
 	});
@@ -123,24 +118,13 @@ describe('developer settings model', () => {
 	});
 
 	it('serializes the exact canonical permission and expiry request', () => {
-		expect(tokenRequest('  Automation  ', ['webhooks:write', 'obsidian:sync'], '365')).toEqual({
+		expect(tokenRequest('  Automation  ', ['webhooks:write', 'ai:use'], '365')).toEqual({
 			name: 'Automation',
-			permissions: ['webhooks:read', 'webhooks:write', 'obsidian:sync'],
+			permissions: ['webhooks:read', 'webhooks:write', 'ai:use'],
 			expires_in: 31_536_000
 		});
 		expect(tokenRequest('Automation', ['library:read'], '30').expires_in).toBe(2_592_000);
 		expect(tokenRequest('Automation', ['library:read'], '90').expires_in).toBe(7_776_000);
 		expect(tokenRequest('Automation', ['library:read'], 'never').expires_in).toBeNull();
-	});
-
-	it('preselects only Obsidian sync from the developer deep link', () => {
-		expect(issuePresetFromSearchParams(new URLSearchParams('permission=obsidian%3Async'))).toEqual({
-			name: 'Obsidian plugin',
-			permissions: ['obsidian:sync']
-		});
-		expect(
-			issuePresetFromSearchParams(new URLSearchParams('permission=library%3Aread'))
-		).toBeNull();
-		expect(issuePresetFromSearchParams(new URLSearchParams())).toBeNull();
 	});
 });

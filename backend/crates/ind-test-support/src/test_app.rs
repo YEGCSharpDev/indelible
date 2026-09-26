@@ -41,7 +41,6 @@ impl Default for TestAppOptions {
     }
 }
 
-
 fn test_config(base_url: &str, options: &TestAppOptions) -> ind_api::config::ServerConfig {
     let frontend_url = options.frontend_url.as_deref().unwrap_or(base_url);
     let mut config = serde_json::json!({

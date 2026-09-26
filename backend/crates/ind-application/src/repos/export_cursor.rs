@@ -1,9 +1,7 @@
 use chrono::{DateTime, Utc};
 
 use crate::error::AppError;
-use ind_domain::{
-    ExportCursor, HighlightId, IntegrationConnectionId, LibraryEntryId,
-};
+use ind_domain::{ExportCursor, HighlightId, IntegrationConnectionId, LibraryEntryId};
 
 #[async_trait::async_trait]
 pub trait ExportCursorRepository: Send + Sync {

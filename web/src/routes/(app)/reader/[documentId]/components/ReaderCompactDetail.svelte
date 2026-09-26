@@ -14,14 +14,7 @@
 		onClose: () => void;
 	}
 
-	let {
-		item,
-		isCompact,
-		isMobile,
-		compactDetailOpen,
-		showDetailPanel,
-		onClose
-	}: Props = $props();
+	let { item, isCompact, isMobile, compactDetailOpen, showDetailPanel, onClose }: Props = $props();
 </script>
 
 {#if isCompact}

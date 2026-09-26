@@ -152,20 +152,6 @@ describe('developer token issue form', () => {
 		expect(document.activeElement).toBe(trigger);
 	});
 
-	it('initializes the Obsidian deep link with only Obsidian sync', async () => {
-		await renderDeveloperPage('http://localhost/preferences/developer?permission=obsidian%3Async');
-		const form = tokenIssueForm();
-
-		expect((form.getByPlaceholderText('e.g. Personal MacBook') as HTMLInputElement).value).toBe(
-			'Obsidian plugin'
-		);
-		expect(form.getByText(/permission granted/).textContent).toContain('1');
-		expect(form.getByRole('button', { name: /Obsidian sync/ }).getAttribute('aria-pressed')).toBe(
-			'true'
-		);
-		expect(form.getByRole('button', { name: /AI use/ }).getAttribute('aria-pressed')).toBe('false');
-	});
-
 	it('renders the granted permissions as the array the request will carry', async () => {
 		await renderDeveloperPage();
 		await fireEvent.click(screen.getByRole('button', { name: 'Issue token' }));

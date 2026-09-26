@@ -2,12 +2,10 @@ use crate::AppError;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-
 use crate::repos::lifecycle_outbox::OutboxEntry;
 use ind_domain::{
-    ContentSource, Document, DocumentOriginType, FeedDeliveryId, LibraryEntry,
-NewDomainEvent, NewOriginDocument, NewUrlDocument,
-    UserDocumentState,
+    ContentSource, Document, DocumentOriginType, FeedDeliveryId, LibraryEntry, NewDomainEvent,
+    NewOriginDocument, NewUrlDocument, UserDocumentState,
 };
 
 /// Provenance origin recorded for a materialized document
@@ -114,7 +112,6 @@ pub struct SaveToLibraryRequest {
     pub side_effects: Option<SaveSideEffectsFn>,
 }
 
-
 /// Result of a save. `document_created` is true when the document row was inserted by this call;
 /// `restored` when a soft-deleted entry was revived; `already_active` when an active entry already
 /// existed (idempotent save).
@@ -154,5 +151,4 @@ pub trait DocumentLifecycle: Send + Sync {
         &self,
         request: SaveToLibraryRequest,
     ) -> Result<SaveToLibraryOutcome, AppError>;
-
 }

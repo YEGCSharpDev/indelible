@@ -40,14 +40,11 @@ pub async fn run_auto_heal_once(ctx: &RecoveryJobDeps) {
     run_integrity_check_if_due(ctx).await;
 }
 
-
 pub async fn sweep_integrity_stats(
     repo: &dyn IntegrityStatsRepository,
 ) -> Result<IntegrityStats, AppError> {
     repo.stats().await
 }
-
-
 
 async fn run_integrity_check_if_due(ctx: &RecoveryJobDeps) {
     let Some(_) = acquire_maintenance(ctx, INTEGRITY_TASK, Utc::now()).await else {
@@ -72,7 +69,6 @@ async fn run_integrity_check_if_due(ctx: &RecoveryJobDeps) {
         }
     }
 }
-
 
 async fn acquire_maintenance(
     ctx: &RecoveryJobDeps,
@@ -176,4 +172,3 @@ fn log_integrity_stats(stats: &IntegrityStats) {
         ),
     }
 }
-

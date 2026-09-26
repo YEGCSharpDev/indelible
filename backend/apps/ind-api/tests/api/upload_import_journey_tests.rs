@@ -4,9 +4,7 @@ use std::sync::Arc;
 use ind_application::repos::prepared_content::PreparedContentProvider;
 use ind_domain::{DocumentId, GenericJobEnvelope, JobOutboxId};
 use ind_ingest::prepared_content::AssetBackedPreparedContentProvider;
-use ind_persistence::repos::{
-    PgDocumentAssetRepository, PgDocumentRepository,
-};
+use ind_persistence::repos::{PgDocumentAssetRepository, PgDocumentRepository};
 use ind_test_support::{DocumentFactory, TestAppOptions, spawn_app, spawn_app_with_options};
 use reqwest::StatusCode;
 use reqwest::multipart::{Form, Part};

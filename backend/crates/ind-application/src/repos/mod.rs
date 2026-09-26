@@ -39,8 +39,6 @@ pub mod maintenance;
 pub mod notification_preferences;
 pub mod oauth_flow;
 pub mod oauth_identity;
-pub mod obsidian_export;
-pub mod obsidian_preview;
 pub mod outbox;
 pub mod password_reset;
 pub mod playback_state;

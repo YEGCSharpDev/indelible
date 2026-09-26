@@ -23,10 +23,6 @@ const ROUTE_TITLE_RULES: Rule[] = [
 	{ pattern: /^\/entities\/[^/]+(?:\/|$)/, key: 'entity_page_title' },
 	{ pattern: /^\/onboarding(?:\/|$)/, key: 'onboarding_page_title' },
 	{
-		pattern: /^\/preferences\/integrations\/obsidian(?:\/|$)/,
-		key: 'settings_obsidian_page_title'
-	},
-	{
 		pattern: /^\/preferences\/integrations\/miniflux(?:\/|$)/,
 		key: 'settings_miniflux_page_title'
 	},

@@ -4,10 +4,7 @@ use ind_application::AppError;
 use ind_application::ports::IntegrationSyncEnqueued;
 use ind_application::repos::integration_connection::IntegrationConnectionRepository;
 use ind_application::repos::outbox::JobOutboxRepository;
-use ind_domain::{
-    DomainError, IntegrationConnectionId, IntegrationProvider,
-    ObsidianSyncConnectionJob, UserId, job_types,
-};
+use ind_domain::{DomainError, IntegrationConnectionId, IntegrationProvider, UserId, job_types};
 
 pub struct IntegrationSyncService {
     connection_repo: Arc<dyn IntegrationConnectionRepository>,
@@ -46,16 +43,6 @@ impl IntegrationSyncService {
             reason = "sync job payloads are plain owned structs; serde_json::to_value is infallible for them"
         )]
         let (job_type, payload) = match connection.provider {
-            IntegrationProvider::Obsidian => (
-                job_types::INTEGRATION_OBSIDIAN_SYNC_CONNECTION,
-                serde_json::to_value(ObsidianSyncConnectionJob {
-                    connection_id: connection.id,
-                    user_id,
-                    requested_by_user: true,
-                    run_id: None,
-                })
-                .expect("ObsidianSyncConnectionJob is serializable"),
-            ),
             IntegrationProvider::Miniflux => (
                 job_types::INTEGRATION_MINIFLUX_SYNC_CONNECTION,
                 serde_json::to_value(ind_domain::MinifluxSyncConnectionJob {

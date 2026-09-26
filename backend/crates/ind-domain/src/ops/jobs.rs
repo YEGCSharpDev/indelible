@@ -139,15 +139,6 @@ pub struct AccountStoragePurgeJob {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ObsidianSyncConnectionJob {
-    pub connection_id: IntegrationConnectionId,
-    pub user_id: UserId,
-    pub requested_by_user: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub run_id: Option<Uuid>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReadwiseImportJob {
     pub import_job_id: ImportJobId,
     pub user_id: UserId,

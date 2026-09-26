@@ -64,7 +64,6 @@ const PRODUCT_COPY = new Set([
 	'Mila',
 	'Miniflux',
 	'OAuth',
-	'Obsidian',
 	'Ollama',
 	'OpenAI',
 	'OPML',

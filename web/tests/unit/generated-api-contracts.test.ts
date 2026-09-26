@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { DownloadObsidianArtifactResponses } from '$lib/api/generated';
+import type { StreamDocumentAssetResponses } from '$lib/api/generated';
 
 describe('generated API contracts', () => {
-	it('types Obsidian ZIP artifact downloads as binary blobs', () => {
-		const artifact: DownloadObsidianArtifactResponses[200] = new Blob(['zip']);
-		expect(artifact).toBeInstanceOf(Blob);
+	it('types document asset downloads as binary blobs', () => {
+		const asset: StreamDocumentAssetResponses[200] = new Blob(['asset']);
+		expect(asset).toBeInstanceOf(Blob);
 	});
 });

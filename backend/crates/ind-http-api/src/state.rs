@@ -5,13 +5,12 @@ use ind_application::asset_serving::AssetServingMode;
 use ind_application::ports::{
     AccountOperations, ApiTokenOperations, ArticleTocOperations, AuthOperations,
     CollectionOperations, DocumentReaderOperations, EmailAliasOperations, EmailIngestOperations,
-    EmailSenderOperations, EntityOperations, ExportOperations, ExtensionAuthOperations,
-    ExtensionSaveOperations, FeedDeliveryOperations, FeedOperations, FeedPreparationOperations,
-    HighlightOperations, HomeOperations, ImportOperations, IntegrationOperations,
-    LibraryOperations, LibraryUploadOperations, 
-    OAuthOperations, OnboardingOperations, SearchOperations,
-    SettingsOperations, SmartListOperations, TagOperations, TokenValidator, 
-    UserLookup, WebhookOperations,
+    EmailSenderOperations, EntityOperations, ExtensionAuthOperations, ExtensionSaveOperations,
+    FeedDeliveryOperations, FeedOperations, FeedPreparationOperations, HighlightOperations,
+    HomeOperations, ImportOperations, IntegrationOperations, LibraryOperations,
+    LibraryUploadOperations, OAuthOperations, OnboardingOperations, SearchOperations,
+    SettingsOperations, SmartListOperations, TagOperations, TokenValidator, UserLookup,
+    WebhookOperations,
 };
 use ind_application::repos::event::EventRepository;
 use ind_application::repos::oauth_flow::OAuthFlowRepository;
@@ -70,7 +69,6 @@ pub struct AppState {
     pub smart_list_ops: Option<Arc<dyn SmartListOperations>>,
     pub integration_ops: Option<Arc<dyn IntegrationOperations>>,
     pub import_ops: Option<Arc<dyn ImportOperations>>,
-    pub export_ops: Option<Arc<dyn ExportOperations>>,
     pub export_summary_provider:
         Option<Arc<dyn ind_application::export_summary::ExportSummaryProvider>>,
     pub event_repo: Option<Arc<dyn EventRepository>>,

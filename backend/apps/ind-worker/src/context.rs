@@ -38,18 +38,16 @@ use ind_application::storage::ObjectStorage;
 use ind_ingest::AssetBackedPreparedContentProvider;
 use ind_integrations::email::InboundEmailProvider;
 use ind_persistence::repos::{
-       PgApalisJobRepository,
-    PgBackgroundJobRecoveryRepository, PgCollectionRepository, 
+    PgApalisJobRepository, PgBackgroundJobRecoveryRepository, PgCollectionRepository,
     PgDeadLetterRepository, PgDocumentAssetRepository, PgDocumentLifecycle, PgDocumentRepository,
     PgDocumentReprocessRepository, PgEmailIngestLogRepository, PgEmailSenderRepository,
-    PgEmailUnsubscribeTargetRepository,  
-    PgEventRepository, PgFeedDeliveryRepository, PgFeedRepository, PgHighlightRepository,
-    PgImportJobRepository, PgIntegrationConnectionRepository, PgIntegrationOAuthTokenRepository,
+    PgEmailUnsubscribeTargetRepository, PgEventRepository, PgFeedDeliveryRepository,
+    PgFeedRepository, PgHighlightRepository, PgImportJobRepository,
+    PgIntegrationConnectionRepository, PgIntegrationOAuthTokenRepository,
     PgIntegrityStatsRepository, PgJobOutboxRepository, PgLibraryRepository,
-    PgMaintenanceTaskRepository,  PgRetentionCleanupRepository,
-    PgSearchReindexRepository, PgSearchRepository, PgTagRepository, 
-    PgUserDocumentStateRepository, PgUserPreferencesRepository, PgUserRepository,
-    PgWebhookRepository,
+    PgMaintenanceTaskRepository, PgRetentionCleanupRepository, PgSearchReindexRepository,
+    PgSearchRepository, PgTagRepository, PgUserDocumentStateRepository,
+    PgUserPreferencesRepository, PgUserRepository, PgWebhookRepository,
 };
 use ind_search::SearchIndexer;
 
@@ -182,7 +180,7 @@ impl WorkerServicesBuilder {
                 search_reindex_repo: Arc::new(PgSearchReindexRepository::new(pool.clone())),
                 search_indexer,
                 export_summary_provider: Arc::new(
-                    ind_application::export_summary::StoredExportSummaryProvider::new()
+                    ind_application::export_summary::StoredExportSummaryProvider::new(),
                 ),
                 webhook_repo: Arc::new(PgWebhookRepository::new(pool.clone())),
                 object_storage,
@@ -250,7 +248,6 @@ impl WorkerServicesBuilder {
         self.context.concurrency = concurrency;
         self
     }
-
 
     pub fn with_search_reindex_repo(mut self, repo: Arc<dyn SearchReindexRepository>) -> Self {
         self.context.search_reindex_repo = repo;

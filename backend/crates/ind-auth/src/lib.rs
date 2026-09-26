@@ -46,8 +46,7 @@ pub use integration_oauth::{
     CompletedIntegrationFlow, IntegrationOAuthError, IntegrationOAuthFlowStore,
     IntegrationOAuthProviderAdapter, IntegrationOAuthService, ProviderTokens,
     RepositoryIntegrationOAuthFlowStore, StartedIntegrationFlow,
-    integration_oauth_error_to_app_error,
-    settings::IntegrationOAuthSettings,
+    integration_oauth_error_to_app_error, settings::IntegrationOAuthSettings,
 };
 pub use jwt::{JwtClaims, sign_access_token, validate_access_token};
 pub use login::{LoginRequest, LoginResponse};

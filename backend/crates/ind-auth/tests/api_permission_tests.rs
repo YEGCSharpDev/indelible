@@ -14,7 +14,6 @@ fn api_permissions_serialize_and_parse_the_complete_wire_catalogue() {
         (ApiPermission::AiRead, "ai:read"),
         (ApiPermission::AiWrite, "ai:write"),
         (ApiPermission::AiUse, "ai:use"),
-        (ApiPermission::ObsidianSync, "obsidian:sync"),
     ];
 
     assert_eq!(ALL_API_PERMISSIONS.len(), cases.len());

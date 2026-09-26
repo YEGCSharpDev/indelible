@@ -3,25 +3,22 @@ use std::sync::Arc;
 use crate::config::ServerConfig;
 use crate::services::repositories::Repositories;
 use ind_application::export_summary::{ExportSummaryProvider, StoredExportSummaryProvider};
-use ind_application::ports::{ExportOperations, ImportOperations, WebhookOperations};
+use ind_application::ports::{ImportOperations, WebhookOperations};
 use ind_application::repos::import_job::ImportJobRepository;
 use ind_application::repos::integration_connection::IntegrationConnectionRepository;
 use ind_application::repos::integration_oauth_token::IntegrationOAuthTokenRepository;
 use ind_application::repos::oauth_flow::OAuthFlowRepository;
-use ind_application::repos::prepared_content::PreparedContentProvider;
 use ind_application::storage::ObjectStorage;
 use ind_http_api::IntegrationOperations;
 use ind_persistence::repos::{
-    PgImportJobRepository,
-    PgIntegrationOAuthTokenRepository, PgJobOutboxRepository, PgObsidianExportRepository,
-    PgObsidianPreviewRepository, PgWebhookRepository,
+    PgImportJobRepository, PgIntegrationOAuthTokenRepository, PgJobOutboxRepository,
+    PgWebhookRepository,
 };
 use secrecy::ExposeSecret;
 
 pub(super) struct IntegrationServices {
     pub integration_ops: Option<Arc<dyn IntegrationOperations>>,
     pub import_ops: Option<Arc<dyn ImportOperations>>,
-    pub export_ops: Option<Arc<dyn ExportOperations>>,
     pub webhook_ops: Option<Arc<dyn WebhookOperations>>,
     pub export_summary_provider: Arc<dyn ExportSummaryProvider>,
 }
@@ -33,7 +30,7 @@ pub(super) fn build_integration_services(
     outbox_repo: Arc<PgJobOutboxRepository>,
     integration_connection_repo: Arc<dyn IntegrationConnectionRepository>,
     oauth_flow_repo: Arc<dyn OAuthFlowRepository>,
-    repos: &Repositories,
+    _repos: &Repositories,
 ) -> anyhow::Result<IntegrationServices> {
     let integration_oauth_token_repo: Arc<dyn IntegrationOAuthTokenRepository> =
         Arc::new(PgIntegrationOAuthTokenRepository::new(pool.clone()));
@@ -80,29 +77,18 @@ pub(super) fn build_integration_services(
     let export_summary_provider: Arc<dyn ExportSummaryProvider> =
         Arc::new(StoredExportSummaryProvider::new());
 
-    let prepared_content_provider: Arc<dyn PreparedContentProvider> = Arc::new(
-        ind_ingest::AssetBackedPreparedContentProvider::new(
-            Arc::new(ind_persistence::repos::PgDocumentRepository::new(pool.clone())),
-            Arc::new(ind_persistence::repos::PgDocumentAssetRepository::new(pool.clone())),
-            storage.cloned(),
-        )
-    );
-
     if credential_cipher.is_none() {
         tracing::info!(
             "integration OAuth callbacks will fail until auth.credential_key is set; \
-             Obsidian PAT minting and integration listing remain available"
+             integration listing remains available"
         );
     }
 
     let integration_ops: Option<Arc<dyn IntegrationOperations>> = Some(Arc::new(
         ind_integrations::IntegrationOperationsService::new(
-            integration_connection_repo.clone(),
+            integration_connection_repo,
             integration_oauth_token_repo,
             outbox_repo.clone(),
-            export_summary_provider.clone(),
-            prepared_content_provider,
-            Arc::new(PgObsidianPreviewRepository::new(pool.clone())),
             integration_oauth_service,
             credential_cipher.clone(),
         ),
@@ -119,14 +105,6 @@ pub(super) fn build_integration_services(
     if import_ops.is_none() {
         tracing::info!("import operations disabled - S3 storage is required for artifact uploads");
     }
-
-    let export_ops: Option<Arc<dyn ExportOperations>> =
-        Some(Arc::new(ind_integrations::ExportOperationsService::new(
-            integration_connection_repo,
-            outbox_repo.clone(),
-            repos.export_cursor.clone(),
-            Arc::new(PgObsidianExportRepository::new(pool.clone())),
-        )) as Arc<dyn ExportOperations>);
 
     #[expect(
         clippy::expect_used,
@@ -147,7 +125,6 @@ pub(super) fn build_integration_services(
     Ok(IntegrationServices {
         integration_ops,
         import_ops,
-        export_ops,
         webhook_ops,
         export_summary_provider,
     })

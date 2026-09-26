@@ -5,9 +5,7 @@ use apalis::prelude::*;
 use apalis_postgres::{Config as ApalisConfig, PostgresStorage};
 use ind_application::repos::search_reindex::SearchReindexRepository;
 use ind_domain::GenericJobEnvelope;
-use ind_persistence::repos::{
-    PgOutboxHandoff, PgSearchReindexRepository,
-};
+use ind_persistence::repos::{PgOutboxHandoff, PgSearchReindexRepository};
 use secrecy::{ExposeSecret, SecretString};
 
 use crate::concurrency::ConcurrencyLimiter;
@@ -63,15 +61,7 @@ pub async fn run() -> anyhow::Result<()> {
             "queued search reindex for index-version upgrade"
         );
     }
-    let ctx = Arc::new(
-        build_context(
-            &config,
-            pool.clone(),
-            &repos,
-            search_reindex_repo,
-        )
-        .await?,
-    );
+    let ctx = Arc::new(build_context(&config, pool.clone(), &repos, search_reindex_repo).await?);
 
     spawn_feed_source_entry_canonical_url_backfill(ctx.clone());
 
@@ -151,12 +141,10 @@ async fn build_context(
     )?
     .with_worker_id(worker_id)
     .with_search_reindex_repo(search_reindex_repo)
-    .with_concurrency(
-        ConcurrencyLimiter::new().with_limit(
-            ind_domain::job_types::FEED_PREPARE_DOCUMENT,
-            config.capture.max_concurrency,
-        ),
-    )
+    .with_concurrency(ConcurrencyLimiter::new().with_limit(
+        ind_domain::job_types::FEED_PREPARE_DOCUMENT,
+        config.capture.max_concurrency,
+    ))
     .with_recovery_settings(&config.auto_heal)
     .with_feed_poll_schedule(schedulers::feed_poll_schedule(config))
     .with_email_ingest_provider_option(providers::build_email_ingest_provider(config))

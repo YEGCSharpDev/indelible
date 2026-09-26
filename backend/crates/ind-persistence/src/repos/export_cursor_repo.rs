@@ -4,9 +4,7 @@ use uuid::Uuid;
 
 use ind_application::AppError;
 use ind_application::repos::export_cursor::ExportCursorRepository;
-use ind_domain::{
-    ExportCursor, HighlightId, IntegrationConnectionId, LibraryEntryId,
-};
+use ind_domain::{ExportCursor, HighlightId, IntegrationConnectionId, LibraryEntryId};
 
 pub struct PgExportCursorRepository {
     pool: PgPool,

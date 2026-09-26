@@ -762,57 +762,6 @@ CREATE TABLE public.oauth_identities (
     created_at timestamp with time zone NOT NULL
 );
 
-CREATE TABLE public.obsidian_export_artifact_items (
-    artifact_id uuid NOT NULL,
-    file_path text NOT NULL,
-    full_document_path text,
-    last_highlight_created_at timestamp with time zone,
-    last_highlight_id uuid,
-    content_hash text,
-    full_document_hash text,
-    delivered_at timestamp with time zone,
-    last_error text,
-    created_at timestamp with time zone NOT NULL,
-    library_entry_id uuid NOT NULL
-);
-
-CREATE TABLE public.obsidian_export_artifacts (
-    id uuid NOT NULL,
-    run_id uuid NOT NULL,
-    connection_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    content_type text NOT NULL,
-    byte_size integer NOT NULL,
-    bytes bytea NOT NULL,
-    created_at timestamp with time zone NOT NULL
-);
-
-CREATE TABLE public.obsidian_export_refresh_queue (
-    connection_id uuid NOT NULL,
-    reason text NOT NULL,
-    requested_at timestamp with time zone NOT NULL,
-    delivery_attempts integer DEFAULT 0 NOT NULL,
-    next_attempt_at timestamp with time zone,
-    library_entry_id uuid NOT NULL
-);
-
-CREATE TABLE public.obsidian_export_runs (
-    id uuid NOT NULL,
-    connection_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    status text NOT NULL,
-    total_documents integer DEFAULT 0 NOT NULL,
-    documents_exported integer DEFAULT 0 NOT NULL,
-    requested_by_user boolean DEFAULT false NOT NULL,
-    auto boolean DEFAULT false NOT NULL,
-    parent_folder_deleted boolean DEFAULT false NOT NULL,
-    force_item_ids uuid[] DEFAULT '{}'::uuid[] NOT NULL,
-    error text,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
-    finished_at timestamp with time zone
-);
-
 CREATE TABLE public.password_reset_tokens (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,

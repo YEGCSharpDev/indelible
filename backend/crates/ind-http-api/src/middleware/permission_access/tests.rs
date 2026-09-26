@@ -5,8 +5,8 @@ use super::{
     AccessPolicy, AiReadAndLibraryReadPolicy, AiReadPolicy, AiUseAndLibraryReadPolicy, AiUsePolicy,
     AiWriteAndAiUseAndLibraryReadPolicy, AiWriteAndAiUsePolicy, AiWritePolicy, DocumentAssetPolicy,
     FeedsReadPolicy, FeedsWritePolicy, IntegrationsReadPolicy, IntegrationsWritePolicy,
-    LibraryReadPolicy, LibraryWritePolicy, ObsidianSyncPolicy, WebhooksReadPolicy,
-    WebhooksWritePolicy, authorize_permission_access,
+    LibraryReadPolicy, LibraryWritePolicy, WebhooksReadPolicy, WebhooksWritePolicy,
+    authorize_permission_access,
 };
 use crate::error::ApiError;
 use crate::middleware::{ApiCredential, Principal};
@@ -128,16 +128,13 @@ fn every_named_single_permission_policy_enforces_its_permission() {
         (ApiPermission::AiUse, |principal| {
             authorize_permission_access::<AiUsePolicy>(principal)
         }),
-        (ApiPermission::ObsidianSync, |principal| {
-            authorize_permission_access::<ObsidianSyncPolicy>(principal)
-        }),
     ];
 
     for (required, authorize) in cases {
         authorize(&pat(vec![*required])).expect("exact permission must authorize access");
 
         let unrelated = if *required == ApiPermission::LibraryRead {
-            ApiPermission::ObsidianSync
+            ApiPermission::FeedsRead
         } else {
             ApiPermission::LibraryRead
         };

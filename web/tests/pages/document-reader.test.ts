@@ -150,9 +150,6 @@ afterEach(() => {
 });
 
 describe('document reader page', () => {
-	
-
-	
 	it('reserves a safe reader gutter when the table of contents rail is visible', async () => {
 		mockGetArticleToc.mockResolvedValue({
 			data: {
@@ -192,15 +189,6 @@ describe('document reader page', () => {
 		expect(container.querySelector('.content-area')?.classList.contains('with-toc')).toBe(false);
 	});
 
-	
-
-	
-
-	
-
-	
-
-	
 	it('shows a preparing state until the readable asset is ready', async () => {
 		mockGetDocumentEntry.mockResolvedValue({ data: readModel({ readable_ready: false }) });
 		mockListAssets.mockResolvedValue({ data: { data: [], page: { has_more: false } } });

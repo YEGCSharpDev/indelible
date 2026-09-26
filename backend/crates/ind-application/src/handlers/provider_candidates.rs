@@ -12,7 +12,6 @@ pub struct ProviderCandidate {
     pub instance_id: Option<Uuid>,
 }
 
-
 /// Build candidate YouTube RSSHub URLs for `rsshub_path`
 /// (e.g. `/youtube/user/@JFlaMusic`). YouTube only flows through RSSHub today,
 /// so non-rsshub instances are skipped silently.

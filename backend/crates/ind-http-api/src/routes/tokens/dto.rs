@@ -29,8 +29,6 @@ pub enum ApiPermissionDto {
     AiWrite,
     #[serde(rename = "ai:use")]
     AiUse,
-    #[serde(rename = "obsidian:sync")]
-    ObsidianSync,
 }
 
 impl From<ApiPermissionDto> for ApiPermission {
@@ -47,7 +45,6 @@ impl From<ApiPermissionDto> for ApiPermission {
             ApiPermissionDto::AiRead => Self::AiRead,
             ApiPermissionDto::AiWrite => Self::AiWrite,
             ApiPermissionDto::AiUse => Self::AiUse,
-            ApiPermissionDto::ObsidianSync => Self::ObsidianSync,
         }
     }
 }
@@ -66,7 +63,6 @@ impl From<ApiPermission> for ApiPermissionDto {
             ApiPermission::AiRead => Self::AiRead,
             ApiPermission::AiWrite => Self::AiWrite,
             ApiPermission::AiUse => Self::AiUse,
-            ApiPermission::ObsidianSync => Self::ObsidianSync,
         }
     }
 }

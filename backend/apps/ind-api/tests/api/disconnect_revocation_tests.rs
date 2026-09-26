@@ -15,10 +15,8 @@ use ind_domain::{
 };
 use ind_integrations::IntegrationOperationsService;
 use ind_persistence::repos::{
-    PgDocumentAssetRepository, PgDocumentRepository,
-    PgIntegrationConnectionRepository, PgIntegrationOAuthTokenRepository,
-    PgJobOutboxRepository, PgOAuthFlowRepository,
-    PgObsidianPreviewRepository,
+    PgIntegrationConnectionRepository, PgIntegrationOAuthTokenRepository, PgJobOutboxRepository,
+    PgOAuthFlowRepository,
 };
 use ind_test_support::factories::UserFactory;
 use ind_test_support::{TEST_CIPHER_KEY_B64, TestDb};
@@ -137,22 +135,10 @@ async fn harness(
         "https://api.example.com".into(),
     ));
 
-    let export_summary = Arc::new(
-        ind_application::export_summary::StoredExportSummaryProvider::new(),
-    );
-    let prepared_content = Arc::new(ind_ingest::AssetBackedPreparedContentProvider::new(
-        Arc::new(PgDocumentRepository::new(pool.clone())),
-        Arc::new(PgDocumentAssetRepository::new(pool.clone())),
-        None,
-    ));
-
     let ops = IntegrationOperationsService::new(
         Arc::new(PgIntegrationConnectionRepository::new(pool.clone())),
         Arc::new(PgIntegrationOAuthTokenRepository::new(pool.clone())),
         Arc::new(PgJobOutboxRepository::new(pool.clone())),
-        export_summary,
-        prepared_content,
-        Arc::new(PgObsidianPreviewRepository::new(pool.clone())),
         oauth_service,
         with_cipher.then_some(cipher),
     );
@@ -276,7 +262,7 @@ async fn disconnect_of_non_oauth_provider_is_unchanged() {
     let h = harness(
         &db,
         RecordingAdapter::succeeding(),
-        IntegrationProvider::Obsidian,
+        IntegrationProvider::EmailIngest,
         false,
         true,
     )

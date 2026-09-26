@@ -4,8 +4,7 @@ use reqwest::header::{ETAG, IF_MODIFIED_SINCE, IF_NONE_MATCH, LAST_MODIFIED};
 use ind_application::AppError;
 use ind_application::handlers::feed::{next_poll_after_failure, next_poll_after_success};
 use ind_application::handlers::provider_candidates::{
-    ProviderCandidate, instance_for_url, youtube_candidates,
-    youtube_rsshub_path_from_canonical,
+    ProviderCandidate, instance_for_url, youtube_candidates, youtube_rsshub_path_from_canonical,
 };
 use ind_domain::{
     ActiveSubscription, CanonicalizationConfig, DocumentOriginType, FeedAutosaveJob, FeedDelivery,

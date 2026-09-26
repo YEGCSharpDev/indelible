@@ -65,8 +65,7 @@ and users can make informed decisions.
   `docs/security/` for the egress and self-host hardening notes.
 - **Untrusted document content** (saved articles, emails, EPUBs, uploads) is
   sanitized server-side before storage and rendering, and is fenced as
-  untrusted data in AI prompts. Treat third-party Obsidian plugins that
-  consume exported content as able to execute arbitrary vault content.
+  untrusted data in AI prompts.
 - **Self-hosting requires operator action**: terminate TLS at a reverse proxy,
   set unique secrets, and apply the security headers documented in
   `docs/security/self-host-security-headers.md`. Browser extensions request

@@ -2,18 +2,12 @@ use reqwest::StatusCode;
 
 use super::resource_route_permission_support::{RouteCase, RoutePermissionFixture};
 
-const READ_ROUTES: &[RouteCase] = &[
-    RouteCase::get("/api/v1/integrations"),
-    RouteCase::get("/api/v1/integrations/bad/obsidian/settings"),
-    RouteCase::post("/api/v1/integrations/bad/obsidian/preview"),
-];
+const READ_ROUTES: &[RouteCase] = &[RouteCase::get("/api/v1/integrations")];
 
 const WRITE_ROUTES: &[RouteCase] = &[
     RouteCase::post("/api/v1/integrations/custom/authorize"),
     RouteCase::delete("/api/v1/integrations/bad"),
     RouteCase::post("/api/v1/integrations/bad/sync"),
-    RouteCase::patch("/api/v1/integrations/bad/obsidian/settings"),
-    RouteCase::post("/api/v1/integrations/obsidian/setup"),
     RouteCase::post("/api/v1/integrations/miniflux/connect"),
 ];
 

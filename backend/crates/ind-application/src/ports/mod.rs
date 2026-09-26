@@ -36,9 +36,7 @@ pub use html_extractor::{HtmlExtractor, SpokenHtmlElement};
 pub use http_fetcher::{FetchRequest, FetchResponse, HttpFetchError, HttpFetcher};
 pub use integration::{
     EmailAliasCreateError, EmailAliasOperations, EmailIngestOperations, EmailSenderOperations,
-    EmailSenderUnsubscribeOutcome, ExportOperations, ImportOperations, ImportUpload,
-    IntegrationAuthorizeStart, IntegrationOperations, IntegrationSyncEnqueued,
-    ObsidianAckSubject, ObsidianRefreshRequest, ObsidianRunAck,
-    ObsidianRunCreate, ReadwiseImportUpload, WebhookOperations,
+    EmailSenderUnsubscribeOutcome, ImportOperations, ImportUpload, IntegrationAuthorizeStart,
+    IntegrationOperations, IntegrationSyncEnqueued, ReadwiseImportUpload, WebhookOperations,
 };
 pub use opml_parser::{OpmlParseError, OpmlParser};

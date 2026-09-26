@@ -8,8 +8,7 @@ use uuid::Uuid;
 use ind_application::AppError;
 use ind_application::repos::integration_connection::IntegrationConnectionRepository;
 use ind_domain::{
-    DomainError, IntegrationConnection, IntegrationConnectionId, IntegrationProvider,
-    UserId,
+    DomainError, IntegrationConnection, IntegrationConnectionId, IntegrationProvider, UserId,
 };
 
 mod model;
@@ -128,26 +127,6 @@ impl IntegrationConnectionRepository for PgIntegrationConnectionRepository {
                ORDER BY created_at ASC"#,
             user_id.into_uuid(),
         )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(map_err)?;
-
-        rows.into_iter()
-            .map(IntegrationConnection::try_from)
-            .collect()
-    }
-
-    async fn list_active_export_capable(
-        &self,
-        user_id: UserId,
-    ) -> Result<Vec<IntegrationConnection>, AppError> {
-        let rows = sqlx::query_as::<_, ConnectionRow>(
-            r#"SELECT id, user_id, provider, config, status, last_sync_at, last_error, created_at, updated_at, version
-               FROM integration_connections
-               WHERE user_id = $1 AND status = 'active' AND provider = 'obsidian'
-               ORDER BY created_at ASC"#,
-        )
-        .bind(user_id.into_uuid())
         .fetch_all(&self.pool)
         .await
         .map_err(map_err)?;

@@ -77,7 +77,7 @@ fn extract_epub_cover_image(data: &[u8]) -> Option<ExtractedCoverImage> {
     let package = parse_epub_package(&rootfile_path, &opf_xml);
 
     let mut candidates = cover_candidates(&package);
-    candidates.sort_by(|a, b| b.score.cmp(&a.score));
+    candidates.sort_by_key(|a| std::cmp::Reverse(a.score));
 
     for candidate in candidates {
         let Some(bytes) = read_zip_bytes(&mut archive, &candidate.path, MAX_COVER_IMAGE_BYTES)

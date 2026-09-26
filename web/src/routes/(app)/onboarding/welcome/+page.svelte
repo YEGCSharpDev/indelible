@@ -125,24 +125,6 @@
 			</div>
 			<span>{$t('onboarding_welcome_save_web')}</span>
 		</li>
-		<li class="feature-item">
-			<div class="feature-icon feature-icon--emerald" aria-hidden="true">
-				<svg
-					width="16"
-					height="16"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="#059669"
-					stroke-width="1.5"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				>
-					<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
-					<path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
-				</svg>
-			</div>
-			<span>{$t('onboarding_welcome_sync')}</span>
-		</li>
 	</ul>
 
 	<div class="cta-wrapper">
@@ -268,16 +250,8 @@
 		background: rgba(255, 255, 255, 0.8);
 	}
 
-	.feature-item + .feature-item {
-		border-top: 1px solid rgba(0, 0, 0, 0.06);
-	}
-
 	:global([data-theme='dark']) .feature-item {
 		background: rgba(255, 255, 255, 0.03);
-	}
-
-	:global([data-theme='dark']) .feature-item + .feature-item {
-		border-color: rgba(255, 255, 255, 0.06);
 	}
 
 	.feature-icon {
@@ -293,15 +267,9 @@
 	.feature-icon--blue {
 		background: rgba(0, 113, 227, 0.08);
 	}
-	.feature-icon--emerald {
-		background: rgba(5, 150, 105, 0.08);
-	}
 
 	:global([data-theme='dark']) .feature-icon--blue {
 		background: rgba(10, 132, 255, 0.14);
-	}
-	:global([data-theme='dark']) .feature-icon--emerald {
-		background: rgba(16, 185, 129, 0.14);
 	}
 
 	.feature-item span {

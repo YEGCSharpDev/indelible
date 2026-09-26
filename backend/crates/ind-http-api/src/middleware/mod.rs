@@ -26,7 +26,7 @@ pub use permission_access::{
     RequireAiUseAndLibraryRead, RequireAiWrite, RequireAiWriteAndAiUse,
     RequireAiWriteAndAiUseAndLibraryRead, RequireDocumentAssetRead, RequireFeedsRead,
     RequireFeedsWrite, RequireIntegrationsRead, RequireIntegrationsWrite, RequireLibraryRead,
-    RequireLibraryWrite, RequireObsidianSync, RequireWebhooksRead, RequireWebhooksWrite,
+    RequireLibraryWrite, RequireWebhooksRead, RequireWebhooksWrite,
 };
 pub use rate_limit::{RateLimitConfig, RateLimiters};
 pub use session_cookie::{clear_refresh_cookie, extract_refresh_cookie, set_refresh_cookie};

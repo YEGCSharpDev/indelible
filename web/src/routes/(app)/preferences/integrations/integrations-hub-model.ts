@@ -88,13 +88,6 @@ export function isOauthProviderAvailable(
 	return available.includes(providerId);
 }
 
-export function obsidianHubStatus(
-	connection: IntegrationConnectionDto | null | undefined
-): HubConnectionStatus {
-	if (!connection) return { labelKey: 'integrations_hub_status_not_connected', variant: 'coming' };
-	return { labelKey: 'integrations_hub_status_connected', variant: 'active', check: true };
-}
-
 export function minifluxHubStatus(
 	connection: IntegrationConnectionDto | null | undefined
 ): HubConnectionStatus {

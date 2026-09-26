@@ -62,6 +62,7 @@
 	let error = $state<string | null>(null);
 	let aiFailure = $state<ReaderAiFailure | null>(null);
 	let aiRetryStatus = $state<'idle' | 'pending' | 'queued' | 'error'>('idle');
+	void aiRetryStatus;
 	const readerRetry = new ReaderRetryController((key, options) => $t(key, options));
 	const showReaderRetry = $derived(
 		readerRetry.pollVisible || shouldReprocessReaderPreparation(item, assets)

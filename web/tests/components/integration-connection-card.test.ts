@@ -8,21 +8,19 @@ describe('IntegrationConnectionCard', () => {
 	it('renders a current-design card shell with status and errors', () => {
 		render(IntegrationConnectionCard, {
 			props: {
-				title: 'Obsidian',
-				tagline: 'Sync markdown files and highlights into your Obsidian vault.',
+				title: 'Miniflux',
+				tagline: 'Sync reading state and articles.',
 				statusLabel: 'Needs attention',
 				statusVariant: 'attention',
-				errorMessage: 'Vault sync token has expired.'
+				errorMessage: 'Miniflux API token has expired.'
 			}
 		});
 
 		expect(screen.getByTestId('integration-connection-card')).toBeTruthy();
-		expect(screen.getByText('Obsidian')).toBeTruthy();
-		expect(
-			screen.getByText('Sync markdown files and highlights into your Obsidian vault.')
-		).toBeTruthy();
+		expect(screen.getByText('Miniflux')).toBeTruthy();
+		expect(screen.getByText('Sync reading state and articles.')).toBeTruthy();
 		expect(screen.getByText('Needs attention')).toBeTruthy();
-		expect(screen.getByRole('alert').textContent).toContain('Vault sync token has expired.');
+		expect(screen.getByRole('alert').textContent).toContain('Miniflux API token has expired.');
 	});
 });
 

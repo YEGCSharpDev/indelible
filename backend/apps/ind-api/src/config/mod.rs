@@ -412,7 +412,6 @@ impl ServerConfig {
     }
 
     fn validate(&self, is_dev: bool) -> anyhow::Result<()> {
-
         if !is_dev {
             let dev_csrf = "dev-csrf-secret-change-in-production";
             if self.auth.csrf_secret.expose_secret() == dev_csrf {

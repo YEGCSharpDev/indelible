@@ -87,12 +87,6 @@ impl AccessPolicy for AiUsePolicy {
     const REQUIRED: &'static [ApiPermission] = &[ApiPermission::AiUse];
 }
 
-pub struct ObsidianSyncPolicy;
-
-impl AccessPolicy for ObsidianSyncPolicy {
-    const REQUIRED: &'static [ApiPermission] = &[ApiPermission::ObsidianSync];
-}
-
 pub struct AiReadAndLibraryReadPolicy;
 
 impl AccessPolicy for AiReadAndLibraryReadPolicy {
@@ -138,7 +132,6 @@ pub type RequireWebhooksWrite = PermissionAccess<WebhooksWritePolicy>;
 pub type RequireAiRead = PermissionAccess<AiReadPolicy>;
 pub type RequireAiWrite = PermissionAccess<AiWritePolicy>;
 pub type RequireAiUse = PermissionAccess<AiUsePolicy>;
-pub type RequireObsidianSync = PermissionAccess<ObsidianSyncPolicy>;
 pub type RequireAiReadAndLibraryRead = PermissionAccess<AiReadAndLibraryReadPolicy>;
 pub type RequireAiUseAndLibraryRead = PermissionAccess<AiUseAndLibraryReadPolicy>;
 pub type RequireAiWriteAndAiUse = PermissionAccess<AiWriteAndAiUsePolicy>;

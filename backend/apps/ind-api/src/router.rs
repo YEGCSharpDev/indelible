@@ -9,10 +9,10 @@ use ind_http_api::middleware::rate_limit::{RateLimitConfig, RateLimiters};
 use ind_http_api::{
     AppState, account_routes, archive_routes, asset_proxy_routes, auth_routes, collection_routes,
     document_routes, email_alias_routes, email_sender_routes, entity_routes, epub_routes,
-    event_routes, export_routes, extension_routes, feed_delivery_routes, feed_routes,
-    highlight_routes, home_routes, import_routes, integration_routes, library_routes, 
-    onboarding_routes, rate_limited_auth_routes, scalar_ui, search_routes, settings_routes,
-    smart_list_routes, swagger_ui, tag_routes, token_routes,  webhook_routes,
+    event_routes, extension_routes, feed_delivery_routes, feed_routes, highlight_routes,
+    home_routes, import_routes, integration_routes, library_routes, onboarding_routes,
+    rate_limited_auth_routes, scalar_ui, search_routes, settings_routes, smart_list_routes,
+    swagger_ui, tag_routes, token_routes, webhook_routes,
 };
 use tower_http::cors::{AllowOrigin, CorsLayer};
 use tower_http::set_header::SetResponseHeaderLayer;
@@ -62,7 +62,6 @@ pub fn build(
         .merge(smart_list_routes())
         .merge(integration_routes(rate_limiters))
         .merge(import_routes(max_import_upload_bytes))
-        .merge(export_routes())
         .merge(webhook_routes());
 
     let app = app.layer(axum::middleware::from_fn_with_state(

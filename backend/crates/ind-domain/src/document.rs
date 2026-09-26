@@ -22,9 +22,8 @@ pub enum DocumentType {
 }
 
 impl DocumentType {
-    pub const NAMES: &'static [&'static str] = &[
-        "article", "book", "email", "pdf", "video", "podcast",
-    ];
+    pub const NAMES: &'static [&'static str] =
+        &["article", "book", "email", "pdf", "video", "podcast"];
 
     pub fn as_str(self) -> &'static str {
         match self {

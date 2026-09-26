@@ -1,9 +1,8 @@
-use std::collections::HashSet;
 use std::io::Write as _;
 
 use ind_domain::{
     DocumentId, DocumentOriginType, DocumentType, GenericJobEnvelope, ImportJobId, ImportMethod,
-    ImportSource, IntegrationConnectionId, JobOutboxId, LibraryEntryId, UserId,
+    ImportSource, JobOutboxId, UserId,
     deterministic_origin_id,
 };
 use ind_test_support::{SavedDocumentFactory, TestDb, UserFactory};

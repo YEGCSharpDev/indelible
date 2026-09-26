@@ -3,8 +3,8 @@ use std::collections::HashMap;
 
 use crate::error::AppError;
 use ind_domain::{
-    DocumentId, RecentSearch, RecentSearchId, SearchDocument, SearchEntityCard,
-    SearchEntityChip, SearchHit, SearchIndexedHighlight, UserId,
+    DocumentId, RecentSearch, RecentSearchId, SearchDocument, SearchEntityCard, SearchEntityChip,
+    SearchHit, SearchIndexedHighlight, UserId,
 };
 use uuid::Uuid;
 
@@ -80,7 +80,6 @@ pub trait SearchRepository: Send + Sync {
         &self,
         document_id: DocumentId,
     ) -> Result<(), AppError>;
-
 
     async fn search_fts(&self, query: &SearchFtsQuery) -> Result<Vec<SearchHit>, AppError>;
 

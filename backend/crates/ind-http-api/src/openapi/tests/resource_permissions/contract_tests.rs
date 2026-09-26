@@ -33,33 +33,6 @@ fn assert_pat_contracts(spec: &Value, operations: &[OperationContract]) {
     }
 }
 
-fn assert_composite_pat_contracts(spec: &Value, operations: &[CompositeOperationContract]) {
-    for contract in operations {
-        let operation = &spec["paths"][contract.path][contract.method];
-        assert_ne!(
-            operation,
-            &Value::Null,
-            "missing OpenAPI operation {} {}",
-            contract.method,
-            contract.path
-        );
-        assert_eq!(
-            operation["security"],
-            json!([{"bearer": []}, {"api_token": []}]),
-            "{} {} must advertise bearer OR api_token",
-            contract.method,
-            contract.path
-        );
-        assert_eq!(
-            operation["x-indelible-permissions"],
-            json!(contract.permissions),
-            "{} {} must publish every exact permission",
-            contract.method,
-            contract.path
-        );
-    }
-}
-
 #[test]
 fn library_operations_publish_explicit_permission_contracts() {
     let spec = serde_json::to_value(ApiDoc::openapi()).expect("serialize OpenAPI");
@@ -108,13 +81,6 @@ fn oauth_form_post_callback_is_public_and_documents_its_form_body() {
 fn webhook_operations_publish_explicit_permission_contracts() {
     let spec = serde_json::to_value(ApiDoc::openapi()).expect("serialize OpenAPI");
     assert_pat_contracts(&spec, WEBHOOK_OPERATIONS);
-}
-
-#[test]
-fn ai_and_obsidian_operations_publish_explicit_permission_contracts() {
-    let spec = serde_json::to_value(ApiDoc::openapi()).expect("serialize OpenAPI");
-    assert_composite_pat_contracts(&spec, AI_OPERATIONS);
-    assert_composite_pat_contracts(&spec, OBSIDIAN_SYNC_OPERATIONS);
 }
 
 #[test]
@@ -250,7 +216,6 @@ fn forbidden_responses_describe_permissions_or_verified_jwt_access() {
             "/api/v1/documents/{document_id}/epub/chapters/{chapter_index}",
         ),
         ("post", "/api/v1/library/query"),
-        ("post", "/api/v1/integrations/{id}/obsidian/preview"),
         ("get", "/api/v1/documents/{document_id}/toc"),
     ] {
         assert_eq!(

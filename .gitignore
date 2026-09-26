@@ -18,6 +18,7 @@
 
 # Node
 node_modules/
+.pnpm-store/
 
 # Web (SvelteKit)
 /web/build/
@@ -37,9 +38,6 @@ node_modules/
 /mobile/**/build/
 /mobile/.gradle/
 /mobile/local.properties
-
-# Obsidian plugin build output
-/obsidian/main.js
 
 # Signing material. A committed keystore means rotating the app signing key and
 # breaking update continuity for every sideloaded install.

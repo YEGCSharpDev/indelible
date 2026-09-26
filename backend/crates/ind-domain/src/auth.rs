@@ -72,8 +72,6 @@ pub enum ApiPermission {
     AiWrite,
     #[serde(rename = "ai:use")]
     AiUse,
-    #[serde(rename = "obsidian:sync")]
-    ObsidianSync,
 }
 
 impl_string_enum!(ApiPermission, "API permission", {
@@ -88,7 +86,6 @@ impl_string_enum!(ApiPermission, "API permission", {
     AiRead => "ai:read",
     AiWrite => "ai:write",
     AiUse => "ai:use",
-    ObsidianSync => "obsidian:sync",
 });
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

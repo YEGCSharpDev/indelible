@@ -2,19 +2,11 @@ import {
 	authorizeIntegration,
 	connectMiniflux,
 	deleteIntegration,
-	getObsidianSettings,
 	listIntegrations,
-	previewObsidianExport,
-	setupObsidianConnection,
 	syncIntegration,
-	updateObsidianSettings,
 	type AuthorizeIntegrationResponse,
 	type IntegrationConnectionDto,
 	type IntegrationListResponse,
-	type ObsidianPreviewRequest,
-	type ObsidianPreviewResponse,
-	type ObsidianSettingsDto,
-	type UpdateObsidianSettingsRequest,
 	type SyncIntegrationResponse
 } from '$lib/api';
 
@@ -98,68 +90,6 @@ export async function disconnectIntegration(connectionId: string): Promise<ApiRe
 		return { success: false, error: extractMessage(error, 'Failed to disconnect integration') };
 	} catch (err) {
 		return failure(err, 'disconnecting integration');
-	}
-}
-
-
-export async function loadObsidianSettings(
-	connectionId: string
-): Promise<ApiResult<ObsidianSettingsDto>> {
-	try {
-		const { data, error } = await getObsidianSettings({ path: { id: connectionId } });
-		if (data) {
-			return { success: true, data };
-		}
-		return { success: false, error: extractMessage(error, 'Failed to load Obsidian settings') };
-	} catch (err) {
-		return failure(err, 'loading Obsidian settings');
-	}
-}
-
-export async function saveObsidianSettings(
-	connectionId: string,
-	body: UpdateObsidianSettingsRequest
-): Promise<ApiResult<ObsidianSettingsDto>> {
-	try {
-		const { data, error } = await updateObsidianSettings({ path: { id: connectionId }, body });
-		if (data) {
-			return { success: true, data };
-		}
-		return { success: false, error: extractMessage(error, 'Failed to update Obsidian settings') };
-	} catch (err) {
-		return failure(err, 'updating Obsidian settings');
-	}
-}
-
-export async function previewObsidianSettings(
-	connectionId: string,
-	body: ObsidianPreviewRequest
-): Promise<ApiResult<ObsidianPreviewResponse>> {
-	try {
-		const { data, error } = await previewObsidianExport({ path: { id: connectionId }, body });
-		if (data) {
-			return { success: true, data };
-		}
-		return { success: false, error: extractMessage(error, 'Failed to render Obsidian preview') };
-	} catch (err) {
-		return failure(err, 'rendering Obsidian preview');
-	}
-}
-
-export async function setupObsidianExportConnection(): Promise<
-	ApiResult<IntegrationConnectionDto>
-> {
-	try {
-		const { data, error } = await setupObsidianConnection();
-		if (data) {
-			return { success: true, data };
-		}
-		return {
-			success: false,
-			error: extractMessage(error, 'Failed to set up Obsidian export')
-		};
-	} catch (err) {
-		return failure(err, 'setting up Obsidian export');
 	}
 }
 

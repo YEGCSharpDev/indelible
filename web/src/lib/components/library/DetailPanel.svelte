@@ -13,6 +13,8 @@
 	}
 
 	let { item, collectionId = null, collectionName = null }: Props = $props();
+	void collectionId;
+	void collectionName;
 
 	const displayItem = $derived(item);
 
