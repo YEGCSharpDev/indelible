@@ -4,4 +4,3 @@ mod common;
 
 include!("readwise_import/harness.rs");
 include!("readwise_import/scenarios.rs");
-include!("readwise_import/obsidian.rs");

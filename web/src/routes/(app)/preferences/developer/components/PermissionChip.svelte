@@ -37,9 +37,4 @@
 		background: var(--dev-scope-other-bg);
 		color: var(--dev-scope-other-fg);
 	}
-
-	.permission.obsidian {
-		background: var(--dev-scope-ext-bg);
-		color: var(--dev-scope-ext-fg);
-	}
 </style>

@@ -210,7 +210,7 @@ pub struct OpmlImportResponse {
     pub errors: Vec<String>,
 }
 
-const VALID_FEED_SEARCH_SURFACES: &[&str] = &["all", "rss", "youtube", "twitter"];
+const VALID_FEED_SEARCH_SURFACES: &[&str] = &["all", "rss", "youtube"];
 
 pub(crate) fn parse_feed_status(s: &str) -> Option<ind_domain::FeedStatus> {
     s.parse().ok()
@@ -221,7 +221,6 @@ pub(crate) fn parse_feed_search_surface(s: &str) -> Option<ind_domain::FeedSearc
         "all" => Some(ind_domain::FeedSearchSurface::All),
         "rss" => Some(ind_domain::FeedSearchSurface::Rss),
         "youtube" => Some(ind_domain::FeedSearchSurface::Youtube),
-        "twitter" => Some(ind_domain::FeedSearchSurface::Twitter),
         _ => None,
     }
 }
@@ -248,7 +247,6 @@ pub(crate) fn format_feed_type(ft: ind_domain::FeedType) -> String {
         ind_domain::FeedType::Atom => "atom",
         ind_domain::FeedType::Podcast => "podcast",
         ind_domain::FeedType::Youtube => "youtube",
-        ind_domain::FeedType::Twitter => "twitter",
         ind_domain::FeedType::Newsletter => "newsletter",
     }
     .to_string()

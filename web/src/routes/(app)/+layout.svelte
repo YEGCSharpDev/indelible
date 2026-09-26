@@ -6,7 +6,6 @@
 	import UploadFileModal from '$lib/components/library/UploadFileModal.svelte';
 	import EmailForwardingModal from '$lib/components/library/EmailForwardingModal.svelte';
 	import AddRssFeedModal from '$lib/components/library/AddRssFeedModal.svelte';
-	import XPostModal from '$lib/components/library/XPostModal.svelte';
 	import YouTubeModal from '$lib/components/library/YouTubeModal.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -66,7 +65,6 @@
 	{#if modal.active === 'upload'}<UploadFileModal />{/if}
 	{#if modal.active === 'email'}<EmailForwardingModal />{/if}
 	{#if modal.active === 'rss'}<AddRssFeedModal />{/if}
-	{#if modal.active === 'x'}<XPostModal />{/if}
 	{#if modal.active === 'youtube'}<YouTubeModal />{/if}
 	{#if helpOpen}<ShortcutHelpOverlay onClose={() => (helpOpen = false)} />{/if}
 {/if}

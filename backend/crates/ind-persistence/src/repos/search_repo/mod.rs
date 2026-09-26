@@ -4,10 +4,9 @@ use std::collections::HashMap;
 use ind_application::AppError;
 use ind_application::repos::search::{RecentSearchRepository, SearchFtsQuery, SearchRepository};
 use ind_domain::{
-    DocumentId, RecentSearch, RecentSearchId, SearchDocument, SearchEntityCard,
-    SearchEntityChip, SearchHit, SearchIndexedHighlight, UserId,
+    DocumentId, RecentSearch, RecentSearchId, SearchDocument, SearchEntityCard, SearchEntityChip,
+    SearchHit, SearchIndexedHighlight, UserId,
 };
-
 
 mod documents;
 mod entities;
@@ -23,9 +22,7 @@ pub struct PgSearchRepository {
 
 impl PgSearchRepository {
     pub fn new(pool: PgPool) -> Self {
-        Self {
-            pool,
-        }
+        Self { pool }
     }
 }
 
@@ -54,7 +51,6 @@ impl SearchRepository for PgSearchRepository {
         self.delete_search_documents_for_document_impl(document_id)
             .await
     }
-
 
     async fn search_fts(&self, query: &SearchFtsQuery) -> Result<Vec<SearchHit>, AppError> {
         self.search_fts_impl(query).await

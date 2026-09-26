@@ -7,7 +7,7 @@
 	import type { MessageKey } from '$lib/i18n';
 	import { t } from '$lib/i18n';
 
-	export type DetailTab = 'info' | 'notebook' | 'chat';
+	export type DetailTab = 'info' | 'notebook';
 
 	interface Props {
 		item: DocumentListEntry;
@@ -16,28 +16,21 @@
 		textAvailable?: boolean;
 	}
 
-	let { item, bookMetadata, progress, textAvailable = true }: Props = $props();
+	let { item, bookMetadata, progress }: Props = $props();
 
 	let activeTab = $state<DetailTab>('info');
 
-	const tabOptions: { value: DetailTab; labelKey: MessageKey }[] = $derived([
+	const tabOptions: { value: DetailTab; labelKey: MessageKey }[] = [
 		{ value: 'info', labelKey: 'common_info' },
-		{ value: 'notebook', labelKey: 'common_notebook' },
-		...(textAvailable ? [{ value: 'chat' as const, labelKey: 'common_chat' as const }] : [])
-	]);
-
-	$effect(() => {
-		if (!textAvailable && activeTab === 'chat') {
-			activeTab = 'info';
-		}
-	});
+		{ value: 'notebook', labelKey: 'common_notebook' }
+	];
 
 	function onTabChange(value: string) {
 		activeTab = value as DetailTab;
 	}
 </script>
 
-<div class="right-panel" class:chat-mode={activeTab === 'chat'}>
+<div class="right-panel">
 	<div class="right-header">
 		<span class="tabs-eyebrow">{$t('common_details')}</span>
 		<MorphSwitcher options={tabOptions} value={activeTab} onchange={onTabChange} size="sm" />
@@ -48,7 +41,6 @@
 		</div>
 	{:else if activeTab === 'notebook'}
 		<NotebookTab {item} />
-	{:else if activeTab === 'chat' && textAvailable}
 	{/if}
 </div>
 
@@ -65,10 +57,6 @@
 		position: relative;
 		z-index: 2;
 		overflow-y: auto;
-	}
-
-	.right-panel.chat-mode {
-		overflow: hidden;
 	}
 
 	/* Mirrors the list header grammar: quiet label left, switcher right.

@@ -134,7 +134,6 @@
 		if (type === 'podcast') return 'purple-gradient';
 		if (type === 'email') return 'orange-gradient';
 		if (type === 'pdf') return 'teal-gradient';
-		if (type === 'tweet') return 'teal-gradient';
 		if (type === 'book') return 'green-gradient';
 		const hash = domain.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
 		const gradients = ['blue-gradient', 'green-gradient', 'purple-gradient', 'orange-gradient'];
@@ -147,7 +146,6 @@
 		if (type === 'podcast') return '\u{1F3A7}';
 		if (type === 'email') return '\u{2709}\u{FE0F}';
 		if (type === 'pdf') return '\u{1F4C4}';
-		if (type === 'tweet') return '\u{1F426}';
 		if (type === 'book') return '\u{1F4D6}';
 		return '\u{1F4F0}';
 	}

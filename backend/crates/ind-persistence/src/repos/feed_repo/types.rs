@@ -27,7 +27,6 @@ pub(super) fn parse_feed_type(s: &str) -> Result<FeedType, AppError> {
         "atom" => Ok(FeedType::Atom),
         "podcast" => Ok(FeedType::Podcast),
         "youtube" => Ok(FeedType::Youtube),
-        "twitter" => Ok(FeedType::Twitter),
         "newsletter" => Ok(FeedType::Newsletter),
         other => Err(AppError::Domain(DomainError::InvariantViolation {
             message: format!("unknown feed_type: {other}"),
@@ -41,7 +40,6 @@ pub(super) fn feed_type_to_str(ft: FeedType) -> &'static str {
         FeedType::Atom => "atom",
         FeedType::Podcast => "podcast",
         FeedType::Youtube => "youtube",
-        FeedType::Twitter => "twitter",
         FeedType::Newsletter => "newsletter",
     }
 }
@@ -80,7 +78,6 @@ pub(super) fn surface_to_str(surface: FeedSearchSurface) -> &'static str {
         FeedSearchSurface::All => "all",
         FeedSearchSurface::Rss => "rss",
         FeedSearchSurface::Youtube => "youtube",
-        FeedSearchSurface::Twitter => "twitter",
     }
 }
 

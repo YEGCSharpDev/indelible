@@ -31,7 +31,7 @@ body:
     attributes:
       label: Where
       multiple: true
-      options: [Web, Browser extension, Android, iOS, Server, Obsidian plugin]
+      options: [Web, Browser extension, Android, iOS, Server]
     validations:
       required: true
   - type: textarea

@@ -10,8 +10,7 @@
 	import {
 		disconnectIntegration,
 		dispatchIntegrationSync,
-		loadIntegrationConnections,
-		startIntegrationAuthorization
+		loadIntegrationConnections
 	} from '$lib/api/integrations';
 	import {
 		fetchImportJob,
@@ -38,8 +37,6 @@
 		connectionRingCounts,
 		connectionRingDash,
 		formatUploadLimit,
-		isOauthProviderAvailable,
-		obsidianHubStatus,
 		minifluxHubStatus,
 		sevenDayDelta,
 		sevenDayItems,
@@ -56,7 +53,6 @@
 	let copiedInbox = $state(false);
 	let copiedFeed = $state(false);
 	let connections = $state<IntegrationConnectionDto[]>([]);
-	let availableOauthProviders = $state<string[] | null>(null);
 	let connectionsLoading = $state(true);
 	let connectionsError = $state<string | null>(null);
 	let syncStateByConnection = $state<Record<string, SyncState>>({});
@@ -80,9 +76,7 @@
 	let history = $state<ImportJobStatusResponse[]>([]);
 	let pollHandle: PollHandle | null = null;
 
-	const obsidianConnection = $derived(findConnection('obsidian'));
 	const minifluxConnection = $derived(findConnection('miniflux'));
-	const obsidianStatus = $derived(obsidianHubStatus(obsidianConnection));
 	const minifluxStatus = $derived(minifluxHubStatus(minifluxConnection));
 	const ringCounts = $derived(connectionRingCounts(connections));
 	const ringDash = $derived(connectionRingDash(ringCounts));
@@ -138,7 +132,6 @@
 		connectionsLoading = false;
 		if (result.success) {
 			connections = result.data.connections;
-			availableOauthProviders = result.data.available_oauth_providers ?? null;
 		} else {
 			connectionsError = result.error;
 		}
@@ -151,10 +144,6 @@
 
 	function findConnection(providerId: string): IntegrationConnectionDto | undefined {
 		return connections.find((connection) => connection.provider === providerId);
-	}
-
-	function openObsidianDetail() {
-		void goto(resolve('/preferences/integrations/obsidian'));
 	}
 
 	function openMinifluxDetail() {
@@ -202,7 +191,6 @@
 
 	function disconnectProviderName(connection: IntegrationConnectionDto): string {
 		const map: Record<string, string> = {
-			obsidian: 'Obsidian',
 			email_ingest: 'Email Forwarding',
 			miniflux: 'Miniflux'
 		};
@@ -374,10 +362,7 @@
 </script>
 
 <div class="settings-content">
-	<IntegrationCallbackBanner
-		{callback}
-		onDismiss={dismissCallback}
-	/>
+	<IntegrationCallbackBanner {callback} onDismiss={dismissCallback} />
 
 	<IntegrationsHero
 		{heroState}
@@ -397,14 +382,11 @@
 			{copiedInbox}
 			{copiedFeed}
 			{extStore}
-			{obsidianConnection}
 			{minifluxConnection}
-			{obsidianStatus}
 			{minifluxStatus}
 			{syncStateByConnection}
 			{syncErrorByConnection}
 			onCopyAddress={copyAddress}
-			onOpenObsidian={openObsidianDetail}
 			onOpenMiniflux={openMinifluxDetail}
 			onSync={handleSync}
 			onDisconnect={openDisconnectDialog}

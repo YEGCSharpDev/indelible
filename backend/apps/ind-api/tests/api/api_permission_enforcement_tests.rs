@@ -72,7 +72,11 @@ async fn document_asset_route_requires_library_read_permission() {
             StatusCode::NOT_FOUND,
         ),
         ("AI caller", &["ai:use"][..], StatusCode::FORBIDDEN),
-        ("vault", &["obsidian:sync"][..], StatusCode::FORBIDDEN),
+        (
+            "webhook reader",
+            &["webhooks:read"][..],
+            StatusCode::FORBIDDEN,
+        ),
     ] {
         let token = fixture.mint_token(name, permissions).await;
         assert_eq!(

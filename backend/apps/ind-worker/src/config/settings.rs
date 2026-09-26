@@ -4,9 +4,9 @@ use serde::Deserialize;
 
 use super::{
     AutoHealSettings, CaptureWorkerSettings, EmailIngestWorkerSettings,
-    FeedRetentionCleanupSettings, FeedWorkerSettings, RelaySettings,
-    TrashCleanupSettings, WorkerAuthSettings, WorkerRuntimeSettings, WorkerServerSettings,
-    default_s3_force_path_style, default_s3_region,
+    FeedRetentionCleanupSettings, FeedWorkerSettings, RelaySettings, TrashCleanupSettings,
+    WorkerAuthSettings, WorkerRuntimeSettings, WorkerServerSettings, default_s3_force_path_style,
+    default_s3_region,
 };
 
 #[derive(Clone, Debug, Deserialize)]

@@ -27,7 +27,6 @@ export const SLUG_TO_API_TYPE: Record<string, string> = {
 	books: 'book',
 	emails: 'email',
 	pdfs: 'pdf',
-	tweets: 'tweet',
 	videos: 'video',
 	podcasts: 'podcast'
 };

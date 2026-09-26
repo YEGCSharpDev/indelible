@@ -202,7 +202,11 @@ class SmartListsParityTest {
             "filter_expression": {"type": "and", "conditions": []},
             "is_pinned": $isPinned,
             "created_at": "2026-01-01T00:00:00Z",
-            "updated_at": "2026-01-01T00:00:00Z"
+            "updated_at": "2026-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
         }
         """.trimIndent()
 
@@ -217,7 +221,11 @@ class SmartListsParityTest {
                     "filter_expression": {"type": "and", "conditions": []},
                     "is_pinned": false,
                     "created_at": "2026-01-01T00:00:00Z",
-                    "updated_at": "2026-01-01T00:00:00Z"
+                    "updated_at": "2026-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
                 }
             ],
             "page": {"has_more": false, "next_cursor": null}
@@ -242,7 +250,11 @@ class SmartListsParityTest {
                     "is_shortlisted": false,
                     "saved_at": "2026-01-01T00:00:00Z",
                     "created_at": "2026-01-01T00:00:00Z",
-                    "updated_at": "2026-01-01T00:00:00Z"
+                    "updated_at": "2026-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
                 }
             ],
             "page": {"has_more": false, "next_cursor": null}

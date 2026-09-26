@@ -1,5 +1,4 @@
 use chrono::{DateTime, Utc};
-use ind_domain::ObsidianExportSettings;
 use ind_domain::{IntegrationConnection, IntegrationProvider};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -17,7 +16,7 @@ pub struct IntegrationListResponse {
 #[derive(Debug, Serialize, ToSchema)]
 pub struct IntegrationConnectionDto {
     pub id: String,
-    #[schema(value_type = String, example = "obsidian")]
+    #[schema(value_type = String, example = "miniflux")]
     pub provider: IntegrationProvider,
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -61,11 +60,6 @@ impl From<IntegrationConnection> for IntegrationConnectionDto {
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "provider", rename_all = "snake_case")]
 pub enum IntegrationConnectionConfigDto {
-    Obsidian {
-        group_files_in_category_folders: bool,
-        export_all_reader_documents: bool,
-        sync_notifications: bool,
-    },
     EmailIngest {
         address: String,
     },
@@ -86,14 +80,6 @@ impl IntegrationConnectionConfigDto {
         raw: &serde_json::Value,
     ) -> IntegrationConnectionConfigDto {
         match provider {
-            IntegrationProvider::Obsidian => {
-                let settings = ind_integrations::obsidian::settings_from_config(raw);
-                IntegrationConnectionConfigDto::Obsidian {
-                    group_files_in_category_folders: settings.group_files_in_category_folders,
-                    export_all_reader_documents: settings.export_all_reader_documents,
-                    sync_notifications: settings.sync_notifications,
-                }
-            }
             IntegrationProvider::EmailIngest => IntegrationConnectionConfigDto::EmailIngest {
                 address: string_field(raw, "address").unwrap_or_default(),
             },
@@ -115,116 +101,6 @@ impl IntegrationConnectionConfigDto {
 
 fn string_field(raw: &serde_json::Value, key: &str) -> Option<String> {
     raw.get(key).and_then(|v| v.as_str()).map(|s| s.to_string())
-}
-
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct ObsidianSettingsDto {
-    pub group_files_in_category_folders: bool,
-    pub export_all_reader_documents: bool,
-    pub sync_notifications: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub properties_template: Option<String>,
-    pub page_title_template: String,
-    pub metadata_template: String,
-    pub highlight_header_template: String,
-    pub highlight_template: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub file_name_template: Option<String>,
-    pub category_folder_templates: std::collections::HashMap<String, String>,
-    pub sync_notification_template: String,
-}
-
-impl From<ObsidianExportSettings> for ObsidianSettingsDto {
-    fn from(value: ObsidianExportSettings) -> Self {
-        Self {
-            group_files_in_category_folders: value.group_files_in_category_folders,
-            export_all_reader_documents: value.export_all_reader_documents,
-            sync_notifications: value.sync_notifications,
-            properties_template: value.properties_template,
-            page_title_template: value.page_title_template,
-            metadata_template: value.metadata_template,
-            highlight_header_template: value.highlight_header_template,
-            highlight_template: value.highlight_template,
-            file_name_template: value.file_name_template,
-            category_folder_templates: value.category_folder_templates,
-            sync_notification_template: value.sync_notification_template,
-        }
-    }
-}
-
-impl From<ObsidianSettingsDto> for ObsidianExportSettings {
-    fn from(value: ObsidianSettingsDto) -> Self {
-        Self {
-            group_files_in_category_folders: value.group_files_in_category_folders,
-            export_all_reader_documents: value.export_all_reader_documents,
-            sync_notifications: value.sync_notifications,
-            properties_template: value.properties_template,
-            page_title_template: value.page_title_template,
-            metadata_template: value.metadata_template,
-            highlight_header_template: value.highlight_header_template,
-            highlight_template: value.highlight_template,
-            file_name_template: value.file_name_template,
-            category_folder_templates: value.category_folder_templates,
-            sync_notification_template: value.sync_notification_template,
-        }
-    }
-}
-
-#[derive(Debug, Deserialize, ToSchema, validator::Validate)]
-pub struct UpdateObsidianSettingsRequest {
-    pub group_files_in_category_folders: bool,
-    pub export_all_reader_documents: bool,
-    pub sync_notifications: bool,
-    #[serde(default)]
-    pub properties_template: Option<String>,
-    pub page_title_template: String,
-    pub metadata_template: String,
-    pub highlight_header_template: String,
-    pub highlight_template: String,
-    #[serde(default)]
-    pub file_name_template: Option<String>,
-    #[serde(default)]
-    pub category_folder_templates: std::collections::HashMap<String, String>,
-    pub sync_notification_template: String,
-}
-
-impl From<UpdateObsidianSettingsRequest> for ObsidianExportSettings {
-    fn from(value: UpdateObsidianSettingsRequest) -> Self {
-        Self {
-            group_files_in_category_folders: value.group_files_in_category_folders,
-            export_all_reader_documents: value.export_all_reader_documents,
-            sync_notifications: value.sync_notifications,
-            properties_template: value.properties_template,
-            page_title_template: value.page_title_template,
-            metadata_template: value.metadata_template,
-            highlight_header_template: value.highlight_header_template,
-            highlight_template: value.highlight_template,
-            file_name_template: value.file_name_template,
-            category_folder_templates: value.category_folder_templates,
-            sync_notification_template: value.sync_notification_template,
-        }
-    }
-}
-
-#[derive(Debug, Deserialize, ToSchema, validator::Validate)]
-pub struct ObsidianPreviewRequest {
-    #[serde(default)]
-    #[validate(length(min = 1, max = 64))]
-    pub library_entry_id: Option<String>,
-    #[serde(default)]
-    pub settings: Option<ObsidianSettingsDto>,
-}
-
-#[derive(Debug, Serialize, ToSchema)]
-pub struct ObsidianPreviewResponse {
-    pub file_path: String,
-    pub full_content: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub append_only_content: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub full_document_text_path: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub full_document_text: Option<String>,
 }
 
 #[derive(Debug, Deserialize, ToSchema, validator::Validate)]

@@ -47,7 +47,6 @@ import indelible.composeapp.generated.resources.library_content_books
 import indelible.composeapp.generated.resources.library_content_emails
 import indelible.composeapp.generated.resources.library_content_pdfs
 import indelible.composeapp.generated.resources.library_content_podcasts
-import indelible.composeapp.generated.resources.library_content_tweets
 import indelible.composeapp.generated.resources.library_content_videos
 import indelible.composeapp.generated.resources.library_new
 import indelible.composeapp.generated.resources.library_progress_minutes_left
@@ -372,7 +371,6 @@ private fun itemTypeLabelRes(itemType: String): StringResource? =
         "email" -> Res.string.library_content_emails
         "pdf" -> Res.string.library_content_pdfs
         "podcast" -> Res.string.library_content_podcasts
-        "tweet" -> Res.string.library_content_tweets
         "video" -> Res.string.library_content_videos
         else -> null
     }

@@ -5,7 +5,6 @@ const sdkMocks = vi.hoisted(() => ({
 	authorizeIntegration: vi.fn(),
 	deleteIntegration: vi.fn(),
 	syncIntegration: vi.fn(),
-	setupObsidianConnection: vi.fn(),
 	connectMiniflux: vi.fn()
 }));
 
@@ -14,7 +13,6 @@ vi.mock('$lib/api', () => ({
 	authorizeIntegration: sdkMocks.authorizeIntegration,
 	deleteIntegration: sdkMocks.deleteIntegration,
 	syncIntegration: sdkMocks.syncIntegration,
-	setupObsidianConnection: sdkMocks.setupObsidianConnection,
 	connectMiniflux: sdkMocks.connectMiniflux
 }));
 
@@ -23,7 +21,6 @@ import {
 	disconnectIntegration,
 	loadIntegrationConnections,
 	setupMinifluxConnection,
-	setupObsidianExportConnection,
 	startIntegrationAuthorization
 } from '$lib/api/integrations';
 
@@ -160,43 +157,6 @@ describe('disconnectIntegration', () => {
 	});
 });
 
-describe('setupObsidianExportConnection', () => {
-	beforeEach(() => {
-		Object.values(sdkMocks).forEach((m) => m.mockReset());
-	});
-
-	it('creates or returns an Obsidian export connection', async () => {
-		const connectionPayload = {
-			id: 'icn_1',
-			provider: 'obsidian',
-			status: 'active',
-			last_sync_at: null,
-			last_error: null,
-			config: { provider: 'obsidian' },
-			pending_jobs: 0,
-			created_at: '2026-04-25T12:00:00Z'
-		};
-		sdkMocks.setupObsidianConnection.mockResolvedValueOnce({
-			data: connectionPayload,
-			error: undefined,
-			response: new Response(null, { status: 200 })
-		});
-		const result = await setupObsidianExportConnection();
-		expect(sdkMocks.setupObsidianConnection).toHaveBeenCalledWith();
-		expect(result).toEqual({ success: true, data: connectionPayload });
-	});
-
-	it('surfaces the failure message verbatim', async () => {
-		sdkMocks.setupObsidianConnection.mockResolvedValueOnce({
-			data: undefined,
-			error: { message: 'limit reached' },
-			response: new Response(null, { status: 422 })
-		});
-		const result = await setupObsidianExportConnection();
-		expect(result).toEqual({ success: false, error: 'limit reached' });
-	});
-});
-
 describe('setupMinifluxConnection', () => {
 	beforeEach(() => {
 		Object.values(sdkMocks).forEach((m) => m.mockReset());
@@ -218,10 +178,7 @@ describe('setupMinifluxConnection', () => {
 			error: undefined,
 			response: new Response(null, { status: 200 })
 		});
-		const result = await setupMinifluxConnection(
-			'https://miniflux.example.com',
-			'test-api-key'
-		);
+		const result = await setupMinifluxConnection('https://miniflux.example.com', 'test-api-key');
 		expect(sdkMocks.connectMiniflux).toHaveBeenCalledWith({
 			body: {
 				url: 'https://miniflux.example.com',
@@ -237,19 +194,13 @@ describe('setupMinifluxConnection', () => {
 			error: { message: 'Invalid credentials' },
 			response: new Response(null, { status: 400 })
 		});
-		const result = await setupMinifluxConnection(
-			'https://miniflux.example.com',
-			'wrong-key'
-		);
+		const result = await setupMinifluxConnection('https://miniflux.example.com', 'wrong-key');
 		expect(result).toEqual({ success: false, error: 'Invalid credentials' });
 	});
 
 	it('handles unexpected exceptions and returns failure', async () => {
 		sdkMocks.connectMiniflux.mockRejectedValueOnce(new Error('connection refused'));
-		const result = await setupMinifluxConnection(
-			'https://miniflux.example.com',
-			'test-api-key'
-		);
+		const result = await setupMinifluxConnection('https://miniflux.example.com', 'test-api-key');
 		expect(result.success).toBe(false);
 		if (!result.success) {
 			expect(result.error).toBe('connection refused');

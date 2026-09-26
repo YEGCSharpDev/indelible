@@ -2,7 +2,7 @@ import type { MessageKey } from '$lib/i18n';
 
 export type IntegrationCapability = 'sync' | 'oauth' | 'pat' | 'importUpload';
 
-export type IntegrationProviderId = 'obsidian' | 'readwise';
+export type IntegrationProviderId = 'readwise';
 
 export interface IntegrationProvider {
 	id: IntegrationProviderId;
@@ -22,12 +22,6 @@ export interface IntegrationProvider {
 const TWO_HUNDRED_MB = 200 * 1024 * 1024;
 
 export const INTEGRATION_PROVIDERS: IntegrationProvider[] = [
-	{
-		id: 'obsidian',
-		displayName: 'Obsidian',
-		descriptionKey: 'integrations_provider_obsidian_description',
-		capabilities: ['sync', 'pat']
-	},
 	{
 		id: 'readwise',
 		displayName: 'Readwise Reader',

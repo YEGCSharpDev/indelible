@@ -137,7 +137,7 @@ fn collect_validation_errors(
     field_errors: &mut Vec<FieldError>,
 ) {
     let mut entries: Vec<_> = errors.errors().iter().collect();
-    entries.sort_by(|(left, _), (right, _)| left.cmp(right));
+    entries.sort_by_key(|(left, _)| *left);
 
     for (field, kind) in entries {
         let field_path = if prefix.is_empty() {

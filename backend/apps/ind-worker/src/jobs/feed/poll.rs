@@ -4,8 +4,7 @@ use reqwest::header::{ETAG, IF_MODIFIED_SINCE, IF_NONE_MATCH, LAST_MODIFIED};
 use ind_application::AppError;
 use ind_application::handlers::feed::{next_poll_after_failure, next_poll_after_success};
 use ind_application::handlers::provider_candidates::{
-    ProviderCandidate, instance_for_url, twitter_candidates, twitter_handle_from_canonical,
-    youtube_candidates, youtube_rsshub_path_from_canonical,
+    ProviderCandidate, instance_for_url, youtube_candidates, youtube_rsshub_path_from_canonical,
 };
 use ind_domain::{
     ActiveSubscription, CanonicalizationConfig, DocumentOriginType, FeedAutosaveJob, FeedDelivery,
@@ -144,9 +143,6 @@ async fn build_poll_candidates(
     }
 
     let alternates = match source.feed_type {
-        FeedType::Twitter => twitter_handle_from_canonical(&source.source_url)
-            .map(|h| twitter_candidates(&h, &instances))
-            .unwrap_or_default(),
         FeedType::Youtube => youtube_rsshub_path_from_canonical(&source.source_url)
             .map(|p| youtube_candidates(&p, &instances))
             .unwrap_or_default(),
@@ -558,7 +554,7 @@ fn entry_guid(entry: &feed_rs::model::Entry) -> String {
 }
 
 fn feed_type_for_source(source_type: FeedType, feed: &feed_rs::model::Feed) -> FeedType {
-    if matches!(source_type, FeedType::Twitter | FeedType::Youtube) {
+    if source_type == FeedType::Youtube {
         return source_type;
     }
     if feed.entries.iter().any(|entry| {

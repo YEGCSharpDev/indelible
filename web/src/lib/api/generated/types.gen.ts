@@ -6,19 +6,6 @@ export type ClientOptions = {
 
 export type AccentColorDto = 'blue' | 'green' | 'orange' | 'rose';
 
-export type AckObsidianRunRequest = {
-	artifact_ids?: Array<string>;
-	subjects?: Array<AckObsidianSubjectDto>;
-};
-
-export type AckObsidianSubjectDto = {
-	error?: string | null;
-	last_content_hash?: string | null;
-	last_full_document_hash?: string | null;
-	status: string;
-	subject_id: string;
-};
-
 /**
  * Add a saved library entry to a collection (TASK-235, Library-entry-keyed membership).
  */
@@ -46,8 +33,7 @@ export type ApiPermissionDto =
 	| 'webhooks:write'
 	| 'ai:read'
 	| 'ai:write'
-	| 'ai:use'
-	| 'obsidian:sync';
+	| 'ai:use';
 
 export type ApiTokenResponse = {
 	created_at: string;
@@ -219,12 +205,6 @@ export type CreateHighlightBody = {
 	locator: LocatorSchemaFlat;
 	source_locator?: null | SourceLocatorSchemaFlat;
 	text_content: string;
-};
-
-export type CreateObsidianRunRequest = {
-	auto?: boolean;
-	force_subject_ids?: Array<string>;
-	parent_folder_deleted?: boolean;
 };
 
 export type CreateSmartListBody = {
@@ -827,12 +807,6 @@ export type ImportUploadResponse = {
  */
 export type IntegrationConnectionConfigDto =
 	| {
-			export_all_reader_documents: boolean;
-			group_files_in_category_folders: boolean;
-			provider: 'obsidian';
-			sync_notifications: boolean;
-	  }
-	| {
 			address: string;
 			provider: 'email_ingest';
 	  }
@@ -949,7 +923,7 @@ export type LibraryEntryTagsResponse = {
 export type LibraryItemTypeCountResponse = {
 	count: number;
 	/**
-	 * One of: article, book, email, pdf, tweet, video, podcast.
+	 * One of: article, book, email, pdf, video, podcast.
 	 */
 	item_type: string;
 };
@@ -1216,51 +1190,6 @@ export type OAuthProvidersResponse = {
 	signups_enabled: boolean;
 };
 
-export type ObsidianArtifactDownloadMeta = {
-	artifact_id: string;
-	byte_size: number;
-	content_type: string;
-};
-
-export type ObsidianPreviewRequest = {
-	library_entry_id?: string | null;
-	settings?: null | ObsidianSettingsDto;
-};
-
-export type ObsidianPreviewResponse = {
-	append_only_content?: string | null;
-	file_path: string;
-	full_content: string;
-	full_document_text?: string | null;
-	full_document_text_path?: string | null;
-};
-
-export type ObsidianRunStatusResponse = {
-	artifact_ids: Array<string>;
-	documents_exported: number;
-	error?: string | null;
-	is_finished: boolean;
-	run_id: string;
-	task_status: string;
-	total_documents: number;
-};
-
-export type ObsidianSettingsDto = {
-	category_folder_templates: {
-		[key: string]: string;
-	};
-	export_all_reader_documents: boolean;
-	file_name_template?: string | null;
-	group_files_in_category_folders: boolean;
-	highlight_header_template: string;
-	highlight_template: string;
-	metadata_template: string;
-	page_title_template: string;
-	properties_template?: string | null;
-	sync_notification_template: string;
-	sync_notifications: boolean;
-};
-
 export type OnboardingResponse = {
 	completed: boolean;
 	current_step: number;
@@ -1522,25 +1451,6 @@ export type RecentlyAddedWidget = {
 	items: Array<HomeItemResponse>;
 };
 
-export type RecordObsidianRenameRequest = {
-	new_path: string;
-	subject_id: string;
-};
-
-export type RecordObsidianRenameResponse = {
-	new_path: string;
-	subject_id: string;
-};
-
-export type RefreshObsidianSubjectsRequest = {
-	reason?: string;
-	subject_ids: Array<string>;
-};
-
-export type RefreshObsidianSubjectsResponse = {
-	queued: number;
-};
-
 export type RefreshResponse = {
 	access_token: string;
 	expires_at: number;
@@ -1591,7 +1501,7 @@ export type SaveFromDeliveryBody = {
  */
 export type SaveUrlBody = {
 	/**
-	 * One of: article, book, email, pdf, tweet, video, podcast. Inferred from the URL when
+	 * One of: article, book, email, pdf, video, podcast. Inferred from the URL when
 	 * omitted.
 	 */
 	item_type?: string | null;
@@ -1819,22 +1729,6 @@ export type UpdateEntityBody = {
 export type UpdateHomeSettingsBody = {
 	hidden_widgets?: Array<string> | null;
 	widget_order?: Array<string> | null;
-};
-
-export type UpdateObsidianSettingsRequest = {
-	category_folder_templates?: {
-		[key: string]: string;
-	};
-	export_all_reader_documents: boolean;
-	file_name_template?: string | null;
-	group_files_in_category_folders: boolean;
-	highlight_header_template: string;
-	highlight_template: string;
-	metadata_template: string;
-	page_title_template: string;
-	properties_template?: string | null;
-	sync_notification_template: string;
-	sync_notifications: boolean;
 };
 
 export type UpdateProfileRequest = {
@@ -3783,203 +3677,6 @@ export type StreamEventsResponses = {
 
 export type StreamEventsResponse = StreamEventsResponses[keyof StreamEventsResponses];
 
-export type DownloadObsidianArtifactData = {
-	body?: never;
-	path: {
-		/**
-		 * Obsidian artifact UUID
-		 */
-		artifact_id: string;
-	};
-	query?: never;
-	url: '/api/v1/export/obsidian/artifacts/{artifact_id}';
-};
-
-export type DownloadObsidianArtifactErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * obsidian:sync permission required
-	 */
-	403: unknown;
-	/**
-	 * Artifact not found
-	 */
-	404: unknown;
-};
-
-export type DownloadObsidianArtifactResponses = {
-	/**
-	 * ZIP artifact bytes
-	 */
-	200: Blob | File;
-};
-
-export type DownloadObsidianArtifactResponse =
-	DownloadObsidianArtifactResponses[keyof DownloadObsidianArtifactResponses];
-
-export type RefreshObsidianSubjectsData = {
-	body: RefreshObsidianSubjectsRequest;
-	path?: never;
-	query?: never;
-	url: '/api/v1/export/obsidian/refresh';
-};
-
-export type RefreshObsidianSubjectsErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * obsidian:sync permission required
-	 */
-	403: unknown;
-};
-
-export type RefreshObsidianSubjectsResponses = {
-	/**
-	 * Refresh subjects queued
-	 */
-	200: RefreshObsidianSubjectsResponse;
-};
-
-export type RefreshObsidianSubjectsResponse2 =
-	RefreshObsidianSubjectsResponses[keyof RefreshObsidianSubjectsResponses];
-
-export type RecordObsidianRenameData = {
-	body: RecordObsidianRenameRequest;
-	path?: never;
-	query?: never;
-	url: '/api/v1/export/obsidian/rename';
-};
-
-export type RecordObsidianRenameErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * obsidian:sync permission required
-	 */
-	403: unknown;
-	/**
-	 * Connection or subject not found
-	 */
-	404: unknown;
-};
-
-export type RecordObsidianRenameResponses = {
-	/**
-	 * Renamed export path recorded
-	 */
-	200: RecordObsidianRenameResponse;
-};
-
-export type RecordObsidianRenameResponse2 =
-	RecordObsidianRenameResponses[keyof RecordObsidianRenameResponses];
-
-export type CreateObsidianRunData = {
-	body: CreateObsidianRunRequest;
-	path?: never;
-	query?: never;
-	url: '/api/v1/export/obsidian/runs';
-};
-
-export type CreateObsidianRunErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * obsidian:sync permission required
-	 */
-	403: unknown;
-};
-
-export type CreateObsidianRunResponses = {
-	/**
-	 * Obsidian export run created
-	 */
-	202: ObsidianRunStatusResponse;
-};
-
-export type CreateObsidianRunResponse =
-	CreateObsidianRunResponses[keyof CreateObsidianRunResponses];
-
-export type GetObsidianRunData = {
-	body?: never;
-	path: {
-		/**
-		 * Obsidian export run UUID
-		 */
-		run_id: string;
-	};
-	query?: never;
-	url: '/api/v1/export/obsidian/runs/{run_id}';
-};
-
-export type GetObsidianRunErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * obsidian:sync permission required
-	 */
-	403: unknown;
-	/**
-	 * Run not found
-	 */
-	404: unknown;
-};
-
-export type GetObsidianRunResponses = {
-	/**
-	 * Obsidian export run status
-	 */
-	200: ObsidianRunStatusResponse;
-};
-
-export type GetObsidianRunResponse = GetObsidianRunResponses[keyof GetObsidianRunResponses];
-
-export type AckObsidianRunData = {
-	body: AckObsidianRunRequest;
-	path: {
-		/**
-		 * Obsidian export run UUID
-		 */
-		run_id: string;
-	};
-	query?: never;
-	url: '/api/v1/export/obsidian/runs/{run_id}/ack';
-};
-
-export type AckObsidianRunErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * obsidian:sync permission required
-	 */
-	403: unknown;
-	/**
-	 * Run not found
-	 */
-	404: unknown;
-};
-
-export type AckObsidianRunResponses = {
-	/**
-	 * Run acknowledgement recorded
-	 */
-	200: ObsidianRunStatusResponse;
-};
-
-export type AckObsidianRunResponse = AckObsidianRunResponses[keyof AckObsidianRunResponses];
-
 export type ExtensionCheckUrlData = {
 	body?: never;
 	path?: never;
@@ -5331,30 +5028,6 @@ export type ConnectMinifluxResponses = {
 
 export type ConnectMinifluxResponse = ConnectMinifluxResponses[keyof ConnectMinifluxResponses];
 
-export type SetupObsidianConnectionData = {
-	body?: never;
-	path?: never;
-	query?: never;
-	url: '/api/v1/integrations/obsidian/setup';
-};
-
-export type SetupObsidianConnectionErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-};
-
-export type SetupObsidianConnectionResponses = {
-	/**
-	 * Obsidian connection ensured
-	 */
-	200: IntegrationConnectionDto;
-};
-
-export type SetupObsidianConnectionResponse =
-	SetupObsidianConnectionResponses[keyof SetupObsidianConnectionResponses];
-
 export type DeleteIntegrationData = {
 	body?: never;
 	path: {
@@ -5387,109 +5060,6 @@ export type DeleteIntegrationResponses = {
 
 export type DeleteIntegrationResponse =
 	DeleteIntegrationResponses[keyof DeleteIntegrationResponses];
-
-export type PreviewObsidianExportData = {
-	body: ObsidianPreviewRequest;
-	path: {
-		/**
-		 * Integration connection ID
-		 */
-		id: string;
-	};
-	query?: never;
-	url: '/api/v1/integrations/{id}/obsidian/preview';
-};
-
-export type PreviewObsidianExportErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Insufficient permissions
-	 */
-	403: unknown;
-	/**
-	 * Connection or library entry not found
-	 */
-	404: unknown;
-};
-
-export type PreviewObsidianExportResponses = {
-	/**
-	 * Rendered Obsidian preview
-	 */
-	200: ObsidianPreviewResponse;
-};
-
-export type PreviewObsidianExportResponse =
-	PreviewObsidianExportResponses[keyof PreviewObsidianExportResponses];
-
-export type GetObsidianSettingsData = {
-	body?: never;
-	path: {
-		/**
-		 * Integration connection ID
-		 */
-		id: string;
-	};
-	query?: never;
-	url: '/api/v1/integrations/{id}/obsidian/settings';
-};
-
-export type GetObsidianSettingsErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Connection not found
-	 */
-	404: unknown;
-};
-
-export type GetObsidianSettingsResponses = {
-	/**
-	 * Obsidian export settings
-	 */
-	200: ObsidianSettingsDto;
-};
-
-export type GetObsidianSettingsResponse =
-	GetObsidianSettingsResponses[keyof GetObsidianSettingsResponses];
-
-export type UpdateObsidianSettingsData = {
-	body: UpdateObsidianSettingsRequest;
-	path: {
-		/**
-		 * Integration connection ID
-		 */
-		id: string;
-	};
-	query?: never;
-	url: '/api/v1/integrations/{id}/obsidian/settings';
-};
-
-export type UpdateObsidianSettingsErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Connection not found
-	 */
-	404: unknown;
-};
-
-export type UpdateObsidianSettingsResponses = {
-	/**
-	 * Updated Obsidian export settings
-	 */
-	200: ObsidianSettingsDto;
-};
-
-export type UpdateObsidianSettingsResponse =
-	UpdateObsidianSettingsResponses[keyof UpdateObsidianSettingsResponses];
 
 export type SyncIntegrationData = {
 	body?: never;

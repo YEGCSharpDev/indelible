@@ -5,33 +5,12 @@ pub(super) struct OperationContract {
     pub(super) permission: &'static str,
 }
 
-#[derive(Clone, Copy)]
-pub(super) struct CompositeOperationContract {
-    pub(super) method: &'static str,
-    pub(super) path: &'static str,
-    pub(super) permissions: &'static [&'static str],
-}
-
 impl OperationContract {
     const fn new(method: &'static str, path: &'static str, permission: &'static str) -> Self {
         Self {
             method,
             path,
             permission,
-        }
-    }
-}
-
-impl CompositeOperationContract {
-    const fn new(
-        method: &'static str,
-        path: &'static str,
-        permissions: &'static [&'static str],
-    ) -> Self {
-        Self {
-            method,
-            path,
-            permissions,
         }
     }
 }
@@ -146,10 +125,6 @@ pub(super) const INTEGRATION_OPERATIONS: &[OperationContract] = &[
     OperationContract::new("post", "/api/v1/integrations/{provider}/authorize", "integrations:write"),
     OperationContract::new("delete", "/api/v1/integrations/{id}", "integrations:write"),
     OperationContract::new("post", "/api/v1/integrations/{id}/sync", "integrations:write"),
-    OperationContract::new("get", "/api/v1/integrations/{id}/obsidian/settings", "integrations:read"),
-    OperationContract::new("patch", "/api/v1/integrations/{id}/obsidian/settings", "integrations:write"),
-    OperationContract::new("post", "/api/v1/integrations/{id}/obsidian/preview", "integrations:read"),
-    OperationContract::new("post", "/api/v1/integrations/obsidian/setup", "integrations:write"),
     OperationContract::new("post", "/api/v1/integrations/miniflux/connect", "integrations:write"),
 ];
 
@@ -162,19 +137,6 @@ pub(super) const WEBHOOK_OPERATIONS: &[OperationContract] = &[
     OperationContract::new("post", "/api/v1/webhooks/{webhook_id}/rotate-secret", "webhooks:write"),
     OperationContract::new("post", "/api/v1/webhooks/{webhook_id}/test", "webhooks:write"),
     OperationContract::new("get", "/api/v1/webhooks/{webhook_id}/deliveries", "webhooks:read"),
-];
-
-#[rustfmt::skip]
-pub(super) const AI_OPERATIONS: &[CompositeOperationContract] = &[];
-
-#[rustfmt::skip]
-pub(super) const OBSIDIAN_SYNC_OPERATIONS: &[CompositeOperationContract] = &[
-    CompositeOperationContract::new("post", "/api/v1/export/obsidian/runs", &["obsidian:sync"]),
-    CompositeOperationContract::new("get", "/api/v1/export/obsidian/runs/{run_id}", &["obsidian:sync"]),
-    CompositeOperationContract::new("get", "/api/v1/export/obsidian/artifacts/{artifact_id}", &["obsidian:sync"]),
-    CompositeOperationContract::new("post", "/api/v1/export/obsidian/runs/{run_id}/ack", &["obsidian:sync"]),
-    CompositeOperationContract::new("post", "/api/v1/export/obsidian/refresh", &["obsidian:sync"]),
-    CompositeOperationContract::new("post", "/api/v1/export/obsidian/rename", &["obsidian:sync"]),
 ];
 
 #[rustfmt::skip]

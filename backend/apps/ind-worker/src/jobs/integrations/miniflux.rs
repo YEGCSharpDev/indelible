@@ -1,14 +1,21 @@
-use std::sync::Arc;
 use serde::Deserialize;
+use std::sync::Arc;
 
 use ind_application::AppError;
-use ind_application::repos::integration_connection::IntegrationConnectionRepository;
-use ind_application::repos::document_lifecycle::{DocumentLifecycle, MaterializeIdentity, SaveToLibraryRequest, MaterializeOrigin};
-use ind_application::repos::tag::TagRepository;
+use ind_application::repos::document_lifecycle::{
+    DocumentLifecycle, MaterializeIdentity, MaterializeOrigin, SaveToLibraryRequest,
+};
 use ind_application::repos::event::MutationSideEffects;
+use ind_application::repos::integration_connection::IntegrationConnectionRepository;
 use ind_application::repos::library::LibraryRepository;
-use ind_domain::{MinifluxSyncConnectionJob, IntegrationProvider, ContentSource, NewUrlDocument, DocumentType, DocumentOriginType, deterministic_origin_id, TagSource, TriageState, LibraryEntryId};
-use ind_persistence::repos::{PgIntegrationConnectionRepository, PgTagRepository, PgLibraryRepository};
+use ind_application::repos::tag::TagRepository;
+use ind_domain::{
+    ContentSource, DocumentOriginType, DocumentType, IntegrationProvider, LibraryEntryId,
+    MinifluxSyncConnectionJob, NewUrlDocument, TagSource, TriageState, deterministic_origin_id,
+};
+use ind_persistence::repos::{
+    PgIntegrationConnectionRepository, PgLibraryRepository, PgTagRepository,
+};
 use sqlx::PgPool;
 
 #[allow(dead_code)]
@@ -47,7 +54,7 @@ pub struct MinifluxSyncWorker {
 
 impl MinifluxSyncWorker {
     pub fn new(pool: PgPool, lifecycle: Arc<dyn DocumentLifecycle>) -> Self {
-        Self { 
+        Self {
             pool: pool.clone(),
             connection_repo: Arc::new(PgIntegrationConnectionRepository::new(pool.clone())),
             tag_repo: Arc::new(PgTagRepository::new(pool.clone())),
@@ -61,10 +68,12 @@ impl MinifluxSyncWorker {
             .connection_repo
             .find_by_id(job.user_id, job.connection_id)
             .await?
-            .ok_or_else(|| AppError::Domain(ind_domain::DomainError::NotFound {
-                entity: "IntegrationConnection",
-                id: job.connection_id.to_string(),
-            }))?;
+            .ok_or_else(|| {
+                AppError::Domain(ind_domain::DomainError::NotFound {
+                    entity: "IntegrationConnection",
+                    id: job.connection_id.to_string(),
+                })
+            })?;
 
         if connection.provider != IntegrationProvider::Miniflux {
             return Err(AppError::Domain(ind_domain::DomainError::Validation {
@@ -75,12 +84,19 @@ impl MinifluxSyncWorker {
 
         tracing::info!(
             "Syncing Miniflux connection {} for user {}",
-            connection.id, job.user_id
+            connection.id,
+            job.user_id
         );
 
         let config = connection.config;
-        let url = config.get("url").and_then(|v| v.as_str()).unwrap_or_default();
-        let api_key = config.get("api_key").and_then(|v| v.as_str()).unwrap_or_default();
+        let url = config
+            .get("url")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default();
+        let api_key = config
+            .get("api_key")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default();
 
         if url.is_empty() || api_key.is_empty() {
             return Err(AppError::Domain(ind_domain::DomainError::Validation {
@@ -104,37 +120,53 @@ impl MinifluxSyncWorker {
                 service: "miniflux".into(),
                 message: format!("Failed to build HTTP client: {e}"),
             })?;
-        let res = client
-            .get(format!("{}/v1/entries?status=unread&limit=10000", url.trim_end_matches('/')))
-            .header("X-Auth-Token", api_key)
-            .send()
-            .await
-            .map_err(|e| {
-                tracing::error!("reqwest send error for Miniflux: {:?}", e);
-                AppError::ExternalService {
-                    service: "miniflux".into(),
-                    message: format!("Failed to fetch Miniflux entries: {}", e),
-                }
-            })?;
+        let mut entries = Vec::new();
+        let mut offset = 0;
+        let limit = 1000;
+        loop {
+            let res = client
+                .get(format!(
+                    "{}/v1/entries?status=unread&limit={limit}&offset={offset}",
+                    url.trim_end_matches('/')
+                ))
+                .header("X-Auth-Token", api_key)
+                .send()
+                .await
+                .map_err(|e| {
+                    tracing::error!("reqwest send error for Miniflux: {:?}", e);
+                    AppError::ExternalService {
+                        service: "miniflux".into(),
+                        message: format!("Failed to fetch Miniflux entries: {}", e),
+                    }
+                })?;
 
-        if !res.status().is_success() {
-            let status = res.status();
-            let body = res.text().await.unwrap_or_default();
-            tracing::error!("Miniflux API error status: {} - {}", status, body);
-            return Err(AppError::ExternalService {
-                service: "miniflux".into(),
-                message: format!("Miniflux API returned error status: {}", status),
-            });
+            if !res.status().is_success() {
+                let status = res.status();
+                let body = res.text().await.unwrap_or_default();
+                tracing::error!("Miniflux API error status: {} - {}", status, body);
+                return Err(AppError::ExternalService {
+                    service: "miniflux".into(),
+                    message: format!("Miniflux API returned error status: {}", status),
+                });
+            }
+
+            let data: MinifluxResponse =
+                res.json().await.map_err(|e| AppError::ExternalService {
+                    service: "miniflux".into(),
+                    message: format!("Failed to parse Miniflux response: {}", e),
+                })?;
+
+            let count = data.entries.len();
+            entries.extend(data.entries);
+            if count < limit {
+                break;
+            }
+            offset += count;
         }
 
-        let data: MinifluxResponse = res.json().await.map_err(|e| AppError::ExternalService {
-            service: "miniflux".into(),
-            message: format!("Failed to parse Miniflux response: {}", e),
-        })?;
+        tracing::info!("Found {} unread Miniflux entries", entries.len());
 
-        tracing::info!("Found {} unread Miniflux entries", data.entries.len());
-
-        for entry in &data.entries {
+        for entry in &entries {
             // For testing, we just log and ingest as library entries.
             // We use origin id to prevent duplicates.
             let origin_id = deterministic_origin_id(
@@ -142,7 +174,7 @@ impl MinifluxSyncWorker {
                 job.user_id,
                 &format!("miniflux:{}", entry.id),
             );
-            
+
             let identity = MaterializeIdentity::Url {
                 document: NewUrlDocument {
                     id: ind_domain::DocumentId::new(),
@@ -178,16 +210,22 @@ impl MinifluxSyncWorker {
 
             match self.lifecycle.save_to_library(req).await {
                 Ok(outcome) => {
-                    tracing::info!("Saved Miniflux entry {} to library (document {})", entry.id, outcome.document.id);
-                    
+                    tracing::info!(
+                        "Saved Miniflux entry {} to library (document {})",
+                        entry.id,
+                        outcome.document.id
+                    );
+
                     // Extract tags and categories
                     let mut names_to_import = Vec::new();
-                    if let Some(feed) = &entry.feed {
-                        if let Some(category) = &feed.category {
-                            if !category.title.trim().is_empty() {
-                                names_to_import.push(category.title.trim().to_string());
-                            }
-                        }
+                    if let Some(category_title) = entry
+                        .feed
+                        .as_ref()
+                        .and_then(|feed| feed.category.as_ref())
+                        .map(|cat| cat.title.trim())
+                        .filter(|title| !title.is_empty())
+                    {
+                        names_to_import.push(category_title.to_string());
                     }
                     if let Some(tags) = &entry.tags {
                         for tag in tags {
@@ -203,20 +241,30 @@ impl MinifluxSyncWorker {
 
                     let mut tag_ids = Vec::new();
                     for name in names_to_import {
-                        match self.tag_repo.find_or_create_by_name(job.user_id, &name).await {
+                        match self
+                            .tag_repo
+                            .find_or_create_by_name(job.user_id, &name)
+                            .await
+                        {
                             Ok(tag) => tag_ids.push(tag.id),
-                            Err(e) => tracing::error!("Failed to find or create tag '{}': {}", name, e),
+                            Err(e) => {
+                                tracing::error!("Failed to find or create tag '{}': {}", name, e)
+                            }
                         }
                     }
 
                     if !tag_ids.is_empty() {
-                        if let Err(e) = self.tag_repo.replace_for_library_entry_with_source(
-                            job.user_id,
-                            outcome.entry.id,
-                            &tag_ids,
-                            TagSource::Import,
-                            MutationSideEffects::none(),
-                        ).await {
+                        let attach_result = self
+                            .tag_repo
+                            .replace_for_library_entry_with_source(
+                                job.user_id,
+                                outcome.entry.id,
+                                &tag_ids,
+                                TagSource::Import,
+                                MutationSideEffects::none(),
+                            )
+                            .await;
+                        if let Err(e) = attach_result {
                             tracing::error!("Failed to attach tags to library entry: {}", e);
                         }
                     }
@@ -237,7 +285,7 @@ impl MinifluxSyncWorker {
             }
         }
 
-        let unread_ids: std::collections::HashSet<i32> = data.entries.iter().map(|e| e.id).collect();
+        let unread_ids: std::collections::HashSet<i32> = entries.iter().map(|e| e.id).collect();
 
         let rows = sqlx::query(
             r#"
@@ -245,7 +293,7 @@ impl MinifluxSyncWorker {
             FROM library_entries l
             JOIN miniflux_sync_map m ON l.document_id = m.document_id AND l.user_id = m.user_id
             WHERE l.user_id = $1 AND l.triage_state IN ('Inbox', 'Later')
-            "#
+            "#,
         )
         .bind(job.user_id.into_uuid())
         .fetch_all(&self.pool)
@@ -257,13 +305,20 @@ impl MinifluxSyncWorker {
             let library_entry_id: uuid::Uuid = sqlx::Row::get(&row, "library_entry_id");
 
             if !unread_ids.contains(&miniflux_id) {
-                tracing::info!("Miniflux document {} is no longer unread, archiving library entry {}", miniflux_id, library_entry_id);
-                let _ = self.library.set_triage_state(
-                    LibraryEntryId::from_uuid(library_entry_id),
-                    job.user_id,
-                    TriageState::Archive,
-                    MutationSideEffects::none()
-                ).await;
+                tracing::info!(
+                    "Miniflux document {} is no longer unread, archiving library entry {}",
+                    miniflux_id,
+                    library_entry_id
+                );
+                let _ = self
+                    .library
+                    .set_triage_state(
+                        LibraryEntryId::from_uuid(library_entry_id),
+                        job.user_id,
+                        TriageState::Archive,
+                        MutationSideEffects::none(),
+                    )
+                    .await;
             }
         }
 
@@ -274,11 +329,17 @@ impl MinifluxSyncWorker {
         Ok(())
     }
 
-    pub async fn push_read_state(&self, job: ind_domain::MinifluxPushReadStateJob) -> Result<(), AppError> {
-        tracing::info!("Pushing read state for Miniflux document {}", job.document_id);
+    pub async fn push_read_state(
+        &self,
+        job: ind_domain::MinifluxPushReadStateJob,
+    ) -> Result<(), AppError> {
+        tracing::info!(
+            "Pushing read state for Miniflux document {}",
+            job.document_id
+        );
 
         let row: Option<sqlx::postgres::PgRow> = sqlx::query(
-            "SELECT miniflux_id FROM miniflux_sync_map WHERE user_id = $1 AND document_id = $2"
+            "SELECT miniflux_id FROM miniflux_sync_map WHERE user_id = $1 AND document_id = $2",
         )
         .bind(job.user_id.into_uuid())
         .bind(job.document_id.into_uuid())
@@ -289,24 +350,39 @@ impl MinifluxSyncWorker {
         let miniflux_id: i32 = match row {
             Some(r) => sqlx::Row::get(&r, "miniflux_id"),
             None => {
-                tracing::info!("Document {} is not a Miniflux document (or missing map), skipping push", job.document_id);
+                tracing::info!(
+                    "Document {} is not a Miniflux document (or missing map), skipping push",
+                    job.document_id
+                );
                 return Ok(());
             }
         };
 
         // Find the user's miniflux connection
         let connections = self.connection_repo.list_by_user(job.user_id).await?;
-        let connection = match connections.into_iter().find(|c| c.provider == IntegrationProvider::Miniflux) {
+        let connection = match connections
+            .into_iter()
+            .find(|c| c.provider == IntegrationProvider::Miniflux)
+        {
             Some(c) => c,
             None => {
-                tracing::info!("No Miniflux connection found for user {}, skipping push", job.user_id);
+                tracing::info!(
+                    "No Miniflux connection found for user {}, skipping push",
+                    job.user_id
+                );
                 return Ok(());
             }
         };
 
         let config = connection.config;
-        let url = config.get("url").and_then(|v| v.as_str()).unwrap_or_default();
-        let api_key = config.get("api_key").and_then(|v| v.as_str()).unwrap_or_default();
+        let url = config
+            .get("url")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default();
+        let api_key = config
+            .get("api_key")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default();
 
         if url.is_empty() || api_key.is_empty() {
             return Ok(()); // Connection broken, skip
@@ -349,7 +425,10 @@ impl MinifluxSyncWorker {
             });
         }
 
-        tracing::info!("Successfully pushed read state to Miniflux for entry {}", miniflux_id);
+        tracing::info!(
+            "Successfully pushed read state to Miniflux for entry {}",
+            miniflux_id
+        );
         Ok(())
     }
 }
@@ -386,7 +465,8 @@ mod tests {
             ]
         }"#;
 
-        let res: MinifluxResponse = serde_json::from_str(json).expect("deserialize miniflux response");
+        let res: MinifluxResponse =
+            serde_json::from_str(json).expect("deserialize miniflux response");
         assert_eq!(res.total, 2);
         assert_eq!(res.entries.len(), 2);
 
@@ -394,16 +474,29 @@ mod tests {
         assert_eq!(entry.id, 42);
         assert_eq!(entry.title, "Article Title");
         assert_eq!(entry.url, "https://example.com/article");
-        assert_eq!(entry.tags.as_deref(), Some(&["rust".to_string(), "tech".to_string()][..]));
         assert_eq!(
-            entry.feed.as_ref().and_then(|f| f.category.as_ref()).map(|c| c.title.as_str()),
+            entry.tags.as_deref(),
+            Some(&["rust".to_string(), "tech".to_string()][..])
+        );
+        assert_eq!(
+            entry
+                .feed
+                .as_ref()
+                .and_then(|f| f.category.as_ref())
+                .map(|c| c.title.as_str()),
             Some("Technology")
         );
 
         let entry2 = &res.entries[1];
         assert_eq!(entry2.id, 43);
         assert_eq!(entry2.tags.as_deref(), Some(&[][..]));
-        assert!(entry2.feed.as_ref().and_then(|f| f.category.as_ref()).is_none());
+        assert!(
+            entry2
+                .feed
+                .as_ref()
+                .and_then(|f| f.category.as_ref())
+                .is_none()
+        );
     }
 
     #[test]
@@ -443,7 +536,8 @@ mod tests {
             ]
         }"#;
 
-        let res: MinifluxResponse = serde_json::from_str(json).expect("deserialize missing optional fields");
+        let res: MinifluxResponse =
+            serde_json::from_str(json).expect("deserialize missing optional fields");
         assert_eq!(res.entries.len(), 1);
         assert_eq!(res.entries[0].id, 101);
         assert!(res.entries[0].tags.is_none());

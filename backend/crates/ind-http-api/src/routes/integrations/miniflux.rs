@@ -1,11 +1,11 @@
 use axum::extract::State;
 use serde::Deserialize;
 
+use super::dto::IntegrationConnectionDto;
 use crate::error::ApiError;
 use crate::middleware::RequireIntegrationsWrite;
 use crate::response::ApiResponse;
 use crate::state::AppState;
-use super::dto::IntegrationConnectionDto;
 
 #[derive(Debug, Deserialize, utoipa::ToSchema, validator::Validate)]
 pub struct ConnectMinifluxRequest {
@@ -47,5 +47,7 @@ pub async fn connect_miniflux(
         .map_err(ApiError::from)?;
 
     // We start with 0 pending jobs for a new connection
-    Ok(ApiResponse::new(IntegrationConnectionDto::from_with_pending(connection, 0)))
+    Ok(ApiResponse::new(
+        IntegrationConnectionDto::from_with_pending(connection, 0),
+    ))
 }

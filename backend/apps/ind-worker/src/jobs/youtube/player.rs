@@ -133,7 +133,7 @@ fn youtube_error(message: String) -> AppError {
 }
 
 pub(super) fn pick_largest_thumbnail(mut thumbnails: Vec<ThumbnailEntry>) -> Option<String> {
-    thumbnails.sort_by(|a, b| b.width.unwrap_or(0).cmp(&a.width.unwrap_or(0)));
+    thumbnails.sort_by_key(|a| std::cmp::Reverse(a.width.unwrap_or(0)));
     thumbnails.into_iter().find_map(|t| t.url)
 }
 

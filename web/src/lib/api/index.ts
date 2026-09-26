@@ -42,7 +42,6 @@ export {
 	getHome,
 	getImport,
 	getNotifications,
-	getObsidianSettings,
 	getOnboarding,
 	getPreferences,
 	getProfile,
@@ -74,7 +73,6 @@ export {
 	patchHighlight,
 	pinSmartList,
 	prepareFeedDelivery,
-	previewObsidianExport,
 	refresh,
 	register,
 	removeEntryFromCollection,
@@ -88,7 +86,6 @@ export {
 	search,
 	searchSources,
 	setHighlightTags,
-	setupObsidianConnection,
 	skipOnboarding,
 	streamEvents,
 	subscribe,
@@ -101,7 +98,6 @@ export {
 	updateCollection,
 	updateEmailSender,
 	updateNotifications,
-	updateObsidianSettings,
 	updatePreferences,
 	updateProfile,
 	updateSmartList,
@@ -149,9 +145,6 @@ export type {
 	ListDensityDto,
 	NotificationsSettingsResponse,
 	OAuthProviderInfo,
-	ObsidianPreviewRequest,
-	ObsidianPreviewResponse,
-	ObsidianSettingsDto,
 	OnboardingStepResponse,
 	OpmlImportResponse,
 	PreferencesSettingsResponse,
@@ -172,7 +165,6 @@ export type {
 	TagResponse,
 	ThemeDto,
 	TriageModeDto,
-	UpdateObsidianSettingsRequest,
 	UpdateWebhookEndpointRequest,
 	WebhookDeliveryResponse,
 	WebhookEndpointResponse,
@@ -183,12 +175,14 @@ export async function testConfig(_options?: {
 	body?: import('./compat-types').TestMilaConfigBodyWritable;
 	signal?: AbortSignal;
 }): Promise<{ data?: import('./compat-types').TestConfigResponse; error?: unknown }> {
+	void _options;
 	return { data: { success: true, chat_model_ok: true, embedding_model_ok: true } };
 }
 
 export async function retryMilaDocumentAction(_options?: {
 	path: { document_id: string; action: string };
 }): Promise<{ data?: { queued: boolean; action?: string }; error?: unknown }> {
+	void _options;
 	return { data: { queued: true } };
 }
 

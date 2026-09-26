@@ -40,8 +40,7 @@ export const PERMISSION_CATALOGUE: PermissionKey[] = [
 	'webhooks:write',
 	'ai:read',
 	'ai:write',
-	'ai:use',
-	'obsidian:sync'
+	'ai:use'
 ];
 
 export const RESOURCE_PERMISSION_GROUPS: ResourcePermissionGroup[] = [
@@ -90,11 +89,6 @@ export const INDEPENDENT_PERMISSION_DEFS: IndependentPermissionDef[] = [
 		key: 'ai:use',
 		labelKey: 'prefs_developer_permission_ai_use',
 		descKey: 'prefs_developer_permission_ai_use_hint'
-	},
-	{
-		key: 'obsidian:sync',
-		labelKey: 'prefs_developer_permission_obsidian_sync',
-		descKey: 'prefs_developer_permission_obsidian_sync_hint'
 	}
 ];
 
@@ -199,18 +193,10 @@ export function tokenRequest(
 	};
 }
 
-export function issuePresetFromSearchParams(
-	searchParams: URLSearchParams
-): { name: string; permissions: PermissionKey[] } | null {
-	if (searchParams.get('permission') !== 'obsidian:sync') return null;
-	return { name: 'Obsidian plugin', permissions: ['obsidian:sync'] };
-}
-
 // Blue reads, amber acts, indigo leaves the building. `ai:use` groups with
 // write because it acts — and because --dev-accent-soft is identical to
 // --dev-scope-read-bg in dark, so a dedicated tint would read as a read grant.
 export function permissionClass(permission: string): string {
-	if (permission === 'obsidian:sync') return 'obsidian';
 	if (permission.endsWith(':read')) return 'read';
 	if (permission.endsWith(':write') || permission === 'ai:use') return 'write';
 	return 'other';

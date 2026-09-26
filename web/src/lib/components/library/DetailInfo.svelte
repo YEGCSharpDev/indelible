@@ -4,7 +4,6 @@
 	import AuthorCard from './AuthorCard.svelte';
 	import SummarySection from './SummarySection.svelte';
 	import MetadataTable from './MetadataTable.svelte';
-	import EntitiesSection from './EntitiesSection.svelte';
 
 	interface Props {
 		item: DocumentListEntry;
@@ -59,8 +58,6 @@
 	<button class="edit-metadata-link" type="button" onclick={onEditMetadata}
 		>{$t('library_edit_metadata')}</button
 	>
-
-	<EntitiesSection itemId={item.id} />
 </div>
 
 <style>

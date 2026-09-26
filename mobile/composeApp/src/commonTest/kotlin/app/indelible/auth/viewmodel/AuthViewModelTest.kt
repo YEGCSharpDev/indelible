@@ -375,6 +375,7 @@ class AuthViewModelTest {
 
             viewModel.logout()
             viewModel.authState.first { it is AuthState.Unauthenticated }
+            viewModel.loginState.first { it.serverError != null }
 
             assertNull(tokenStorage.getToken())
             assertNull(tokenStorage.getRefreshToken())
@@ -476,7 +477,11 @@ class AuthViewModelTest {
             "theme": "auto",
             "timezone": "UTC",
             "created_at": "2024-01-01T00:00:00Z",
-            "updated_at": "2024-01-01T00:00:00Z"
+            "updated_at": "2024-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
         }
         """.trimIndent()
 

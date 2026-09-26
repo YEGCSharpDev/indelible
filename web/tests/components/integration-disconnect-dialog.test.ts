@@ -7,7 +7,7 @@ describe('IntegrationDisconnectDialog', () => {
 		render(IntegrationDisconnectDialog, {
 			props: {
 				open: false,
-				providerName: 'Obsidian',
+				providerName: 'Miniflux',
 				onConfirm: () => {},
 				onCancel: () => {}
 			}
@@ -19,13 +19,13 @@ describe('IntegrationDisconnectDialog', () => {
 		render(IntegrationDisconnectDialog, {
 			props: {
 				open: true,
-				providerName: 'Obsidian',
+				providerName: 'Miniflux',
 				onConfirm: () => {},
 				onCancel: () => {}
 			}
 		});
 		expect(screen.getByRole('dialog')).toBeTruthy();
-		expect(screen.getByText('Disconnect Obsidian?')).toBeTruthy();
+		expect(screen.getByText('Disconnect Miniflux?')).toBeTruthy();
 	});
 
 	it('fires onConfirm when the Disconnect button is clicked', async () => {
@@ -33,7 +33,7 @@ describe('IntegrationDisconnectDialog', () => {
 		render(IntegrationDisconnectDialog, {
 			props: {
 				open: true,
-				providerName: 'Obsidian',
+				providerName: 'Miniflux',
 				onConfirm,
 				onCancel: () => {}
 			}
@@ -47,7 +47,7 @@ describe('IntegrationDisconnectDialog', () => {
 		render(IntegrationDisconnectDialog, {
 			props: {
 				open: true,
-				providerName: 'Obsidian',
+				providerName: 'Miniflux',
 				onConfirm: () => {},
 				onCancel
 			}
@@ -60,7 +60,7 @@ describe('IntegrationDisconnectDialog', () => {
 		render(IntegrationDisconnectDialog, {
 			props: {
 				open: true,
-				providerName: 'Obsidian',
+				providerName: 'Miniflux',
 				busy: true,
 				onConfirm: () => {},
 				onCancel: () => {}
@@ -75,7 +75,7 @@ describe('IntegrationDisconnectDialog', () => {
 		render(IntegrationDisconnectDialog, {
 			props: {
 				open: true,
-				providerName: 'Obsidian',
+				providerName: 'Miniflux',
 				busy: true,
 				onConfirm: () => {},
 				onCancel
@@ -90,7 +90,7 @@ describe('IntegrationDisconnectDialog', () => {
 		render(IntegrationDisconnectDialog, {
 			props: {
 				open: true,
-				providerName: 'Obsidian',
+				providerName: 'Miniflux',
 				errorMessage: 'something went wrong',
 				onConfirm: () => {},
 				onCancel: () => {}

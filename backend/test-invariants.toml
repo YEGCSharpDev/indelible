@@ -111,20 +111,12 @@ test = "every_api_token_operation_has_global_permission_metadata"
 rationale = "Every OpenAPI operation advertising personal-token authentication must publish non-empty catalogue-backed permission metadata, and no other operation may publish it."
 
 [[invariants]]
-id = "api-permission-openapi-composites"
-risk = "external-contracts"
-owner_layer = "http"
-path = "crates/ind-http-api/src/openapi/tests/resource_permissions/contract_tests.rs"
-test = "ai_and_obsidian_operations_publish_explicit_permission_contracts"
-rationale = "Composite AI operations must retain every required permission while Obsidian sync remains an independent permission."
-
-[[invariants]]
 id = "api-permission-semantic-posts"
 risk = "authentication-authorization"
 owner_layer = "http"
 path = "apps/ind-api/tests/api/integration_route_permission_tests.rs"
 test = "integration_routes_enforce_named_permissions_and_keep_callback_public"
-rationale = "Read-only integration POST operations such as Obsidian preview must require integrations:read rather than inheriting write authority from the HTTP method."
+rationale = "Integration operations must require appropriate permissions rather than inheriting write authority from the HTTP method."
 
 [[invariants]]
 id = "api-permission-library-query-post"
@@ -141,14 +133,6 @@ owner_layer = "http"
 path = "apps/ind-api/tests/api/jwt_only_route_permission_tests.rs"
 test = "account_onboarding_home_settings_and_events_routes_remain_jwt_only"
 rationale = "Mixed Home and realtime Event payloads must reject personal API tokens until their data can be permission-filtered."
-
-[[invariants]]
-id = "extension-document-asset-boundary"
-risk = "authentication-authorization"
-owner_layer = "http"
-path = "apps/ind-api/tests/api/ai_asset_route_permission_tests.rs"
-test = "document_assets_accept_library_pat_extension_jwt_and_asset_cookie"
-rationale = "Extension JWTs must retain readable document asset access without gaining general resource permissions."
 
 [[invariants]]
 id = "credential-cipher-authenticity"
@@ -309,22 +293,6 @@ owner_layer = "worker-integration"
 path = "apps/ind-worker/tests/readwise_import/scenarios.rs"
 test = "opml_and_youtube_inputs_route_to_their_authoritative_pipelines"
 rationale = "A YouTube URL must override an archived watch-page snapshot and enqueue the video pipeline exactly once."
-
-[[invariants]]
-id = "obsidian-summary-precedence"
-risk = "export-correctness"
-owner_layer = "worker-integration"
-path = "apps/ind-worker/tests/readwise_import/obsidian.rs"
-test = "obsidian_worker_smoke_preserves_summary_precedence_and_disambiguates_paths"
-rationale = "Stored summaries take precedence over excerpts, while absent summaries remain absent in exported content."
-
-[[invariants]]
-id = "obsidian-generated-path-collision"
-risk = "export-data-loss"
-owner_layer = "worker-integration"
-path = "apps/ind-worker/tests/readwise_import/obsidian.rs"
-test = "obsidian_worker_smoke_preserves_summary_precedence_and_disambiguates_paths"
-rationale = "Documents with identical generated titles must receive unique artifact paths."
 
 [[invariants]]
 id = "api-token-owner-scope"
@@ -515,16 +483,8 @@ id = "auto-heal-maintenance-lease"
 risk = "retry-recovery"
 owner_layer = "worker"
 path = "apps/ind-worker/tests/auto_heal_journey_tests.rs"
-test = "auto_heal_leases_real_maintenance_and_repairs_missing_embeddings_once"
-rationale = "Auto-heal maintenance must release its durable lease and schedule the next run after embedding repair and integrity work complete."
-
-[[invariants]]
-id = "auto-heal-embedding-repair-idempotency"
-risk = "concurrency-idempotency"
-owner_layer = "worker"
-path = "apps/ind-worker/tests/auto_heal_journey_tests.rs"
-test = "auto_heal_leases_real_maintenance_and_repairs_missing_embeddings_once"
-rationale = "An immediate second auto-heal sweep must not enqueue a duplicate embedding repair while the maintenance task is not due."
+test = "auto_heal_leases_real_maintenance_once"
+rationale = "Auto-heal maintenance must release its durable lease and schedule the next run after integrity work completes."
 
 [[invariants]]
 id = "realtime-event-stream-boundary"
@@ -549,14 +509,6 @@ owner_layer = "http"
 path = "apps/ind-api/tests/api/extension_auth_journey_tests.rs"
 test = "extension_pkce_crosses_authorize_exchange_refresh_status_and_revoke_boundaries"
 rationale = "Extension refresh rotation followed by revoke must leave no active durable refresh token in the user's family."
-
-[[invariants]]
-id = "obsidian-permissioned-export-run"
-risk = "integration-data-integrity"
-owner_layer = "http"
-path = "apps/ind-api/tests/api/integration_journey_tests.rs"
-test = "obsidian_journey_provisions_permissioned_access_and_previews_settings"
-rationale = "A permissioned Obsidian client must create, read, and acknowledge its durable export run while queueing exactly one sync outbox row and a user-owned refresh subject."
 
 [[invariants]]
 id = "upload-type-confusion-and-reader-sanitization"

@@ -15,14 +15,11 @@
 		copiedInbox: boolean;
 		copiedFeed: boolean;
 		extStore: StoreLink;
-		obsidianConnection: IntegrationConnectionDto | undefined;
 		minifluxConnection: IntegrationConnectionDto | undefined;
-		obsidianStatus: HubConnectionStatus;
 		minifluxStatus: HubConnectionStatus;
 		syncStateByConnection: Record<string, SyncState>;
 		syncErrorByConnection: Record<string, string>;
 		onCopyAddress: (address: string, which: 'inbox' | 'feed') => void;
-		onOpenObsidian: () => void;
 		onOpenMiniflux: () => void;
 		onSync: (connectionId: string) => void;
 		onDisconnect: (connection: IntegrationConnectionDto) => void;
@@ -36,14 +33,11 @@
 		copiedInbox,
 		copiedFeed,
 		extStore,
-		obsidianConnection,
 		minifluxConnection,
-		obsidianStatus,
 		minifluxStatus,
 		syncStateByConnection,
 		syncErrorByConnection,
 		onCopyAddress,
-		onOpenObsidian,
 		onOpenMiniflux,
 		onSync,
 		onDisconnect
@@ -151,54 +145,14 @@
 				</IntegrationConnectionCard>
 
 				<IntegrationConnectionCard
-					title="Obsidian"
-					tagline={$t('integrations_hub_obsidian_tagline')}
-					statusLabel={$t(obsidianStatus.labelKey)}
-					statusVariant={obsidianStatus.variant}
-					statusCheck={obsidianStatus.check}
-					testId="obsidian-connection-card"
-				>
-					{#snippet body()}
-						<div class="moment">
-							{#if obsidianConnection?.last_sync_at}
-								<div class="moment-stat">
-									{$t('integrations_hub_last_sync_time', {
-										values: { time: relativeTime(obsidianConnection.last_sync_at) ?? '' }
-									})}
-								</div>
-							{:else if obsidianConnection}
-								<div class="moment-muted">{$t('integrations_hub_no_sync_obsidian')}</div>
-							{:else}
-								<div class="moment-muted">
-									{$t('integrations_hub_obsidian_setup_hint')}
-								</div>
-							{/if}
-						</div>
-					{/snippet}
-					{#snippet actions()}
-						<button type="button" class="btn ghost compact" onclick={onOpenObsidian}>
-							{obsidianConnection
-								? $t('integrations_hub_manage')
-								: $t('integrations_hub_connect_obsidian')}
-						</button>
-						{#if obsidianConnection}
-							<button
-								type="button"
-								class="btn ghost compact danger"
-								onclick={() => onDisconnect(obsidianConnection)}
-							>
-								{$t('integrations_disconnect')}
-							</button>
-						{/if}
-					{/snippet}
-				</IntegrationConnectionCard>
-
-				<IntegrationConnectionCard
 					title="Miniflux"
 					tagline={$t('integrations_hub_miniflux_tagline')}
 					statusLabel={$t(minifluxStatus.labelKey)}
 					statusVariant={minifluxStatus.variant}
 					statusCheck={minifluxStatus.check}
+					errorMessage={minifluxConnection
+						? syncErrorByConnection[minifluxConnection.id] || minifluxConnection.last_error
+						: null}
 					testId="miniflux-connection-card"
 				>
 					{#snippet body()}
@@ -275,7 +229,7 @@
 
 	.connections-grid {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(2, 1fr);
 		gap: 14px;
 	}
 

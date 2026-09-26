@@ -13,14 +13,8 @@
 		onCopyInbox: () => void;
 	}
 
-	let {
-		heroState,
-		ringCounts,
-		ringDash,
-		sevenDayItems,
-		sevenDayDelta,
-		onCopyInbox
-	}: Props = $props();
+	let { heroState, ringCounts, ringDash, sevenDayItems, sevenDayDelta, onCopyInbox }: Props =
+		$props();
 </script>
 
 <SettingsHero variant="integrations">

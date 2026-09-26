@@ -82,7 +82,6 @@
 			book: 'library_filter_value_book',
 			email: 'library_filter_value_email',
 			podcast: 'library_filter_value_podcast',
-			tweet: 'library_filter_value_tweet',
 			video: 'library_filter_value_video'
 		};
 		if (keys[value]) return $t(keys[value]);

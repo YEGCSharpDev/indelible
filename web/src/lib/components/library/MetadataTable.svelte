@@ -17,7 +17,6 @@
 			email: 'library_filter_value_email',
 			pdf: 'library_filter_value_pdf',
 			podcast: 'library_filter_value_podcast',
-			tweet: 'library_filter_value_tweet',
 			video: 'library_filter_value_video'
 		};
 		const key = keys[raw];

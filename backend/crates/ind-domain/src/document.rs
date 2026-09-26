@@ -17,15 +17,13 @@ pub enum DocumentType {
     Book,
     Email,
     Pdf,
-    Tweet,
     Video,
     Podcast,
 }
 
 impl DocumentType {
-    pub const NAMES: &'static [&'static str] = &[
-        "article", "book", "email", "pdf", "tweet", "video", "podcast",
-    ];
+    pub const NAMES: &'static [&'static str] =
+        &["article", "book", "email", "pdf", "video", "podcast"];
 
     pub fn as_str(self) -> &'static str {
         match self {
@@ -33,7 +31,6 @@ impl DocumentType {
             Self::Book => "book",
             Self::Email => "email",
             Self::Pdf => "pdf",
-            Self::Tweet => "tweet",
             Self::Video => "video",
             Self::Podcast => "podcast",
         }
@@ -55,7 +52,6 @@ impl FromStr for DocumentType {
             "book" => Ok(Self::Book),
             "email" => Ok(Self::Email),
             "pdf" => Ok(Self::Pdf),
-            "tweet" => Ok(Self::Tweet),
             "video" => Ok(Self::Video),
             "podcast" => Ok(Self::Podcast),
             other => Err(format!("invalid document type: {other}")),

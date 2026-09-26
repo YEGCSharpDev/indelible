@@ -33,6 +33,7 @@ pub struct DocumentSummarySource {
     pub excerpt: Option<String>,
 }
 
+#[derive(Debug, Default, Clone, Copy)]
 pub struct StoredExportSummaryProvider {}
 
 impl StoredExportSummaryProvider {

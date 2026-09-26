@@ -83,14 +83,6 @@ pub fn retry_policy_for(job_type: &str) -> RetryPolicy {
             max_attempts: 2,
             backoff_durations: vec![Duration::from_secs(30), Duration::from_secs(120)],
         },
-        job_types::INTEGRATION_OBSIDIAN_SYNC_CONNECTION => RetryPolicy {
-            max_attempts: 3,
-            backoff_durations: vec![
-                Duration::from_secs(60),
-                Duration::from_secs(300),
-                Duration::from_secs(900),
-            ],
-        },
         job_types::IMPORT_READWISE => RetryPolicy {
             max_attempts: 2,
             backoff_durations: vec![Duration::from_secs(60), Duration::from_secs(300)],

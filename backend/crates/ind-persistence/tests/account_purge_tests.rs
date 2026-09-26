@@ -231,8 +231,6 @@ const UNSEEDED_ACKNOWLEDGED: &[(&str, &str)] = &[
     ("miniflux_sync_map", "user_id"),
     ("notification_preferences", "user_id"),
     ("oauth_identities", "user_id"),
-    ("obsidian_export_artifacts", "user_id"),
-    ("obsidian_export_runs", "user_id"),
     ("password_reset_tokens", "user_id"),
     ("push_tokens", "user_id"),
     ("referral_credits", "user_id"),

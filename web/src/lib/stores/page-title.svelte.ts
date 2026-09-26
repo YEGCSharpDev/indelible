@@ -12,7 +12,6 @@ const ROUTE_TITLE_RULES: Rule[] = [
 	{ pattern: /^\/library\/books(?:\/|$)/, key: 'library_nav_books' },
 	{ pattern: /^\/library\/emails(?:\/|$)/, key: 'library_nav_emails' },
 	{ pattern: /^\/library\/pdfs(?:\/|$)/, key: 'library_nav_pdfs' },
-	{ pattern: /^\/library\/tweets(?:\/|$)/, key: 'library_nav_tweets' },
 	{ pattern: /^\/library\/videos(?:\/|$)/, key: 'library_nav_videos' },
 	{ pattern: /^\/library(?:\/|$)/, key: 'common_library' },
 	{ pattern: /^\/feed(?:\/|$)/, key: 'common_feed' },
@@ -23,10 +22,6 @@ const ROUTE_TITLE_RULES: Rule[] = [
 	{ pattern: /^\/tags(?:\/|$)/, key: 'common_tags' },
 	{ pattern: /^\/entities\/[^/]+(?:\/|$)/, key: 'entity_page_title' },
 	{ pattern: /^\/onboarding(?:\/|$)/, key: 'onboarding_page_title' },
-	{
-		pattern: /^\/preferences\/integrations\/obsidian(?:\/|$)/,
-		key: 'settings_obsidian_page_title'
-	},
 	{
 		pattern: /^\/preferences\/integrations\/miniflux(?:\/|$)/,
 		key: 'settings_miniflux_page_title'

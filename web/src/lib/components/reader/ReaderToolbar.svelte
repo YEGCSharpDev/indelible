@@ -360,7 +360,6 @@
 			</button>
 		{/if}
 
-
 		{#if !savedToLibrary && onSaveToLibrary}
 			<div class="toolbar-right-divider"></div>
 			<button

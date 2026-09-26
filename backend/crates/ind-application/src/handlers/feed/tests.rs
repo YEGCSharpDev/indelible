@@ -1,10 +1,10 @@
 use url::Url;
 
 use super::discovery::{discover_feed_url, is_private_feed_url};
-use super::providers::{parse_twitter_url, parse_youtube_url};
+use super::providers::parse_youtube_url;
 
 #[test]
-fn youtube_and_twitter_routes_normalize_supported_sources_and_reject_spoofs() {
+fn youtube_routes_normalize_supported_sources_and_reject_spoofs() {
     for (raw, canonical, provider) in [
         (
             "https://youtube.com/@Veritasium",
@@ -61,34 +61,6 @@ fn youtube_and_twitter_routes_normalize_supported_sources_and_reject_spoofs() {
     ] {
         assert!(
             parse_youtube_url(&Url::parse(raw).unwrap()).is_none(),
-            "{raw}"
-        );
-    }
-
-    for (raw, canonical, provider) in [
-        ("https://x.com/SpaceX", "twitter:user:spacex", None),
-        (
-            "https://nitter.example/SpaceX/rss",
-            "twitter:user:spacex",
-            Some("nitter"),
-        ),
-        (
-            "https://rsshub.example/twitter/user/SpaceX",
-            "twitter:user:spacex",
-            Some("rsshub"),
-        ),
-    ] {
-        let parsed = parse_twitter_url(&Url::parse(raw).unwrap()).unwrap();
-        assert_eq!(parsed.canonical_key, canonical, "{raw}");
-        assert_eq!(parsed.input_provider.as_deref(), provider, "{raw}");
-    }
-    for raw in [
-        "https://x.com/home",
-        "https://x.com",
-        "https://x.com.evil.test/SpaceX",
-    ] {
-        assert!(
-            parse_twitter_url(&Url::parse(raw).unwrap()).is_none(),
             "{raw}"
         );
     }

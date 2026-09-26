@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import { page } from '$app/state';
 	import SavePill from '$lib/components/settings/SavePill.svelte';
 	import { createApiToken, loadApiTokens, revokeApiToken } from '$lib/api/tokens';
 	import {
@@ -22,7 +21,6 @@
 	import WebhookPanel from './components/WebhookPanel.svelte';
 	import {
 		allPermissionsSelected,
-		issuePresetFromSearchParams,
 		ISSUE_DEFAULTS,
 		nextIssuePermissions,
 		setResourceAccess,
@@ -81,12 +79,6 @@
 	onMount(() => {
 		void refreshTokens();
 		void refreshEndpoints();
-		const preset = issuePresetFromSearchParams(page.url.searchParams);
-		if (preset) {
-			replaceIssuePermissions(preset.permissions);
-			issueName = $t('prefs_developer_obsidian_plugin');
-			issueOpen = true;
-		}
 	});
 
 	async function refreshTokens() {

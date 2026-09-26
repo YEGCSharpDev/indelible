@@ -19,7 +19,6 @@ pub const ALL_API_PERMISSIONS: &[ApiPermission] = &[
     ApiPermission::AiRead,
     ApiPermission::AiWrite,
     ApiPermission::AiUse,
-    ApiPermission::ObsidianSync,
 ];
 
 pub fn canonicalize_permissions(

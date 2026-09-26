@@ -2,14 +2,11 @@ use futures::future::BoxFuture;
 use ind_domain::{
     EmailAlias, EmailAliasId, EmailDestination, EmailSender, EmailSenderId,
     EmailSenderRenderDefault, ImportJob, ImportJobId, IntegrationConnection,
-    IntegrationConnectionId, IntegrationOAuthProvider, LibraryEntryId,
-    ObsidianExportSettings, User, UserId, WebhookDelivery, WebhookEndpoint, WebhookEndpointId,
+    IntegrationConnectionId, IntegrationOAuthProvider, User, UserId, WebhookDelivery,
+    WebhookEndpoint, WebhookEndpointId,
 };
 
 use crate::AppError;
-use crate::outputs::export::{
-    ObsidianArtifactDownload, ObsidianExportPreview, ObsidianRefreshResult, ObsidianRunStatus,
-};
 use crate::outputs::import::ImportStatusOutput;
 
 pub trait WebhookOperations: Send + Sync {
@@ -163,106 +160,12 @@ pub trait IntegrationOperations: Send + Sync {
         connection_id: IntegrationConnectionId,
     ) -> BoxFuture<'_, Result<IntegrationSyncEnqueued, AppError>>;
 
-    fn get_obsidian_settings(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-    ) -> BoxFuture<'_, Result<ObsidianExportSettings, AppError>>;
-
-    fn update_obsidian_settings(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-        settings: ObsidianExportSettings,
-    ) -> BoxFuture<'_, Result<ObsidianExportSettings, AppError>>;
-
-    fn preview_obsidian_export(
-        &self,
-        user_id: UserId,
-        connection_id: IntegrationConnectionId,
-        library_entry_id: Option<LibraryEntryId>,
-        settings: Option<ObsidianExportSettings>,
-    ) -> BoxFuture<'_, Result<ObsidianExportPreview, AppError>>;
-
-    fn setup_obsidian_connection(
-        &self,
-        user_id: UserId,
-    ) -> BoxFuture<'_, Result<IntegrationConnection, AppError>>;
-
     fn setup_miniflux_connection(
         &self,
         user_id: UserId,
         url: String,
         api_key: String,
     ) -> BoxFuture<'_, Result<IntegrationConnection, AppError>>;
-}
-
-pub trait ExportOperations: Send + Sync {
-    fn create_obsidian_run(
-        &self,
-        user_id: UserId,
-        input: ObsidianRunCreate,
-    ) -> BoxFuture<'_, Result<ObsidianRunStatus, AppError>>;
-
-    fn get_obsidian_run(
-        &self,
-        user_id: UserId,
-        run_id: uuid::Uuid,
-    ) -> BoxFuture<'_, Result<ObsidianRunStatus, AppError>>;
-
-    fn get_obsidian_artifact(
-        &self,
-        user_id: UserId,
-        artifact_id: uuid::Uuid,
-    ) -> BoxFuture<'_, Result<ObsidianArtifactDownload, AppError>>;
-
-    fn ack_obsidian_run(
-        &self,
-        user_id: UserId,
-        run_id: uuid::Uuid,
-        input: ObsidianRunAck,
-    ) -> BoxFuture<'_, Result<ObsidianRunStatus, AppError>>;
-
-    fn refresh_obsidian_subjects(
-        &self,
-        user_id: UserId,
-        input: ObsidianRefreshRequest,
-    ) -> BoxFuture<'_, Result<ObsidianRefreshResult, AppError>>;
-
-    fn record_obsidian_path_rename(
-        &self,
-        user_id: UserId,
-        subject_id: LibraryEntryId,
-        new_path: String,
-    ) -> BoxFuture<'_, Result<(), AppError>>;
-}
-
-#[derive(Debug, Clone)]
-pub struct ObsidianRunCreate {
-    pub parent_folder_deleted: bool,
-    pub auto: bool,
-    pub force_subject_ids: Vec<LibraryEntryId>,
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct ObsidianRunAck {
-    pub artifact_ids: Vec<uuid::Uuid>,
-    pub subjects: Vec<ObsidianAckSubject>,
-}
-
-#[derive(Debug, Clone)]
-pub struct ObsidianAckSubject {
-    pub subject_id: LibraryEntryId,
-    pub status: String,
-    pub error: Option<String>,
-    pub last_content_hash: Option<String>,
-    pub last_full_document_hash: Option<String>,
-}
-
-#[derive(Debug, Clone)]
-pub struct ObsidianRefreshRequest {
-    pub subject_ids: Vec<LibraryEntryId>,
-    pub reason: String,
 }
 
 pub trait EmailSenderOperations: Send + Sync {

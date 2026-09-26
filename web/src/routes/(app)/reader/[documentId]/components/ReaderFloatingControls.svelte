@@ -44,8 +44,13 @@
 		onFocusComplete,
 		onFocusExit
 	}: Props = $props();
-</script>
 
+	void documentId;
+	void activeTab;
+	void readableReady;
+	void ttsOpen;
+	void readerArticleBodyEl;
+</script>
 
 {#if showTypography && aaButtonEl}
 	<TypographyPopover anchorEl={aaButtonEl} onClose={onTypographyClose} />

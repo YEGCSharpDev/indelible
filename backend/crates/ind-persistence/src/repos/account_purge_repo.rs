@@ -53,7 +53,6 @@ impl AccountPurgeRepository for PgAccountPurgeRepository {
         .await
         .map_err(map_sqlx_error)?;
 
-
         let import_blobs: Vec<Option<String>> = sqlx::query_scalar(
             "DELETE FROM import_jobs WHERE user_id = $1 RETURNING raw_artifact_key",
         )

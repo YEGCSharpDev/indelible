@@ -9,8 +9,7 @@
 	let { provider, size = 32 }: Props = $props();
 
 	const marks: Record<IntegrationProviderId, string> = {
-		readwise: 'R',
-		obsidian: 'O'
+		readwise: 'R'
 	};
 
 	const mark = $derived(marks[provider] ?? provider.charAt(0).toUpperCase());
@@ -44,11 +43,5 @@
 	.provider-readwise {
 		background: var(--provider-readwise-bg);
 		color: var(--provider-readwise-fg);
-	}
-
-	/* Fallback for any other provider rendered here */
-	.provider-obsidian {
-		background: var(--fill-secondary);
-		color: var(--text-primary);
 	}
 </style>

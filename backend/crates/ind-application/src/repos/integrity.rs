@@ -6,7 +6,6 @@ use crate::error::AppError;
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct IntegrityStats {
     pub documents_missing_search_rows: i64,
-    pub documents_missing_vectors: i64,
     pub failed_derived_assets: i64,
     pub dead_letter_jobs: i64,
 }

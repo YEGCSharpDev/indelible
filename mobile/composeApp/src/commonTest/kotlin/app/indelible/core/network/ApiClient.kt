@@ -3,8 +3,6 @@ package app.indelible.core.network
 import app.indelible.api.generated.models.ArchivalSettingsResponse
 import app.indelible.api.generated.models.CollectionResponse
 import app.indelible.api.generated.models.CreateCollectionBody
-import app.indelible.api.generated.models.CreateMilaPromptPresetBody
-import app.indelible.api.generated.models.CreateMilaSessionBody
 import app.indelible.api.generated.models.CreateSmartListBody
 import app.indelible.api.generated.models.CreateTagBody
 import app.indelible.api.generated.models.DocumentNoteResponse
@@ -22,12 +20,6 @@ import app.indelible.api.generated.models.ImportUploadResponse
 import app.indelible.api.generated.models.LibraryCountResponse
 import app.indelible.api.generated.models.LibraryEntryResponse
 import app.indelible.api.generated.models.MergeTagsBody
-import app.indelible.api.generated.models.MilaConfigResponse
-import app.indelible.api.generated.models.MilaConversationResponse
-import app.indelible.api.generated.models.MilaPromptPresetResponse
-import app.indelible.api.generated.models.MilaPromptPresetsResponse
-import app.indelible.api.generated.models.MilaSessionListResponse
-import app.indelible.api.generated.models.MilaSessionResponse
 import app.indelible.api.generated.models.NotificationsSettingsResponse
 import app.indelible.api.generated.models.OAuthProvidersResponse
 import app.indelible.api.generated.models.OpmlImportResponse
@@ -42,14 +34,10 @@ import app.indelible.api.generated.models.PrepareDeliveryResponse
 import app.indelible.api.generated.models.RecentHighlightsResponse
 import app.indelible.api.generated.models.SmartListResponse
 import app.indelible.api.generated.models.TagResponse
-import app.indelible.api.generated.models.TestMilaConfigBody
-import app.indelible.api.generated.models.TestMilaConfigResponse
 import app.indelible.api.generated.models.UpdateCollectionBody
 import app.indelible.api.generated.models.UpdateHomeSettingsBody
-import app.indelible.api.generated.models.UpdateMilaPromptPresetBody
 import app.indelible.api.generated.models.UpdateSmartListBody
 import app.indelible.api.generated.models.UpdateTagBody
-import app.indelible.api.generated.models.UpsertMilaConfigBody
 import app.indelible.core.model.AuthResponse
 import app.indelible.core.model.AuthUser
 import app.indelible.core.model.OnboardingStatusResponse
@@ -82,7 +70,7 @@ class ApiClient(
     val tagsApiService = TagsApiService(transport)
     val settingsApiService = SettingsApiService(transport)
     val homeApiService = HomeApiService(transport)
-    val milaApiService = MilaApiService(transport)
+
     val trashApiService = TrashApiService(transport)
     val importApiService = ImportApiService(transport)
 
@@ -413,31 +401,7 @@ class ApiClient(
 
     suspend fun updateHomeSettings(body: UpdateHomeSettingsBody): Result<HomeSettingsResponse> = homeApiService.updateHomeSettings(body)
 
-    suspend fun getMilaConfig(): Result<MilaConfigResponse> = milaApiService.getConfig()
 
-    suspend fun upsertMilaConfig(body: UpsertMilaConfigBody): Result<MilaConfigResponse> = milaApiService.upsertConfig(body)
-
-    suspend fun reindexMilaConfig(body: UpsertMilaConfigBody): Result<MilaConfigResponse> = milaApiService.reindexConfig(body)
-
-    suspend fun testMilaConfig(body: TestMilaConfigBody): Result<TestMilaConfigResponse> = milaApiService.testConfig(body)
-
-    suspend fun getPromptPresets(): Result<MilaPromptPresetsResponse> = milaApiService.getPromptPresets()
-
-    suspend fun createPromptPreset(body: CreateMilaPromptPresetBody): Result<MilaPromptPresetResponse> =
-        milaApiService.createPromptPreset(body)
-
-    suspend fun updatePromptPreset(
-        presetId: String,
-        body: UpdateMilaPromptPresetBody,
-    ): Result<MilaPromptPresetResponse> = milaApiService.updatePromptPreset(presetId, body)
-
-    suspend fun deletePromptPreset(presetId: String): Result<Unit> = milaApiService.deletePromptPreset(presetId)
-
-    suspend fun listMilaSessions(limit: Int = 50): Result<MilaSessionListResponse> = milaApiService.listSessions(limit)
-
-    suspend fun createMilaSession(body: CreateMilaSessionBody): Result<MilaSessionResponse> = milaApiService.createSession(body)
-
-    suspend fun getMilaMessages(sessionId: String): Result<MilaConversationResponse> = milaApiService.getMessages(sessionId)
 
     suspend fun listTrash(
         cursor: String? = null,

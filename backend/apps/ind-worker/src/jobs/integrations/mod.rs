@@ -1,6 +1,5 @@
-mod obsidian;
-mod readwise;
 mod miniflux;
+mod readwise;
 
 use ind_application::error::AppError;
 use ind_domain::GenericJobEnvelope;
@@ -8,7 +7,6 @@ use ind_domain::GenericJobEnvelope;
 use crate::context::IntegrationJobDeps;
 
 const HANDLED_JOB_TYPES: &[&str] = &[
-    "integration.obsidian.sync_connection",
     "integration.miniflux.sync_connection",
     "integration.miniflux.push_read_state",
     "import.readwise",
@@ -36,17 +34,6 @@ pub async fn dispatch_envelope(
 
     let job_type = envelope.job_type.clone();
     match job_type.as_str() {
-        "integration.obsidian.sync_connection" => {
-            let job: ind_domain::ObsidianSyncConnectionJob =
-                serde_json::from_value(envelope.payload).map_err(|e| {
-                    AppError::ExternalService {
-                        service: "obsidian".into(),
-                        message: format!("invalid sync_connection payload: {e}"),
-                    }
-                })?;
-            obsidian::handle_sync_connection(ctx, job).await?;
-            Ok(Some(()))
-        }
         "integration.miniflux.sync_connection" => {
             let job: ind_domain::MinifluxSyncConnectionJob =
                 serde_json::from_value(envelope.payload).map_err(|e| {

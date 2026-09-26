@@ -41,7 +41,6 @@
 		books: 'library_nav_books',
 		emails: 'library_nav_emails',
 		pdfs: 'library_nav_pdfs',
-		tweets: 'library_nav_tweets',
 		videos: 'library_nav_videos'
 	};
 	const activeTypeTitle = $derived(

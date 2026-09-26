@@ -261,7 +261,6 @@
     <string name="library_content_emails">E-mails</string>
     <string name="library_content_pdfs">PDF</string>
     <string name="library_content_podcasts">Podcasts</string>
-    <string name="library_content_tweets">Tweets</string>
     <string name="library_content_videos">Vidéos</string>
     <plurals name="library_done_count">
         <item quantity="one">%1$d terminé</item>

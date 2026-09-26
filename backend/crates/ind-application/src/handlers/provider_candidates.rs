@@ -12,30 +12,6 @@ pub struct ProviderCandidate {
     pub instance_id: Option<Uuid>,
 }
 
-/// Build candidate Twitter feed URLs for `handle`, ordered the same as
-/// `instances` (caller is responsible for priority/health sort).
-pub fn twitter_candidates(
-    handle: &str,
-    instances: &[FeedProviderInstance],
-) -> Vec<ProviderCandidate> {
-    instances
-        .iter()
-        .filter_map(|inst| {
-            let base = inst.base_url.trim_end_matches('/');
-            let url = match inst.provider_type.as_str() {
-                "rsshub" => format!("{base}/twitter/user/{handle}"),
-                "nitter" => format!("{base}/{handle}/rss"),
-                _ => return None,
-            };
-            Some(ProviderCandidate {
-                url,
-                provider_type: inst.provider_type.clone(),
-                instance_id: Some(inst.id),
-            })
-        })
-        .collect()
-}
-
 /// Build candidate YouTube RSSHub URLs for `rsshub_path`
 /// (e.g. `/youtube/user/@JFlaMusic`). YouTube only flows through RSSHub today,
 /// so non-rsshub instances are skipped silently.
@@ -101,18 +77,5 @@ pub fn youtube_rsshub_path_from_canonical(youtube_url: &str) -> Option<String> {
         ["user", name, ..] => Some(format!("/youtube/user/{name}")),
         ["c", name, ..] => Some(format!("/youtube/c/{name}")),
         _ => None,
-    }
-}
-
-/// Recover the lowercased Twitter handle from a canonical URL like
-/// `https://x.com/jack`.
-pub fn twitter_handle_from_canonical(twitter_url: &str) -> Option<String> {
-    let parsed = Url::parse(twitter_url).ok()?;
-    let first = parsed.path().split('/').find(|s| !s.is_empty())?;
-    let handle = first.trim_start_matches('@').to_ascii_lowercase();
-    if handle.is_empty() {
-        None
-    } else {
-        Some(handle)
     }
 }

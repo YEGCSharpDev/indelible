@@ -63,7 +63,6 @@ describe('routeTitleKey', () => {
 		['/library/books', 'library_nav_books'],
 		['/library/emails', 'library_nav_emails'],
 		['/library/pdfs', 'library_nav_pdfs'],
-		['/library/tweets', 'library_nav_tweets'],
 		['/library/videos', 'library_nav_videos'],
 		['/feed', 'common_feed'],
 		['/search', 'common_search'],
@@ -78,7 +77,6 @@ describe('routeTitleKey', () => {
 		['/preferences', 'settings_preferences'],
 		['/preferences/account', 'settings_account'],
 		['/preferences/integrations', 'settings_integrations'],
-		['/preferences/integrations/obsidian', 'settings_obsidian_page_title'],
 		['/preferences/integrations/miniflux', 'settings_miniflux_page_title'],
 		['/login', 'auth_sign_in_title'],
 		['/auth/callback', 'auth_callback_page_title'],
@@ -100,7 +98,7 @@ describe('routeTitleKey', () => {
 	});
 
 	it('prefers the more specific rule over its prefix', () => {
-		expect(routeTitleKey('/preferences/integrations/obsidian')).not.toBe(
+		expect(routeTitleKey('/preferences/integrations/miniflux')).not.toBe(
 			routeTitleKey('/preferences/integrations')
 		);
 		expect(routeTitleKey('/library/books')).not.toBe(routeTitleKey('/library'));

@@ -136,11 +136,10 @@ pub fn parse_ingest_address(
     } else if let Some(token) = local.strip_suffix("-feed") {
         // Shared-domain fallback: token-feed@shared
         (token, EmailDestination::Feed)
-    } else if let Some(token) = local.strip_suffix("-lib") {
+    } else {
+        let token = local.strip_suffix("-lib")?;
         // Shared-domain fallback: token-lib@shared
         (token, EmailDestination::Library)
-    } else {
-        return None;
     };
 
     // Accept any syntactically valid ingest local part: a user-customised alias or a

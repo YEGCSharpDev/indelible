@@ -36,7 +36,7 @@ class TrashParityTest {
 
             assertEquals(HttpMethod.Get, capturedMethod)
             assertEquals("/api/v1/library/trash", capturedPath)
-            assertTrue(result.isSuccess)
+            assertTrue(result.isSuccess, "Failed with: ${result.exceptionOrNull()}")
         }
 
     @Test
@@ -59,7 +59,7 @@ class TrashParityTest {
 
             assertEquals(HttpMethod.Get, capturedMethod)
             assertEquals("/api/v1/library/count", capturedPath)
-            assertTrue(result.isSuccess)
+            assertTrue(result.isSuccess, "Failed with: ${result.exceptionOrNull()}")
             assertEquals(3L, result.getOrThrow().savedCount)
         }
 
@@ -83,7 +83,7 @@ class TrashParityTest {
 
             assertEquals(HttpMethod.Post, capturedMethod)
             assertEquals("/api/v1/library/trash/empty", capturedPath)
-            assertTrue(result.isSuccess)
+            assertTrue(result.isSuccess, "Failed with: ${result.exceptionOrNull()}")
         }
 
     @Test
@@ -106,7 +106,7 @@ class TrashParityTest {
 
             assertEquals(HttpMethod.Post, capturedMethod)
             assertEquals("/api/v1/library/lib_01ABC/purge", capturedPath)
-            assertTrue(result.isSuccess)
+            assertTrue(result.isSuccess, "Failed with: ${result.exceptionOrNull()}")
         }
 
     private fun paginatedTrashItemsJson() =
@@ -127,7 +127,11 @@ class TrashParityTest {
                     "is_shortlisted": false,
                     "saved_at": "2026-01-01T00:00:00Z",
                     "created_at": "2026-01-01T00:00:00Z",
-                    "updated_at": "2026-01-01T00:00:00Z"
+                    "updated_at": "2026-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
                 }
             ],
             "page": {"has_more": false, "next_cursor": null}

@@ -6,8 +6,7 @@ use sqlx::PgPool;
 use ind_application::AppError;
 use ind_application::repos::document_lifecycle::{
     DocumentLifecycle, MaterializeIdentity, MaterializeOutcome, MaterializeRequest,
-    MaterializeSideEffects, SaveToLibraryOutcome, SaveToLibraryRequest, 
-    
+    MaterializeSideEffects, SaveToLibraryOutcome, SaveToLibraryRequest,
 };
 use ind_domain::DocumentOriginType;
 
@@ -108,5 +107,4 @@ impl DocumentLifecycle for PgDocumentLifecycle {
     ) -> Result<SaveToLibraryOutcome, AppError> {
         save::save_to_library(&self.pool, request).await
     }
-
 }

@@ -20,7 +20,6 @@ pub fn document_type_for(item_type: ItemType) -> DocumentType {
         ItemType::Book => DocumentType::Book,
         ItemType::Email => DocumentType::Email,
         ItemType::Pdf => DocumentType::Pdf,
-        ItemType::Tweet => DocumentType::Tweet,
         ItemType::Video => DocumentType::Video,
         ItemType::Podcast => DocumentType::Podcast,
     }

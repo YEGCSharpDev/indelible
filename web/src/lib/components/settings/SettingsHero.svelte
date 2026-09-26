@@ -6,7 +6,6 @@
 		| 'account'
 		| 'reading'
 		| 'integrations'
-		| 'obsidian'
 		| 'miniflux'
 		| 'feed'
 		| 'archival'
@@ -97,16 +96,6 @@
 		--hero-blob-b: var(--hero-integrations-blob-b);
 		--hero-blob-c: var(--hero-integrations-blob-c);
 		--hero-edge: var(--hero-integrations-edge);
-	}
-
-
-	.hero[data-variant='obsidian'] {
-		--hero-from: var(--hero-obsidian-from);
-		--hero-to: var(--hero-obsidian-to);
-		--hero-blob-a: var(--hero-obsidian-blob-a);
-		--hero-blob-b: var(--hero-obsidian-blob-b);
-		--hero-blob-c: var(--hero-obsidian-blob-c);
-		--hero-edge: var(--hero-obsidian-edge);
 	}
 
 	.hero[data-variant='miniflux'] {

@@ -19,18 +19,6 @@ ALTER TABLE ONLY public.document_playback_states
 ALTER TABLE ONLY public.oauth_flows
     ADD CONSTRAINT oauth_flows_pkey PRIMARY KEY (state_hash);
 
-ALTER TABLE ONLY public.obsidian_export_artifact_items
-    ADD CONSTRAINT obsidian_export_artifact_items_pkey PRIMARY KEY (artifact_id, library_entry_id);
-
-ALTER TABLE ONLY public.obsidian_export_artifacts
-    ADD CONSTRAINT obsidian_export_artifacts_pkey PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.obsidian_export_refresh_queue
-    ADD CONSTRAINT obsidian_export_refresh_queue_pkey PRIMARY KEY (connection_id, library_entry_id);
-
-ALTER TABLE ONLY public.obsidian_export_runs
-    ADD CONSTRAINT obsidian_export_runs_pkey PRIMARY KEY (id);
-
 ALTER TABLE ONLY public.api_tokens
     ADD CONSTRAINT pk_api_tokens PRIMARY KEY (id);
 
@@ -475,10 +463,6 @@ CREATE INDEX idx_oauth_flows_expires ON public.oauth_flows USING btree (expires_
 
 CREATE INDEX idx_oauth_user ON public.oauth_identities USING btree (user_id);
 
-CREATE INDEX idx_obsidian_export_artifacts_run ON public.obsidian_export_artifacts USING btree (run_id, created_at);
-
-CREATE INDEX idx_obsidian_export_runs_connection_created ON public.obsidian_export_runs USING btree (connection_id, created_at DESC);
-
 CREATE INDEX idx_password_reset_user ON public.password_reset_tokens USING btree (user_id);
 
 CREATE INDEX idx_push_user ON public.push_tokens USING btree (user_id);
@@ -851,33 +835,6 @@ ALTER TABLE ONLY public.webhook_dispatches
 
 ALTER TABLE ONLY public.webhook_endpoints
     ADD CONSTRAINT fk_webhook_endpoints_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.obsidian_export_artifact_items
-    ADD CONSTRAINT obsidian_export_artifact_items_artifact_id_fkey FOREIGN KEY (artifact_id) REFERENCES public.obsidian_export_artifacts(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.obsidian_export_artifact_items
-    ADD CONSTRAINT obsidian_export_artifact_items_library_entry_id_fkey FOREIGN KEY (library_entry_id) REFERENCES public.library_entries(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.obsidian_export_artifacts
-    ADD CONSTRAINT obsidian_export_artifacts_connection_id_fkey FOREIGN KEY (connection_id) REFERENCES public.integration_connections(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.obsidian_export_artifacts
-    ADD CONSTRAINT obsidian_export_artifacts_run_id_fkey FOREIGN KEY (run_id) REFERENCES public.obsidian_export_runs(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.obsidian_export_artifacts
-    ADD CONSTRAINT obsidian_export_artifacts_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.obsidian_export_refresh_queue
-    ADD CONSTRAINT obsidian_export_refresh_queue_connection_id_fkey FOREIGN KEY (connection_id) REFERENCES public.integration_connections(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.obsidian_export_refresh_queue
-    ADD CONSTRAINT obsidian_export_refresh_queue_library_entry_id_fkey FOREIGN KEY (library_entry_id) REFERENCES public.library_entries(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.obsidian_export_runs
-    ADD CONSTRAINT obsidian_export_runs_connection_id_fkey FOREIGN KEY (connection_id) REFERENCES public.integration_connections(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.obsidian_export_runs
-    ADD CONSTRAINT obsidian_export_runs_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.refresh_tokens
     ADD CONSTRAINT refresh_tokens_replaced_by_fkey FOREIGN KEY (replaced_by) REFERENCES public.refresh_tokens(id);

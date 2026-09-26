@@ -1,7 +1,7 @@
 use chrono::Utc;
 use ind_domain::{
-    ContentSource, DocumentId, HighlightId, LibraryEntry, LibraryEntryId, NewDomainEvent, Tag,
-    TriageState, UserId, DomainEventId,
+    ContentSource, DocumentId, DomainEventId, HighlightId, LibraryEntry, LibraryEntryId,
+    NewDomainEvent, Tag, TriageState, UserId,
 };
 
 fn build_domain_event(

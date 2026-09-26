@@ -27,7 +27,6 @@ async fn active_unverified_users_asset_cookie_cannot_reach_asset_routes() {
     let cookie = format!("ind_asset={cookie}");
     let paths = [
         format!("/api/v1/assets/documents/{document_id}/readable_html"),
-        format!("/api/v1/assets/documents/{document_id}/tts/missing-session/chunk.mp3"),
         format!("/api/v1/assets/{user_id}/avatars/missing.png"),
     ];
 

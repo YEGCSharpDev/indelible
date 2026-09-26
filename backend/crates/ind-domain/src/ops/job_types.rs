@@ -15,7 +15,6 @@ pub const WEBHOOK_DELIVER: &str = "webhook.deliver";
 pub const EMAIL_INGEST: &str = "email.ingest";
 pub const EMAIL_UNSUBSCRIBE: &str = "email.unsubscribe";
 pub const ACCOUNT_STORAGE_PURGE: &str = "account.storage_purge";
-pub const INTEGRATION_OBSIDIAN_SYNC_CONNECTION: &str = "integration.obsidian.sync_connection";
 pub const IMPORT_READWISE: &str = "import.readwise";
 pub const INTEGRATION_MINIFLUX_SYNC_CONNECTION: &str = "integration.miniflux.sync_connection";
 pub const INTEGRATION_MINIFLUX_PUSH_READ_STATE: &str = "integration.miniflux.push_read_state";

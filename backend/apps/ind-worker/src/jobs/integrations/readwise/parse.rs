@@ -90,8 +90,7 @@ pub(super) fn location_to_triage(location: &str) -> (TriageState, bool) {
 
 pub(super) fn detect_item_type(url: Option<&str>, zip_entry: Option<&ZipEntry>) -> ItemType {
     // URL-native content types win over ZIP HTML snapshots. For example,
-    // Readwise's YouTube HTML is just a watch page, and Twitter/X status rows
-    // should remain tweets even when the export includes HTML.
+    // Readwise's YouTube HTML is just a watch page.
     if let Some(inferred) = url
         .map(ind_application::dispatch::infer_item_type_for_url)
         .filter(|item_type| *item_type != ItemType::Article)

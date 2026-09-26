@@ -37,7 +37,11 @@ class HighlightsParityTest {
             "locator": ${locatorJson()},
             "tags": [],
             "created_at": "2026-01-01T00:00:00Z",
-            "updated_at": "2026-01-01T00:00:00Z"
+            "updated_at": "2026-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
         }
         """.trimIndent()
 
@@ -50,7 +54,11 @@ class HighlightsParityTest {
             "text_content": "Interesting passage",
             "locator": ${locatorJson()},
             "created_at": "2026-01-01T00:00:00Z",
-            "updated_at": "2026-01-01T00:00:00Z"
+            "updated_at": "2026-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
         }
         """.trimIndent()
 
@@ -71,7 +79,11 @@ class HighlightsParityTest {
             "highlight_id": "hlt_01ABC",
             "body": "Note text",
             "created_at": "2026-01-01T00:00:00Z",
-            "updated_at": "2026-01-01T00:00:00Z"
+            "updated_at": "2026-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
         }
         """.trimIndent()
 

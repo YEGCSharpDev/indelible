@@ -45,11 +45,10 @@ describe('Welcome page (step 1)', () => {
 		expect(screen.getByText('Get Started')).toBeTruthy();
 	});
 
-	it('renders three value proposition items', () => {
+	it('renders value proposition items without Mila', () => {
 		render(WelcomePage);
 		expect(screen.getByText('Save anything from the web')).toBeTruthy();
-		expect(screen.getByText('AI-powered reading with Mila')).toBeTruthy();
-		expect(screen.getByText('Sync highlights to Obsidian')).toBeTruthy();
+		expect(screen.queryByText('AI-powered reading with Mila')).toBeNull();
 	});
 
 	it('Get Started navigates to account step', async () => {

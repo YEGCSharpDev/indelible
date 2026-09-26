@@ -46,7 +46,11 @@ class LibraryDocumentsParityTest {
             "is_shortlisted": false,
             "saved_at": "2026-03-25T12:00:00Z",
             "created_at": "2026-03-25T12:00:00Z",
-            "updated_at": "2026-03-25T12:00:00Z"
+            "updated_at": "2026-03-25T12:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
         }
         """.trimIndent()
 
@@ -74,7 +78,11 @@ class LibraryDocumentsParityTest {
 
     private fun noteJson() =
         """
-        {"id": "note_01", "body": "My note", "created_at": "2026-01-01T00:00:00Z", "updated_at": "2026-01-01T00:00:00Z"}
+        {"id": "note_01", "body": "My note", "created_at": "2026-01-01T00:00:00Z", "updated_at": "2026-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null}
         """.trimIndent()
 
     private fun documentAssetJson() =

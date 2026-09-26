@@ -12,7 +12,7 @@ import type { IntegrationConnectionDto } from '$lib/api';
 function connection(status: string): IntegrationConnectionDto {
 	return {
 		id: 'cnx_1',
-		provider: 'obsidian',
+		provider: 'readwise',
 		status: status as IntegrationConnectionDto['status'],
 		last_sync_at: null,
 		last_error: null,

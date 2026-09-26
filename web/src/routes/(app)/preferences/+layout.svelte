@@ -32,7 +32,6 @@
 		'add-to-feed': 'settings_add_to_feed',
 		'add-to-library': 'settings_add_to_library',
 		'import-export': 'settings_import_export',
-		obsidian: 'settings_obsidian',
 		miniflux: 'settings_miniflux'
 	};
 

@@ -4,7 +4,7 @@ import { INTEGRATION_PROVIDERS, findProvider } from '$lib/integrations/providers
 describe('INTEGRATION_PROVIDERS', () => {
 	it('declares the M10-wave providers', () => {
 		const ids = INTEGRATION_PROVIDERS.map((p) => p.id).sort();
-		expect(ids).toEqual(['obsidian', 'readwise']);
+		expect(ids).toEqual(['readwise']);
 	});
 
 	it('every provider has a non-empty display name and description', () => {
@@ -34,7 +34,7 @@ describe('INTEGRATION_PROVIDERS', () => {
 
 describe('findProvider', () => {
 	it('finds a provider by id', () => {
-		expect(findProvider('obsidian')?.id).toBe('obsidian');
+		expect(findProvider('readwise')?.id).toBe('readwise');
 	});
 
 	it('returns undefined for unknown ids', () => {

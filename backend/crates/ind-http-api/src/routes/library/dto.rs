@@ -12,7 +12,7 @@ use crate::extract::Validate;
 pub struct SaveUrlBody {
     pub url: String,
     pub title: Option<String>,
-    /// One of: article, book, email, pdf, tweet, video, podcast. Inferred from the URL when
+    /// One of: article, book, email, pdf, video, podcast. Inferred from the URL when
     /// omitted.
     pub item_type: Option<String>,
 }
@@ -128,7 +128,7 @@ pub struct LibraryCountsParams {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct LibraryItemTypeCountResponse {
-    /// One of: article, book, email, pdf, tweet, video, podcast.
+    /// One of: article, book, email, pdf, video, podcast.
     pub item_type: String,
     pub count: i64,
 }

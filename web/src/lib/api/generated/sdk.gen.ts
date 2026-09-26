@@ -9,9 +9,6 @@ import {
 } from './client';
 import { client } from './client.gen';
 import type {
-	AckObsidianRunData,
-	AckObsidianRunErrors,
-	AckObsidianRunResponses,
 	AddEntryToCollectionData,
 	AddEntryToCollectionErrors,
 	AddEntryToCollectionResponses,
@@ -44,9 +41,6 @@ import type {
 	CreateEmailAliasData,
 	CreateEmailAliasErrors,
 	CreateEmailAliasResponses,
-	CreateObsidianRunData,
-	CreateObsidianRunErrors,
-	CreateObsidianRunResponses,
 	CreateSmartListData,
 	CreateSmartListErrors,
 	CreateSmartListResponses,
@@ -95,9 +89,6 @@ import type {
 	DismissDeliveryData,
 	DismissDeliveryErrors,
 	DismissDeliveryResponses,
-	DownloadObsidianArtifactData,
-	DownloadObsidianArtifactErrors,
-	DownloadObsidianArtifactResponses,
 	EmptyLibraryTrashData,
 	EmptyLibraryTrashErrors,
 	EmptyLibraryTrashResponses,
@@ -209,12 +200,6 @@ import type {
 	GetLibraryEntryResponses,
 	GetNotificationsData,
 	GetNotificationsResponses,
-	GetObsidianRunData,
-	GetObsidianRunErrors,
-	GetObsidianRunResponses,
-	GetObsidianSettingsData,
-	GetObsidianSettingsErrors,
-	GetObsidianSettingsResponses,
 	GetOnboardingData,
 	GetOnboardingErrors,
 	GetOnboardingResponses,
@@ -357,23 +342,14 @@ import type {
 	PrepareFeedReadAheadData,
 	PrepareFeedReadAheadErrors,
 	PrepareFeedReadAheadResponses,
-	PreviewObsidianExportData,
-	PreviewObsidianExportErrors,
-	PreviewObsidianExportResponses,
 	PurgeEntryData,
 	PurgeEntryErrors,
 	PurgeEntryResponses,
 	QueryLibraryData,
 	QueryLibraryErrors,
 	QueryLibraryResponses,
-	RecordObsidianRenameData,
-	RecordObsidianRenameErrors,
-	RecordObsidianRenameResponses,
 	RefreshData,
 	RefreshErrors,
-	RefreshObsidianSubjectsData,
-	RefreshObsidianSubjectsErrors,
-	RefreshObsidianSubjectsResponses,
 	RefreshResponses,
 	RegisterData,
 	RegisterErrors,
@@ -426,9 +402,6 @@ import type {
 	SetHighlightTagsData,
 	SetHighlightTagsErrors,
 	SetHighlightTagsResponses,
-	SetupObsidianConnectionData,
-	SetupObsidianConnectionErrors,
-	SetupObsidianConnectionResponses,
 	SkipOnboardingData,
 	SkipOnboardingErrors,
 	SkipOnboardingResponses,
@@ -488,9 +461,6 @@ import type {
 	UpdateHomeSettingsResponses,
 	UpdateNotificationsData,
 	UpdateNotificationsResponses,
-	UpdateObsidianSettingsData,
-	UpdateObsidianSettingsErrors,
-	UpdateObsidianSettingsResponses,
 	UpdatePreferencesData,
 	UpdatePreferencesResponses,
 	UpdateProfileData,
@@ -1413,110 +1383,6 @@ export const streamEvents = <ThrowOnError extends boolean = false>(
 		...options
 	});
 
-export const downloadObsidianArtifact = <ThrowOnError extends boolean = false>(
-	options: Options<DownloadObsidianArtifactData, ThrowOnError>
-) =>
-	(options.client ?? client).get<
-		DownloadObsidianArtifactResponses,
-		DownloadObsidianArtifactErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/export/obsidian/artifacts/{artifact_id}',
-		...options
-	});
-
-export const refreshObsidianSubjects = <ThrowOnError extends boolean = false>(
-	options: Options<RefreshObsidianSubjectsData, ThrowOnError>
-) =>
-	(options.client ?? client).post<
-		RefreshObsidianSubjectsResponses,
-		RefreshObsidianSubjectsErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/export/obsidian/refresh',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const recordObsidianRename = <ThrowOnError extends boolean = false>(
-	options: Options<RecordObsidianRenameData, ThrowOnError>
-) =>
-	(options.client ?? client).post<
-		RecordObsidianRenameResponses,
-		RecordObsidianRenameErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/export/obsidian/rename',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const createObsidianRun = <ThrowOnError extends boolean = false>(
-	options: Options<CreateObsidianRunData, ThrowOnError>
-) =>
-	(options.client ?? client).post<
-		CreateObsidianRunResponses,
-		CreateObsidianRunErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/export/obsidian/runs',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const getObsidianRun = <ThrowOnError extends boolean = false>(
-	options: Options<GetObsidianRunData, ThrowOnError>
-) =>
-	(options.client ?? client).get<GetObsidianRunResponses, GetObsidianRunErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/export/obsidian/runs/{run_id}',
-		...options
-	});
-
-export const ackObsidianRun = <ThrowOnError extends boolean = false>(
-	options: Options<AckObsidianRunData, ThrowOnError>
-) =>
-	(options.client ?? client).post<AckObsidianRunResponses, AckObsidianRunErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/export/obsidian/runs/{run_id}/ack',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
 export const extensionCheckUrl = <ThrowOnError extends boolean = false>(
 	options: Options<ExtensionCheckUrlData, ThrowOnError>
 ) =>
@@ -2129,22 +1995,6 @@ export const connectMiniflux = <ThrowOnError extends boolean = false>(
 		}
 	});
 
-export const setupObsidianConnection = <ThrowOnError extends boolean = false>(
-	options?: Options<SetupObsidianConnectionData, ThrowOnError>
-) =>
-	(options?.client ?? client).post<
-		SetupObsidianConnectionResponses,
-		SetupObsidianConnectionErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/integrations/obsidian/setup',
-		...options
-	});
-
 export const deleteIntegration = <ThrowOnError extends boolean = false>(
 	options: Options<DeleteIntegrationData, ThrowOnError>
 ) =>
@@ -2159,62 +2009,6 @@ export const deleteIntegration = <ThrowOnError extends boolean = false>(
 		],
 		url: '/api/v1/integrations/{id}',
 		...options
-	});
-
-export const previewObsidianExport = <ThrowOnError extends boolean = false>(
-	options: Options<PreviewObsidianExportData, ThrowOnError>
-) =>
-	(options.client ?? client).post<
-		PreviewObsidianExportResponses,
-		PreviewObsidianExportErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/integrations/{id}/obsidian/preview',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const getObsidianSettings = <ThrowOnError extends boolean = false>(
-	options: Options<GetObsidianSettingsData, ThrowOnError>
-) =>
-	(options.client ?? client).get<
-		GetObsidianSettingsResponses,
-		GetObsidianSettingsErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/integrations/{id}/obsidian/settings',
-		...options
-	});
-
-export const updateObsidianSettings = <ThrowOnError extends boolean = false>(
-	options: Options<UpdateObsidianSettingsData, ThrowOnError>
-) =>
-	(options.client ?? client).patch<
-		UpdateObsidianSettingsResponses,
-		UpdateObsidianSettingsErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/integrations/{id}/obsidian/settings',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
 	});
 
 export const syncIntegration = <ThrowOnError extends boolean = false>(

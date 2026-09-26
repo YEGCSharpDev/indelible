@@ -227,7 +227,11 @@ class TagsParityTest {
                     "text_content": "some highlighted text",
                     "locator": {"type": "html", "start_offset": 10, "end_offset": 30},
                     "created_at": "2026-01-01T00:00:00Z",
-                    "updated_at": "2026-01-01T00:00:00Z"
+                    "updated_at": "2026-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
                 }
             ],
             "page": {"has_more": false, "next_cursor": null}
@@ -252,7 +256,11 @@ class TagsParityTest {
                     "is_shortlisted": false,
                     "saved_at": "2026-01-01T00:00:00Z",
                     "created_at": "2026-01-01T00:00:00Z",
-                    "updated_at": "2026-01-01T00:00:00Z"
+                    "updated_at": "2026-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
                 }
             ],
             "page": {"has_more": false, "next_cursor": null}

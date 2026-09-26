@@ -77,7 +77,7 @@ async fn issuance_rejects_empty_legacy_and_unknown_permissions() {
         "cli",
         "read",
         "write",
-        concat!("obsidian_", "plugin"),
+        "plugin",
         "future:permission",
     ] {
         let response = fixture

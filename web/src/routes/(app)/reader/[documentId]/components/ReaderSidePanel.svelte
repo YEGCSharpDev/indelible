@@ -4,14 +4,13 @@
 
 	interface Props {
 		item: DocumentListEntry;
-		chatAvailable?: boolean;
 	}
 
-	let { item, chatAvailable = true }: Props = $props();
+	let { item }: Props = $props();
 </script>
 
 <div class="reader-detail">
-	<DetailPanel {item} {chatAvailable} />
+	<DetailPanel {item} />
 </div>
 
 <style>

@@ -3,9 +3,7 @@ use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 
 use crate::error::AppError;
-use ind_domain::{
-    IntegrationConnection, IntegrationConnectionId, IntegrationProvider, UserId,
-};
+use ind_domain::{IntegrationConnection, IntegrationConnectionId, IntegrationProvider, UserId};
 
 #[async_trait::async_trait]
 pub trait IntegrationConnectionRepository: Send + Sync {
@@ -29,11 +27,6 @@ pub trait IntegrationConnectionRepository: Send + Sync {
     ) -> Result<Option<IntegrationConnection>, AppError>;
 
     async fn list_by_user(&self, user_id: UserId) -> Result<Vec<IntegrationConnection>, AppError>;
-
-    async fn list_active_export_capable(
-        &self,
-        user_id: UserId,
-    ) -> Result<Vec<IntegrationConnection>, AppError>;
 
     async fn set_status(
         &self,
