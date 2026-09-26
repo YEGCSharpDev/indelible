@@ -104,37 +104,52 @@ impl MinifluxSyncWorker {
                 service: "miniflux".into(),
                 message: format!("Failed to build HTTP client: {e}"),
             })?;
-        let res = client
-            .get(format!("{}/v1/entries?status=unread&limit=10000", url.trim_end_matches('/')))
-            .header("X-Auth-Token", api_key)
-            .send()
-            .await
-            .map_err(|e| {
-                tracing::error!("reqwest send error for Miniflux: {:?}", e);
-                AppError::ExternalService {
+        let mut entries = Vec::new();
+        let mut offset = 0;
+        let limit = 1000;
+        loop {
+            let res = client
+                .get(format!(
+                    "{}/v1/entries?status=unread&limit={limit}&offset={offset}",
+                    url.trim_end_matches('/')
+                ))
+                .header("X-Auth-Token", api_key)
+                .send()
+                .await
+                .map_err(|e| {
+                    tracing::error!("reqwest send error for Miniflux: {:?}", e);
+                    AppError::ExternalService {
+                        service: "miniflux".into(),
+                        message: format!("Failed to fetch Miniflux entries: {}", e),
+                    }
+                })?;
+
+            if !res.status().is_success() {
+                let status = res.status();
+                let body = res.text().await.unwrap_or_default();
+                tracing::error!("Miniflux API error status: {} - {}", status, body);
+                return Err(AppError::ExternalService {
                     service: "miniflux".into(),
-                    message: format!("Failed to fetch Miniflux entries: {}", e),
-                }
+                    message: format!("Miniflux API returned error status: {}", status),
+                });
+            }
+
+            let data: MinifluxResponse = res.json().await.map_err(|e| AppError::ExternalService {
+                service: "miniflux".into(),
+                message: format!("Failed to parse Miniflux response: {}", e),
             })?;
 
-        if !res.status().is_success() {
-            let status = res.status();
-            let body = res.text().await.unwrap_or_default();
-            tracing::error!("Miniflux API error status: {} - {}", status, body);
-            return Err(AppError::ExternalService {
-                service: "miniflux".into(),
-                message: format!("Miniflux API returned error status: {}", status),
-            });
+            let count = data.entries.len();
+            entries.extend(data.entries);
+            if count < limit {
+                break;
+            }
+            offset += count;
         }
 
-        let data: MinifluxResponse = res.json().await.map_err(|e| AppError::ExternalService {
-            service: "miniflux".into(),
-            message: format!("Failed to parse Miniflux response: {}", e),
-        })?;
+        tracing::info!("Found {} unread Miniflux entries", entries.len());
 
-        tracing::info!("Found {} unread Miniflux entries", data.entries.len());
-
-        for entry in &data.entries {
+        for entry in &entries {
             // For testing, we just log and ingest as library entries.
             // We use origin id to prevent duplicates.
             let origin_id = deterministic_origin_id(
@@ -237,7 +252,7 @@ impl MinifluxSyncWorker {
             }
         }
 
-        let unread_ids: std::collections::HashSet<i32> = data.entries.iter().map(|e| e.id).collect();
+        let unread_ids: std::collections::HashSet<i32> = entries.iter().map(|e| e.id).collect();
 
         let rows = sqlx::query(
             r#"
