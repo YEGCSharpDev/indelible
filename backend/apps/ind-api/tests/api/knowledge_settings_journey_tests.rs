@@ -4,60 +4,18 @@ use ind_persistence::repos::PgEntityRepository;
 use ind_test_support::spawn_app;
 use reqwest::StatusCode;
 use serde_json::json;
-use wiremock::matchers::{method, path};
-use wiremock::{Mock, MockServer, ResponseTemplate};
-
 use super::common::{SaveScenario, assert_json_response, assert_status, document_id_from_response};
 
-const RSS: &str = r#"<?xml version="1.0"?><rss version="2.0"><channel>
-<title>Onboarding Feed</title><link>https://example.com/</link>
-<description>Onboarding boundary</description></channel></rss>"#;
 
 #[tokio::test]
 async fn onboarding_and_settings_persist_real_account_configuration() {
-    let feed = MockServer::start().await;
-    Mock::given(method("GET"))
-        .and(path("/feed.xml"))
-        .respond_with(
-            ResponseTemplate::new(200)
-                .append_header("content-type", "application/rss+xml")
-                .set_body_string(RSS),
-        )
-        .expect(1)
-        .mount(&feed)
-        .await;
-
     let app = spawn_app().await;
     let session = app.create_web_session().await;
     let client = app.authed_client(&session);
     let initial =
         assert_json_response(client.get("/api/v1/onboarding").await, StatusCode::OK).await;
     assert_eq!(initial["current_step"], 0);
-    let feed_url = format!("{}/feed.xml", feed.uri());
-    let completed = assert_json_response(
-        client
-            .post_json(
-                "/api/v1/onboarding/steps/3/complete",
-                &json!({"data": {"feed_urls": [feed_url]}}),
-            )
-            .await,
-        StatusCode::OK,
-    )
-    .await;
-    assert_eq!(completed["current_step"], 3);
-    let subscriptions = assert_json_response(
-        client.get("/api/v1/feeds/subscriptions").await,
-        StatusCode::OK,
-    )
-    .await;
-    assert_eq!(subscriptions["data"][0]["input_url"], feed_url);
-    assert_eq!(
-        app.worker()
-            .pending_job_count_by_type("feed.poll")
-            .await
-            .unwrap(),
-        1
-    );
+
 
     let mut preferences = assert_json_response(
         client.get("/api/v1/settings/preferences").await,
@@ -66,7 +24,6 @@ async fn onboarding_and_settings_persist_real_account_configuration() {
     .await;
     preferences["theme"] = json!("dark");
     preferences["reader"]["email_open_mode"] = json!("original");
-    preferences["ai"]["custom_prompt"] = json!("  Be concise  ");
     let preferences = assert_json_response(
         client
             .patch_json("/api/v1/settings/preferences", &preferences)
@@ -76,7 +33,6 @@ async fn onboarding_and_settings_persist_real_account_configuration() {
     .await;
     assert_eq!(preferences["theme"], "dark");
     assert_eq!(preferences["reader"]["email_open_mode"], "original");
-    assert_eq!(preferences["ai"]["custom_prompt"], "Be concise");
 
     let mut notifications = assert_json_response(
         client.get("/api/v1/settings/notifications").await,

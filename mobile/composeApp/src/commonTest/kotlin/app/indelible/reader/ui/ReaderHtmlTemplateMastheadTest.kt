@@ -20,6 +20,7 @@ class ReaderHtmlTemplateMastheadTest {
                 publishedDate = null,
                 readingTime = null,
                 askFollowUpLabel = "Ask a follow-up",
+                summaryLabel = "Summary",
             ),
     ) = ReaderHtmlTemplate.build(
         articleHtml = "<p>body</p>",
@@ -71,6 +72,7 @@ class ReaderHtmlTemplateMastheadTest {
                         publishedDate = "5 mars 2024",
                         readingTime = "7 min",
                         askFollowUpLabel = "Poser une question & poursuivre",
+                        summaryLabel = "Résumé",
                     ),
             )
 

@@ -214,6 +214,10 @@ class SettingsParityTest {
             "marketing_emails": false,
             "new_highlights_sync": true,
             "updated_at": "2026-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null,
             "weekly_digest_enabled": false
         }
         """.trimIndent()

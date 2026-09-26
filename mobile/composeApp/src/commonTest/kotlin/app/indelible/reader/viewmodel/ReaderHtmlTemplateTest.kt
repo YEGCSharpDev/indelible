@@ -41,6 +41,7 @@ class ReaderHtmlTemplateTest {
                         publishedDate = "5 mars 2024",
                         readingTime = "1 minute",
                         askFollowUpLabel = "Poser une question",
+                        summaryLabel = "Résumé",
                     ),
             )
         assertContains(html, "5 mars 2024")

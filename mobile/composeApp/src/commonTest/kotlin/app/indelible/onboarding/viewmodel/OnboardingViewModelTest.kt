@@ -647,7 +647,11 @@ class OnboardingViewModelTest {
             "theme": "dark",
             "timezone": "UTC",
             "created_at": "2024-01-01T00:00:00Z",
-            "updated_at": "2024-01-01T00:00:00Z"
+            "updated_at": "2024-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
         }
         """.trimIndent()
 
@@ -667,7 +671,11 @@ class OnboardingViewModelTest {
             "is_shortlisted": false,
             "saved_at": "2026-03-25T12:00:00Z",
             "created_at": "2026-03-25T12:00:00Z",
-            "updated_at": "2026-03-25T12:00:00Z"
+            "updated_at": "2026-03-25T12:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
         }
         """.trimIndent()
 

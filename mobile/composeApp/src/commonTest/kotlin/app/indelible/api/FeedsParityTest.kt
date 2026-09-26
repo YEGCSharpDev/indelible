@@ -350,7 +350,11 @@ class FeedsParityTest {
             "is_shortlisted": false,
             "saved_at": "2026-01-01T00:00:00Z",
             "created_at": "2026-01-01T00:00:00Z",
-            "updated_at": "2026-01-01T00:00:00Z"
+            "updated_at": "2026-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null
         }
         """.trimIndent()
 
@@ -372,6 +376,10 @@ class FeedsParityTest {
             "auto_save": false,
             "created_at": "2024-01-01T00:00:00Z",
             "updated_at": "2024-01-01T00:00:00Z",
+"progress_percent": null,
+"max_progress_percent": null,
+"last_read_at": null,
+"finished_at": null,
             "source": {
                 "id": "src_01ABC",
                 "object": "feed_source",

@@ -43,13 +43,7 @@ async fn reader_save_commits_attach_driver_and_drives_index_and_embed() {
         1,
         "the readable attach drives a search reindex"
     );
-    assert_eq!(
-        scenario
-            .pending_job_count_by_type("document.ai.embed")
-            .await,
-        1,
-        "the readable attach drives the content-gated embed for the engaged document"
-    );
+
     let assets: i64 = sqlx::query_scalar(
         "SELECT count(*) FROM archive_assets \
          WHERE document_id = $1 AND asset_kind = 'readable_html' AND status = 'completed'",

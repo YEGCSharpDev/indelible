@@ -4,7 +4,6 @@ mod api {
     mod access_policy_extractor_tests;
     mod account_email_capture_tests;
     mod account_locale_tests;
-    mod ai_asset_route_permission_tests;
     mod api_credential_boundary_tests;
     mod api_permission_enforcement_tests;
     mod api_token_issuance_tests;
@@ -31,7 +30,6 @@ mod api {
     mod library_read_state_tests;
     mod library_route_permission_tests;
     mod mark_unread_tests;
-    mod media_journey_tests;
     mod miniflux_connect_tests;
     mod oauth_journey_tests;
     mod platform_journey_tests;

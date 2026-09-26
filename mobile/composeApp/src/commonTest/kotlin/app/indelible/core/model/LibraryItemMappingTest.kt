@@ -35,6 +35,10 @@ class LibraryItemMappingTest {
                 updatedAt = Instant.parse("2026-01-03T00:00:00Z"),
                 url = "https://example.com/item",
                 wordCount = 1800,
+                finishedAt = null,
+                lastReadAt = null,
+                maxProgressPercent = 0,
+                progressPercent = 0,
             )
 
         val item = response.toLibraryItem()
