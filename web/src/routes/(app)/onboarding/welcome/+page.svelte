@@ -126,21 +126,6 @@
 			<span>{$t('onboarding_welcome_save_web')}</span>
 		</li>
 		<li class="feature-item">
-			<div class="feature-icon feature-icon--amber" aria-hidden="true">
-				<svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-					<path
-						d="M12 2a7 7 0 017 7c0 3-2 5.5-4 7.5L12 20l-3-3.5C7 14.5 5 12 5 9a7 7 0 017-7z"
-						stroke="#D97706"
-						stroke-width="1.5"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					/>
-					<circle cx="12" cy="9" r="2" stroke="#D97706" stroke-width="1.5" />
-				</svg>
-			</div>
-			<span>{$t('onboarding_welcome_mila')}</span>
-		</li>
-		<li class="feature-item">
 			<div class="feature-icon feature-icon--emerald" aria-hidden="true">
 				<svg
 					width="16"
@@ -308,18 +293,12 @@
 	.feature-icon--blue {
 		background: rgba(0, 113, 227, 0.08);
 	}
-	.feature-icon--amber {
-		background: rgba(217, 119, 6, 0.08);
-	}
 	.feature-icon--emerald {
 		background: rgba(5, 150, 105, 0.08);
 	}
 
 	:global([data-theme='dark']) .feature-icon--blue {
 		background: rgba(10, 132, 255, 0.14);
-	}
-	:global([data-theme='dark']) .feature-icon--amber {
-		background: rgba(245, 158, 11, 0.14);
 	}
 	:global([data-theme='dark']) .feature-icon--emerald {
 		background: rgba(16, 185, 129, 0.14);
