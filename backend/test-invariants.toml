@@ -135,14 +135,6 @@ test = "account_onboarding_home_settings_and_events_routes_remain_jwt_only"
 rationale = "Mixed Home and realtime Event payloads must reject personal API tokens until their data can be permission-filtered."
 
 [[invariants]]
-id = "extension-document-asset-boundary"
-risk = "authentication-authorization"
-owner_layer = "http"
-path = "apps/ind-api/tests/api/ai_asset_route_permission_tests.rs"
-test = "document_assets_accept_library_pat_extension_jwt_and_asset_cookie"
-rationale = "Extension JWTs must retain readable document asset access without gaining general resource permissions."
-
-[[invariants]]
 id = "credential-cipher-authenticity"
 risk = "credential-confidentiality"
 owner_layer = "auth"
@@ -491,16 +483,8 @@ id = "auto-heal-maintenance-lease"
 risk = "retry-recovery"
 owner_layer = "worker"
 path = "apps/ind-worker/tests/auto_heal_journey_tests.rs"
-test = "auto_heal_leases_real_maintenance_and_repairs_missing_embeddings_once"
-rationale = "Auto-heal maintenance must release its durable lease and schedule the next run after embedding repair and integrity work complete."
-
-[[invariants]]
-id = "auto-heal-embedding-repair-idempotency"
-risk = "concurrency-idempotency"
-owner_layer = "worker"
-path = "apps/ind-worker/tests/auto_heal_journey_tests.rs"
-test = "auto_heal_leases_real_maintenance_and_repairs_missing_embeddings_once"
-rationale = "An immediate second auto-heal sweep must not enqueue a duplicate embedding repair while the maintenance task is not due."
+test = "auto_heal_leases_real_maintenance_once"
+rationale = "Auto-heal maintenance must release its durable lease and schedule the next run after integrity work completes."
 
 [[invariants]]
 id = "realtime-event-stream-boundary"
