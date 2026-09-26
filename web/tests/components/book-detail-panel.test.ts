@@ -1,12 +1,8 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/svelte';
+import { describe, expect, it } from 'vitest';
 
 import type { DocumentListEntry } from '$lib/api';
 import BookDetailPanel from '$lib/components/reader/book/BookDetailPanel.svelte';
-
-vi.mock('$lib/components/library/ChatTab.svelte', () => ({
-	default: vi.fn(() => ({ c: vi.fn(), m: vi.fn(), p: vi.fn(), d: vi.fn() }))
-}));
 
 function item(): DocumentListEntry {
 	return {
@@ -32,33 +28,14 @@ const bookMetadata = {
 	totalChapters: 4
 };
 
-describe('BookDetailPanel text availability', () => {
-	it('keeps Info and Notebook but omits Chat when extracted text is unavailable', () => {
+describe('BookDetailPanel tabs', () => {
+	it('renders Info and Notebook tabs and does not include Chat', () => {
 		render(BookDetailPanel, {
-			props: { item: item(), bookMetadata, progress: 10, textAvailable: false }
+			props: { item: item(), bookMetadata, progress: 10 }
 		});
 
 		expect(screen.getByRole('tab', { name: 'Info' })).toBeTruthy();
 		expect(screen.getByRole('tab', { name: 'Notebook' })).toBeTruthy();
-		expect(screen.queryByRole('tab', { name: 'Chat' })).toBeNull();
-	});
-
-	it('resets Chat to Info if text becomes unavailable while Chat is active', async () => {
-		const rendered = render(BookDetailPanel, {
-			props: { item: item(), bookMetadata, progress: 10, textAvailable: true }
-		});
-
-		await fireEvent.click(screen.getByRole('tab', { name: 'Chat' }));
-		await rendered.rerender({
-			item: item(),
-			bookMetadata,
-			progress: 10,
-			textAvailable: false
-		});
-
-		await waitFor(() =>
-			expect(screen.getByRole('tab', { name: 'Info' }).getAttribute('aria-selected')).toBe('true')
-		);
 		expect(screen.queryByRole('tab', { name: 'Chat' })).toBeNull();
 	});
 });

@@ -618,7 +618,6 @@
 				isMobile={vp.isMobile}
 				compactDetailOpen={readerChrome.compactDetailOpen}
 				showDetailPanel={detailOpen}
-				chatAvailable={!transcriptUnavailable}
 				onClose={() => (readerChrome.compactDetailOpen = false)}
 			/>
 		{/if}

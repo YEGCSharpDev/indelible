@@ -11,7 +11,6 @@
 		isMobile: boolean;
 		compactDetailOpen: boolean;
 		showDetailPanel: boolean;
-		chatAvailable?: boolean;
 		onClose: () => void;
 	}
 
@@ -21,7 +20,6 @@
 		isMobile,
 		compactDetailOpen,
 		showDetailPanel,
-		chatAvailable = true,
 		onClose
 	}: Props = $props();
 </script>
@@ -51,19 +49,19 @@
 					</button>
 					<span class="m-dtitle">{item.title}</span>
 				</div>
-				<DetailPanel {item} {chatAvailable} />
+				<DetailPanel {item} />
 			</div>
 		{:else}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<div class="detail-scrim" onclick={onClose}></div>
 			<div class="reader-detail detail-overlay">
-				<DetailPanel {item} {chatAvailable} />
+				<DetailPanel {item} />
 			</div>
 		{/if}
 	{/if}
 {:else if showDetailPanel}
-	<ReaderSidePanel {item} {chatAvailable} />
+	<ReaderSidePanel {item} />
 {/if}
 
 <style>

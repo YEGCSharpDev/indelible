@@ -10,21 +10,18 @@
 		item: DocumentListEntry | null;
 		collectionId?: string | null;
 		collectionName?: string | null;
-		chatAvailable?: boolean;
 	}
 
-	let { item, collectionId = null, collectionName = null, chatAvailable = true }: Props = $props();
+	let { item, collectionId = null, collectionName = null }: Props = $props();
 
 	const displayItem = $derived(item);
 
-	type Tab = 'info' | 'notebook' | 'chat';
-	type TabOption = { value: Tab; labelKey: 'common_info' | 'common_notebook' | 'common_chat' };
+	type Tab = 'info' | 'notebook';
+	type TabOption = { value: Tab; labelKey: 'common_info' | 'common_notebook' };
 
 	let activeTab: Tab = $state('info');
 	let editing = $state(false);
 	const currentItemId = $derived(item?.id ?? null);
-	const currentCollectionId = $derived(collectionId ?? null);
-	const hasCollectionChat = $derived(Boolean(currentCollectionId && collectionName));
 	let trackedItemId = $state<string | null>(null);
 
 	$effect(() => {
@@ -34,37 +31,17 @@
 		}
 	});
 
-	$effect(() => {
-		if (hasCollectionChat && activeTab === 'notebook') {
-			activeTab = 'info';
-		}
-		if (hasCollectionChat && !displayItem && activeTab === 'info') {
-			activeTab = 'chat';
-		}
-		if (!hasCollectionChat && !chatAvailable && activeTab === 'chat') {
-			activeTab = 'info';
-		}
-	});
-
-	const itemTabOptions = $derived<TabOption[]>([
+	const tabOptions: TabOption[] = [
 		{ value: 'info', labelKey: 'common_info' },
-		{ value: 'notebook', labelKey: 'common_notebook' },
-		...(chatAvailable ? [{ value: 'chat' as const, labelKey: 'common_chat' as const }] : [])
-	]);
-
-	const collectionTabOptions: TabOption[] = [
-		{ value: 'info', labelKey: 'common_info' },
-		{ value: 'chat', labelKey: 'common_chat' }
+		{ value: 'notebook', labelKey: 'common_notebook' }
 	];
-
-	const tabOptions = $derived(hasCollectionChat ? collectionTabOptions : itemTabOptions);
 
 	function onTabChange(value: string) {
 		activeTab = value as Tab;
 	}
 </script>
 
-<aside class="detail-panel" class:chat-mode={activeTab === 'chat' && !editing}>
+<aside class="detail-panel">
 	<div class="detail-tabs">
 		<span class="tabs-eyebrow">{$t('common_details')}</span>
 		<MorphSwitcher options={tabOptions} value={activeTab} onchange={onTabChange} size="sm" />
@@ -102,10 +79,6 @@
 		overflow-y: auto;
 	}
 
-	.detail-panel.chat-mode {
-		overflow: hidden;
-	}
-
 	/* Mirrors the list header grammar: quiet label left, switcher right.
 	   Height is overridable so the row's hairline can align with whatever
 	   header sits beside it (60px library list, 44px reader toolbar). */
@@ -127,12 +100,5 @@
 		text-transform: uppercase;
 		color: var(--text-tertiary);
 		white-space: nowrap;
-	}
-
-	.chat-shell {
-		display: flex;
-		flex-direction: column;
-		flex: 1;
-		min-height: 0;
 	}
 </style>
