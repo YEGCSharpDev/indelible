@@ -146,8 +146,6 @@ impl RoutePermissionFixture {
         }
     }
 
-
-
     pub async fn assert_jwt_only_matrix(&self, cases: &[RouteCase]) {
         let pat = self
             .mint_token("JWT-only route matrix", "library:read")

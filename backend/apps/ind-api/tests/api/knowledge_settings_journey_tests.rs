@@ -1,11 +1,10 @@
+use super::common::{SaveScenario, assert_json_response, assert_status, document_id_from_response};
 use ind_application::repos::entity::EntityRepository;
 use ind_domain::{DocumentId, EntityType};
 use ind_persistence::repos::PgEntityRepository;
 use ind_test_support::spawn_app;
 use reqwest::StatusCode;
 use serde_json::json;
-use super::common::{SaveScenario, assert_json_response, assert_status, document_id_from_response};
-
 
 #[tokio::test]
 async fn onboarding_and_settings_persist_real_account_configuration() {
@@ -15,7 +14,6 @@ async fn onboarding_and_settings_persist_real_account_configuration() {
     let initial =
         assert_json_response(client.get("/api/v1/onboarding").await, StatusCode::OK).await;
     assert_eq!(initial["current_step"], 0);
-
 
     let mut preferences = assert_json_response(
         client.get("/api/v1/settings/preferences").await,
