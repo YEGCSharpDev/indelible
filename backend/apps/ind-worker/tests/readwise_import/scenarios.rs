@@ -68,13 +68,13 @@ async fn same_readwise_origin_retry_repairs_assets_tags_progress_and_jobs() {
 async fn cross_source_duplicate_claims_archive_without_phantom_item() {
     let s = ReadwiseScenario::new().await;
     let existing = SavedDocumentFactory::new(s.user_id)
-        .with_document_type(DocumentType::Video)
-        .with_url("https://youtube.com/watch?v=weeI1G46q0o")
+        .with_document_type(DocumentType::Article)
+        .with_url("https://example.com/article1")
         .insert(s.db.pool())
         .await;
     let data = csv(&[(
-        "Duplicate video",
-        "https://www.youtube.com/watch?v=weeI1G46q0o&list=tracking",
+        "Duplicate article",
+        "https://example.com/article1?ref=feed",
         "phantom01",
         "[]",
         0.0,
@@ -82,7 +82,7 @@ async fn cross_source_duplicate_claims_archive_without_phantom_item() {
         "True",
     )]);
     let zip = archive(&[(
-        "Library/Duplicate video (phantom01).html",
+        "Library/Duplicate article (phantom01).html",
         b"<html>snapshot</html>",
     )]);
     let job = s.import(Some(&data), Some(&zip), None).await;
@@ -177,7 +177,7 @@ async fn epub_pdf_and_malformed_archive_asset_semantics_are_preserved() {
 }
 
 #[tokio::test]
-async fn opml_and_youtube_inputs_route_to_their_authoritative_pipelines() {
+async fn opml_inputs_route_to_their_authoritative_pipelines() {
     use wiremock::matchers::{method, path};
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -208,39 +208,4 @@ async fn opml_and_youtube_inputs_route_to_their_authoritative_pipelines() {
         .await
         .unwrap();
     assert_eq!(count, 0);
-
-    let data = csv(&[(
-        "Video",
-        "https://www.youtube.com/watch?v=lrdmnAn9gxk",
-        "video01",
-        "[]",
-        0.0,
-        "new",
-        "True",
-    )]);
-    let zip = archive(&[("Library/Video (video01).html", b"watch snapshot")]);
-    let video_job = s.import(Some(&data), Some(&zip), None).await;
-    let document_id = s.document_for_origin("video01").await;
-    let (kind, youtube_jobs, readable_assets): (String, i64, i64) = sqlx::query_as(
-        "SELECT d.document_type, \
-          (SELECT count(*) FROM job_outbox WHERE job_type = 'document.youtube_ingest' AND payload->>'document_id' = $2), \
-          (SELECT count(*) FROM archive_assets WHERE document_id = d.id AND asset_kind = 'readable_html') \
-         FROM documents d WHERE d.id = $1",
-    )
-    .bind(document_id.into_uuid())
-    .bind(document_id.to_string())
-    .fetch_one(s.db.pool())
-    .await
-    .unwrap();
-    assert_eq!(
-        (kind.as_str(), youtube_jobs, readable_assets),
-        ("video", 1, 0)
-    );
-    let video_report: serde_json::Value =
-        sqlx::query_scalar("SELECT provider_report FROM import_jobs WHERE id = $1")
-            .bind(video_job.into_uuid())
-            .fetch_one(s.db.pool())
-            .await
-            .unwrap();
-    assert_eq!(video_report["zip_files_unmatched"], 0);
 }

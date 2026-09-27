@@ -197,9 +197,6 @@
 				<option value="pdf" selected={item.item_type === 'pdf'}
 					>{$t('library_filter_value_pdf')}</option
 				>
-				<option value="video" selected={item.item_type === 'video'}
-					>{$t('library_filter_value_video')}</option
-				>
 				{#if item.item_type === 'podcast'}
 					<option value="podcast" selected>{$t('library_filter_value_podcast')}</option>
 				{/if}

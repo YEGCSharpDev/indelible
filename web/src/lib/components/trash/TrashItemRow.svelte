@@ -15,8 +15,6 @@
 
 	function gradientClass(itemType: string): string {
 		switch (itemType) {
-			case 'video':
-				return 'red-gradient';
 			case 'podcast':
 				return 'purple-gradient';
 			case 'email':
@@ -32,8 +30,6 @@
 
 	function thumbEmoji(itemType: string): string {
 		switch (itemType) {
-			case 'video':
-				return '\u{1F3AC}';
 			case 'podcast':
 				return '\u{1F3A7}';
 			case 'email':

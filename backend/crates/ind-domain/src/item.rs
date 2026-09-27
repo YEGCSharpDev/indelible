@@ -21,19 +21,17 @@ pub enum ItemType {
     Article,
     Book,
     Pdf,
-    Video,
     Podcast,
 }
 
 impl ItemType {
-    pub const NAMES: &'static [&'static str] = &["article", "book", "pdf", "video", "podcast"];
+    pub const NAMES: &'static [&'static str] = &["article", "book", "pdf", "podcast"];
 
     pub fn as_str(self) -> &'static str {
         match self {
             Self::Article => "article",
             Self::Book => "book",
             Self::Pdf => "pdf",
-            Self::Video => "video",
             Self::Podcast => "podcast",
         }
     }
@@ -53,7 +51,6 @@ impl FromStr for ItemType {
             "article" => Ok(Self::Article),
             "book" => Ok(Self::Book),
             "pdf" => Ok(Self::Pdf),
-            "video" => Ok(Self::Video),
             "podcast" => Ok(Self::Podcast),
             other => Err(format!("invalid item type: {other}")),
         }

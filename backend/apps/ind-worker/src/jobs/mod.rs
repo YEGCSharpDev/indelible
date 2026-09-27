@@ -11,4 +11,3 @@ pub mod retention_cleanup;
 pub mod search;
 pub mod trash_cleanup;
 pub mod webhooks;
-pub mod youtube;

@@ -53,7 +53,6 @@
 		readerRetryOutcome: string | null;
 		readerRetryLabel: string;
 		readerRetryDisabled: boolean;
-		transcriptUnavailable?: boolean;
 		assetUrls: Partial<Record<ViewTab, string>>;
 		readerHtmlContent: string;
 		highlights: HighlightWithNoteResponse[];
@@ -115,7 +114,6 @@
 		readerRetryOutcome,
 		readerRetryLabel,
 		readerRetryDisabled,
-		transcriptUnavailable = false,
 		assetUrls,
 		readerHtmlContent,
 		highlights,
@@ -365,12 +363,6 @@
 				{/if}
 			</div>
 		{:else if activeTab === 'reader'}
-			{#if transcriptUnavailable}
-				<div class="transcript-notice" role="status">
-					<strong>{$t('reader_no_transcript_title')}</strong>
-					<span>{$t('reader_no_transcript_body')}</span>
-				</div>
-			{/if}
 			<ReaderContent
 				htmlContent={readerHtmlContent}
 				title={item.title}
@@ -462,32 +454,6 @@
 
 	.content-area.with-toc :global(.reader-scroll) {
 		padding-inline: 56px;
-	}
-
-	.transcript-notice {
-		display: flex;
-		align-items: baseline;
-		gap: 8px;
-		padding: 9px 16px;
-		border-bottom: 1px solid var(--border-primary);
-		background: var(--fill-selected);
-		font-family: var(--font-sans);
-		font-size: 12px;
-		line-height: 1.4;
-		color: var(--text-secondary);
-	}
-
-	.transcript-notice strong {
-		flex-shrink: 0;
-		color: var(--text-primary);
-	}
-
-	@media (max-width: 620px) {
-		.transcript-notice {
-			align-items: flex-start;
-			flex-direction: column;
-			gap: 2px;
-		}
 	}
 
 	.content-loading {

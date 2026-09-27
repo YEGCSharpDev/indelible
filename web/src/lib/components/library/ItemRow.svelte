@@ -130,7 +130,6 @@
 	function thumbGradient(item: DocumentListEntry): string {
 		const type = item.item_type;
 		const domain = item.domain ?? '';
-		if (type === 'video') return 'red-gradient';
 		if (type === 'podcast') return 'purple-gradient';
 		if (type === 'email') return 'orange-gradient';
 		if (type === 'pdf') return 'teal-gradient';
@@ -142,7 +141,6 @@
 
 	function thumbEmoji(item: DocumentListEntry): string {
 		const type = item.item_type;
-		if (type === 'video') return '\u{1F3AC}';
 		if (type === 'podcast') return '\u{1F3A7}';
 		if (type === 'email') return '\u{2709}\u{FE0F}';
 		if (type === 'pdf') return '\u{1F4C4}';

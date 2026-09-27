@@ -7,9 +7,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use ind_application::AppError;
-use ind_application::repos::document::{
-    DocumentRenderedMetadata, DocumentRepository, DocumentYoutubeEnrichment,
-};
+use ind_application::repos::document::{DocumentRenderedMetadata, DocumentRepository};
 use ind_domain::{
     Document, DocumentId, DocumentOriginType, DocumentProvenance, NewOriginDocument,
     NewUrlDocument, UserId,
@@ -131,16 +129,6 @@ impl DocumentRepository for PgDocumentRepository {
         metadata: DocumentRenderedMetadata,
     ) -> Result<(), AppError> {
         self.apply_rendered_metadata_impl(user_id, document_id, metadata)
-            .await
-    }
-
-    async fn apply_youtube_enrichment(
-        &self,
-        user_id: UserId,
-        document_id: DocumentId,
-        enrichment: DocumentYoutubeEnrichment,
-    ) -> Result<(), AppError> {
-        self.apply_youtube_enrichment_impl(user_id, document_id, enrichment)
             .await
     }
 

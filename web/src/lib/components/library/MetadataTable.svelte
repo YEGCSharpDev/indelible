@@ -15,8 +15,7 @@
 			article: 'library_filter_value_article',
 			book: 'library_filter_value_book',
 			pdf: 'library_filter_value_pdf',
-			podcast: 'library_filter_value_podcast',
-			video: 'library_filter_value_video'
+			podcast: 'library_filter_value_podcast'
 		};
 		const key = keys[raw];
 		if (key) return $t(key);
@@ -33,23 +32,6 @@
 		if (!minutes) return '—';
 		return $t('library_reading_length', { values: { time: formatReadingTime(minutes) } });
 	}
-
-	function formatDuration(seconds: number): string {
-		const h = Math.floor(seconds / 3600);
-		const m = Math.floor((seconds % 3600) / 60);
-		const s = seconds % 60;
-		if (h > 0) {
-			return $t('library_duration_hours_minutes_seconds', {
-				values: { hours: h, minutes: m, seconds: s }
-			});
-		}
-		if (m > 0) {
-			return $t('library_duration_minutes_seconds', { values: { minutes: m, seconds: s } });
-		}
-		return $t('library_duration_seconds', { values: { seconds: s } });
-	}
-
-	const isVideo = $derived(item.item_type === 'video');
 
 	function formatLanguage(code: string | null | undefined): string {
 		if (!code) return '—';
@@ -78,23 +60,16 @@
 			<span class="metadata-label">{$t('common_published')}</span>
 			<span class="metadata-value">{formatDate(item.published_at)}</span>
 		</div>
-		{#if isVideo && item.video_duration_seconds}
-			<div class="metadata-row">
-				<span class="metadata-label">{$t('library_metadata_duration')}</span>
-				<span class="metadata-value">{formatDuration(item.video_duration_seconds)}</span>
-			</div>
-		{:else}
-			<div class="metadata-row">
-				<span class="metadata-label">{$t('library_metadata_length')}</span>
-				<span class="metadata-value">{formatLength(item.reading_time_minutes)}</span>
-			</div>
-			<div class="metadata-row">
-				<span class="metadata-label">{$t('library_metadata_words')}</span>
-				<span class="metadata-value">
-					{item.word_count ? $t('library_word_count', { values: { count: item.word_count } }) : '—'}
-				</span>
-			</div>
-		{/if}
+		<div class="metadata-row">
+			<span class="metadata-label">{$t('library_metadata_length')}</span>
+			<span class="metadata-value">{formatLength(item.reading_time_minutes)}</span>
+		</div>
+		<div class="metadata-row">
+			<span class="metadata-label">{$t('library_metadata_words')}</span>
+			<span class="metadata-value">
+				{item.word_count ? $t('library_word_count', { values: { count: item.word_count } }) : '—'}
+			</span>
+		</div>
 		<div class="metadata-row">
 			<span class="metadata-label">{$t('library_metadata_saved')}</span>
 			<span class="metadata-value">{relativeTime(item.saved_at) ?? formatDate(item.saved_at)}</span>

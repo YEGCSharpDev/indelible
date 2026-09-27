@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 pub enum PlaybackKind {
     Tts,
     Audio,
-    Video,
 }
 
 impl PlaybackKind {
@@ -15,7 +14,6 @@ impl PlaybackKind {
         match self {
             PlaybackKind::Tts => "tts",
             PlaybackKind::Audio => "audio",
-            PlaybackKind::Video => "video",
         }
     }
 }
@@ -27,7 +25,6 @@ impl std::str::FromStr for PlaybackKind {
         match s {
             "tts" => Ok(PlaybackKind::Tts),
             "audio" => Ok(PlaybackKind::Audio),
-            "video" => Ok(PlaybackKind::Video),
             _ => Err(()),
         }
     }

@@ -164,7 +164,6 @@ describe('keymap', () => {
 			'src/lib/components/library/ItemList.svelte',
 			// Covered by the add-item store's overlayOpen, declared in (app)/+layout.
 			'src/lib/components/library/AddPopover.svelte',
-			'src/lib/components/library/YouTubeModal.svelte',
 			// Rendered under the sidebar's popupOpen, which declares suppression.
 			'src/lib/components/library/SidebarUserMenu.svelte',
 			// Typeahead lists owned by a focused text input, so the typing guard applies.

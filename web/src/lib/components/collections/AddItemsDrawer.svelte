@@ -18,20 +18,18 @@
 
 	const store = getCollections();
 
-	type ItemType = 'article' | 'video' | 'pdf' | 'epub';
+	type ItemType = 'article' | 'pdf' | 'epub';
 	const TYPE_FILTERS: { labelKey: MessageKey; value: ItemType | null }[] = [
 		{ labelKey: 'common_all', value: null },
 		{ labelKey: 'library_nav_articles', value: 'article' },
 		{ labelKey: 'library_nav_books', value: 'epub' },
-		{ labelKey: 'library_nav_pdfs', value: 'pdf' },
-		{ labelKey: 'library_nav_videos', value: 'video' }
+		{ labelKey: 'library_nav_pdfs', value: 'pdf' }
 	];
 
 	const ITEM_TYPE_KEYS: Partial<Record<ItemType, MessageKey>> = {
 		article: 'library_filter_value_article',
 		epub: 'library_filter_value_book',
-		pdf: 'library_filter_value_pdf',
-		video: 'library_filter_value_video'
+		pdf: 'library_filter_value_pdf'
 	};
 
 	let allItems = $state<DocumentListEntry[]>([]);

@@ -8,7 +8,7 @@ use ind_application::repos::document_reprocess::CompleteUploadReprocess;
 use ind_application::repos::document_upload::StagedDocumentAsset;
 use ind_domain::{
     ArchiveAssetKind, ArchiveAssetStatus, DomainError, NewDocumentAsset, PrepareDocumentJob,
-    ReprocessDocumentJob, YoutubeIngestDocumentJob,
+    ReprocessDocumentJob,
 };
 use ind_ingest::DocumentFileUploadProcessor;
 
@@ -34,17 +34,6 @@ pub async fn handle_document_reprocess(
         .clone()
         .or_else(|| document.original_url.clone())
     {
-        if ind_application::dispatch::is_youtube_url(&url) {
-            return crate::jobs::youtube::handle_youtube_ingest_document(
-                ctx,
-                YoutubeIngestDocumentJob {
-                    document_id: job.document_id,
-                    user_id: job.user_id,
-                    url,
-                },
-            )
-            .await;
-        }
         return crate::jobs::feed::handle_prepare_document(
             &ctx.feed,
             PrepareDocumentJob {

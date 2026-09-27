@@ -1,7 +1,7 @@
 use ind_application::error::AppError;
 use ind_domain::{
     AttachProvidedContentJob, EnsureArticleTocJob, GenericJobEnvelope, ReprocessDocumentJob,
-    YoutubeIngestDocumentJob, job_types,
+    job_types,
 };
 
 use crate::context::WorkerContext;
@@ -51,11 +51,6 @@ pub async fn dispatch_generic_job(
     }
 
     match envelope.job_type.as_str() {
-        "document.youtube_ingest" => {
-            let job: YoutubeIngestDocumentJob = serde_json::from_value(envelope.payload)
-                .map_err(|e| AppError::Repository(Box::new(e)))?;
-            crate::jobs::youtube::handle_youtube_ingest_document(&ctx.capture_jobs(), job).await
-        }
         job_types::DOCUMENT_ATTACH_PROVIDED_CONTENT => {
             let job: AttachProvidedContentJob = serde_json::from_value(envelope.payload)
                 .map_err(|e| AppError::Repository(Box::new(e)))?;

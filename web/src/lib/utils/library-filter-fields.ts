@@ -35,8 +35,7 @@ const LIBRARY_FILTER_FIELDS: LibraryFilterFieldDef[] = [
 		options: [
 			{ value: 'article', labelKey: 'library_filter_value_article' },
 			{ value: 'book', labelKey: 'library_filter_value_book' },
-			{ value: 'pdf', labelKey: 'library_filter_value_pdf' },
-			{ value: 'video', labelKey: 'library_filter_value_video' }
+			{ value: 'pdf', labelKey: 'library_filter_value_pdf' }
 		]
 	},
 	{

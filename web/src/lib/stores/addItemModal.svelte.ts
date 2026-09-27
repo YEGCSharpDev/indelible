@@ -1,4 +1,4 @@
-export type ModalType = 'url' | 'upload' | 'rss' | 'youtube';
+export type ModalType = 'url' | 'upload' | 'rss';
 
 let activeModal = $state<ModalType | null>(null);
 let popoverOpen = $state(false);

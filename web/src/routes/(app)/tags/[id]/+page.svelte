@@ -80,8 +80,7 @@
 		const keys: Record<string, MessageKey> = {
 			article: 'library_filter_value_article',
 			book: 'library_filter_value_book',
-			podcast: 'library_filter_value_podcast',
-			video: 'library_filter_value_video'
+			podcast: 'library_filter_value_podcast'
 		};
 		if (keys[value]) return $t(keys[value]);
 		return value.replaceAll('_', ' ').replace(/^./, (letter) => letter.toUpperCase());

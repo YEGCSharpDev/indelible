@@ -136,10 +136,10 @@ mod priority_tests {
     fn feed_prefetch_is_lower_priority_than_foreground_and_default() {
         assert!(
             job_priority_for(job_types::FEED_PREPARE_DOCUMENT)
-                < job_priority_for(job_types::DOCUMENT_YOUTUBE_INGEST),
+                < job_priority_for(job_types::DOCUMENT_AI_EMBED),
             "read-ahead must not be claimed ahead of foreground document jobs"
         );
-        assert_eq!(job_priority_for(job_types::DOCUMENT_YOUTUBE_INGEST), 0);
+        assert_eq!(job_priority_for(job_types::DOCUMENT_AI_EMBED), 0);
         assert_eq!(job_priority_for("anything.else"), 0);
     }
 }

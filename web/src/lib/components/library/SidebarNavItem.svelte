@@ -70,20 +70,6 @@
 				<line x1="7" y1="13" x2="17" y2="13" />
 				<line x1="7" y1="17" x2="13" y2="17" />
 			</svg>
-		{:else if icon === 'videos'}
-			<svg
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="1.6"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			>
-				<rect x="2" y="5" width="20" height="13" rx="2" />
-				<path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor" stroke="none" />
-				<line x1="8" y1="21" x2="16" y2="21" />
-				<line x1="12" y1="18" x2="12" y2="21" />
-			</svg>
 		{:else if icon === 'podcasts'}
 			<svg
 				viewBox="0 0 24 24"

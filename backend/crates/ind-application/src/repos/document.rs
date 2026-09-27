@@ -6,18 +6,6 @@ use ind_domain::{
     NewUrlDocument, UserId,
 };
 
-/// YouTube enrichment resolved from the player API and applied by `document.youtube_ingest`.
-#[derive(Debug, Clone, Default)]
-pub struct DocumentYoutubeEnrichment {
-    pub title: Option<String>,
-    pub excerpt: Option<String>,
-    pub lead_image_url: Option<String>,
-    /// Video runtime + channel are type-specific fields persisted to `document_video_metadata`,
-    /// not the wide `documents` table.
-    pub duration_seconds: Option<i32>,
-    pub youtube_channel_name: Option<String>,
-}
-
 #[derive(Debug, Clone, Default)]
 pub struct DocumentRenderedMetadata {
     pub title: Option<String>,
@@ -90,15 +78,6 @@ pub trait DocumentRepository: Send + Sync {
         document_id: DocumentId,
         origin_type: DocumentOriginType,
         origin_id: Uuid,
-    ) -> Result<(), AppError>;
-
-    /// Apply YouTube enrichment to a document: set `document_type = 'video'` and fill
-    /// title/excerpt/lead_image_url when resolved. Targeted column update (no full-row writes).
-    async fn apply_youtube_enrichment(
-        &self,
-        user_id: UserId,
-        document_id: DocumentId,
-        enrichment: DocumentYoutubeEnrichment,
     ) -> Result<(), AppError>;
 
     /// Targeted reading-metrics write (no full-row updates). Called by

@@ -22,7 +22,6 @@ export type DocumentListEntry = Omit<LibraryEntryResponse, 'library_entry_id'> &
 	saved?: boolean;
 	sender?: SearchEmbeddedSenderResponse | null;
 	summary?: string | null;
-	video_duration_seconds?: number | null;
 };
 
 export type LibraryQueryBody = GeneratedLibraryQueryBody;

@@ -78,9 +78,6 @@ pub struct WorkerContext {
     pub export_summary_provider: Arc<dyn ExportSummaryProvider>,
     pub webhook_repo: Arc<dyn WebhookRepository>,
     pub object_storage: Option<Arc<dyn ObjectStorage>>,
-    /// YouTube player API base URL; `None` resolves to `https://www.youtube.com`. Overridden in
-    /// tests so document YouTube ingest can be exercised end-to-end against a mock server.
-    pub youtube_player_base_url: Option<String>,
     pub pool: PgPool,
     pub concurrency: ConcurrencyLimiter,
     pub s3_bucket: String,
@@ -172,7 +169,6 @@ impl WorkerServicesBuilder {
                 ),
                 webhook_repo: Arc::new(PgWebhookRepository::new(pool.clone())),
                 object_storage,
-                youtube_player_base_url: None,
                 pool: pool.clone(),
                 concurrency: ConcurrencyLimiter::default(),
                 s3_bucket,
@@ -263,11 +259,6 @@ impl WorkerServicesBuilder {
         self.context.integration_oauth_token_repo = Some(oauth_tokens);
         self.context.integration_connection_repo = Some(connections);
         self.context.highlight_repo = Some(highlights);
-        self
-    }
-
-    pub fn with_youtube_player_base_url(mut self, base_url: impl Into<String>) -> Self {
-        self.context.youtube_player_base_url = Some(base_url.into());
         self
     }
 
