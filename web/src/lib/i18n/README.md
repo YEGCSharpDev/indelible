@@ -86,5 +86,5 @@ rg -n 'margin-left|padding-left|left:' src
 - Migrate the remaining mobile strings feature by feature.
 - Add a Translations section to the public contributor guide after the hosted Weblate
   project is live.
-- Validate backend locale values as BCP 47 tags and localize transactional emails.
+- Validate backend locale values as BCP 47 tags.
 - Complete the web RTL logical-properties, icon-direction, and interaction audit.

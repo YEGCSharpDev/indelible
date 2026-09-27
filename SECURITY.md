@@ -63,7 +63,7 @@ and users can make informed decisions.
   navigation URL but cannot intercept page-initiated subresource requests; run
   the renderer container without a route to internal/metadata networks. See
   `docs/security/` for the egress and self-host hardening notes.
-- **Untrusted document content** (saved articles, emails, EPUBs, uploads) is
+- **Untrusted document content** (saved articles, EPUBs, uploads) is
   sanitized server-side before storage and rendering, and is fenced as
   untrusted data in AI prompts.
 - **Self-hosting requires operator action**: terminate TLS at a reverse proxy,

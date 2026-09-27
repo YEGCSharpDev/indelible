@@ -365,7 +365,7 @@ Card(shape = MaterialTheme.shapes.medium)
 
 // ✅ Use shared components
 IndelibleButton(text = "Save", onClick = onSave)
-IndelibleTextField(value = email, onValueChange = onEmailChange, label = "Email")
+IndelibleTextField(value = username, onValueChange = onUsernameChange, label = "Username")
 
 // ✅ Use AuthButton/AuthTextField wrappers inside auth screens
 AuthButton(text = "Sign in", onClick = onSignIn)
