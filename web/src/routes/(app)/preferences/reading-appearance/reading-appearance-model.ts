@@ -183,7 +183,9 @@ export function readerPreviewStyles(
 				? "'New York', 'Iowan Old Style', Georgia, 'Times New Roman', serif"
 				: fontFamily === 'mono'
 					? "'SF Mono', 'Fira Code', Menlo, ui-monospace, monospace"
-					: "-apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif",
+					: fontFamily === 'atkinson'
+						? "'Atkinson Hyperlegible', sans-serif"
+						: "-apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif",
 		fontSize: fontSize === 'small' ? '14px' : fontSize === 'large' ? '17px' : '15.5px',
 		lineHeight: lineHeight === 'compact' ? '1.42' : '1.6'
 	};

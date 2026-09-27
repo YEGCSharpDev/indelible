@@ -460,6 +460,8 @@
     <string name="prefs_font_geist_description">Geist · Sans serif</string>
     <string name="prefs_font_lora">Lora</string>
     <string name="prefs_font_lora_description">Lora · Serif</string>
+    <string name="prefs_font_atkinson">Atkinson Hyperlegible</string>
+    <string name="prefs_font_atkinson_description">Atkinson · Hyperlegible</string>
     <string name="prefs_font_mono">Mono</string>
     <string name="prefs_font_mono_description">JetBrains Mono · Monospace</string>
     <string name="prefs_font_size">Font Size</string>

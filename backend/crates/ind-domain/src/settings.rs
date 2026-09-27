@@ -53,6 +53,7 @@ pub enum ReaderFontFamily {
     Serif,
     Sans,
     Mono,
+    Atkinson,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

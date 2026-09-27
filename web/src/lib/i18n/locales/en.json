@@ -1329,6 +1329,7 @@
 	"prefs_reading_font_mono": "Mono",
 	"prefs_reading_font_sans": "Sans",
 	"prefs_reading_font_serif": "Serif",
+	"prefs_reading_font_atkinson": "Atkinson",
 	"prefs_reading_font_size": "Font size",
 	"prefs_reading_font_size_hint": "Body text size in the reader. Headings and other elements scale with it.",
 	"prefs_reading_hero_emphasis": "mean it.",

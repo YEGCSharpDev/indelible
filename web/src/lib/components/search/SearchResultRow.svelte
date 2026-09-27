@@ -88,7 +88,7 @@
 			: null
 	);
 	const senderLabel = $derived(
-		result.sender ? (result.sender.display_name ?? result.sender.canonical_addr) : null
+		false ? (false.display_name ?? false.canonical_addr) : null
 	);
 </script>
 
@@ -142,17 +142,17 @@
 			{#if sectionLabel}
 				<span class="result-meta">{sectionLabel}</span>
 			{/if}
-			{#if result.sender && senderLabel}
+			{#if false && senderLabel}
 				<button
 					type="button"
 					class="sender-chip"
 					data-testid="search-sender-chip"
 					title={$t('search_filter_by_sender', {
-						values: { sender: result.sender.canonical_addr }
+						values: { sender: false.canonical_addr }
 					})}
 					onclick={(e) => {
 						e.stopPropagation();
-						onSenderClick?.(result.sender!.canonical_addr);
+						onSenderClick?.(false!.canonical_addr);
 					}}
 					onkeydown={(e) => {
 						if (e.key === 'Enter' || e.key === ' ') {

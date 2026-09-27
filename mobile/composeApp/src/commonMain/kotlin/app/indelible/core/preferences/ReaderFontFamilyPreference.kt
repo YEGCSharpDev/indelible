@@ -7,12 +7,15 @@ import indelible.composeapp.generated.resources.prefs_font_lora
 import indelible.composeapp.generated.resources.prefs_font_lora_description
 import indelible.composeapp.generated.resources.prefs_font_mono
 import indelible.composeapp.generated.resources.prefs_font_mono_description
+import indelible.composeapp.generated.resources.prefs_font_atkinson
+import indelible.composeapp.generated.resources.prefs_font_atkinson_description
 import org.jetbrains.compose.resources.StringResource
 
 enum class ReaderFontFamilyPreference {
     SERIF,
     SANS,
     MONO,
+    ATKINSON,
     ;
 
     val labelRes: StringResource
@@ -21,6 +24,7 @@ enum class ReaderFontFamilyPreference {
                 SERIF -> Res.string.prefs_font_lora
                 SANS -> Res.string.prefs_font_geist
                 MONO -> Res.string.prefs_font_mono
+                ATKINSON -> Res.string.prefs_font_atkinson
             }
 
     val descriptionRes: StringResource
@@ -29,5 +33,6 @@ enum class ReaderFontFamilyPreference {
                 SERIF -> Res.string.prefs_font_lora_description
                 SANS -> Res.string.prefs_font_geist_description
                 MONO -> Res.string.prefs_font_mono_description
+                ATKINSON -> Res.string.prefs_font_atkinson_description
             }
 }

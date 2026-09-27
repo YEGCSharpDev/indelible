@@ -460,6 +460,8 @@
     <string name="prefs_font_geist_description">Geist · Sans empattements</string>
     <string name="prefs_font_lora">Lora</string>
     <string name="prefs_font_lora_description">Lora · Avec empattements</string>
+    <string name="prefs_font_atkinson">Atkinson Hyperlegible</string>
+    <string name="prefs_font_atkinson_description">Atkinson · Hyperlisible</string>
     <string name="prefs_font_mono">Mono</string>
     <string name="prefs_font_mono_description">JetBrains Mono · Chasse fixe</string>
     <string name="prefs_font_size">Taille de police</string>

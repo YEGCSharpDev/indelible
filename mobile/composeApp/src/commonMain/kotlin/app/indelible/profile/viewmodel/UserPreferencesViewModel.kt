@@ -204,6 +204,7 @@ private fun ReaderFontFamilyDto.toFontFamilyPreference(): ReaderFontFamilyPrefer
         ReaderFontFamilyDto.SERIF -> ReaderFontFamilyPreference.SERIF
         ReaderFontFamilyDto.SANS -> ReaderFontFamilyPreference.SANS
         ReaderFontFamilyDto.MONO -> ReaderFontFamilyPreference.MONO
+        ReaderFontFamilyDto.ATKINSON -> ReaderFontFamilyPreference.ATKINSON
     }
 
 private fun ReaderFontFamilyPreference.toFontFamilyDto(): ReaderFontFamilyDto =
@@ -211,6 +212,7 @@ private fun ReaderFontFamilyPreference.toFontFamilyDto(): ReaderFontFamilyDto =
         ReaderFontFamilyPreference.SERIF -> ReaderFontFamilyDto.SERIF
         ReaderFontFamilyPreference.SANS -> ReaderFontFamilyDto.SANS
         ReaderFontFamilyPreference.MONO -> ReaderFontFamilyDto.MONO
+        ReaderFontFamilyPreference.ATKINSON -> ReaderFontFamilyDto.ATKINSON
     }
 
 private fun ReaderFontSizeDto.toFontSizePreference(): ReaderFontSizePreference =
