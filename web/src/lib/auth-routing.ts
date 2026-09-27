@@ -9,7 +9,6 @@ type PublicRouteRedirectInput = {
 	pathname: string;
 	isAuthenticated: boolean;
 	needsOnboarding: boolean;
-	needsVerification: boolean;
 	setupRequired?: boolean;
 };
 
@@ -39,17 +38,12 @@ export function getPublicRouteRedirect({
 	pathname,
 	isAuthenticated,
 	needsOnboarding,
-	needsVerification,
 	setupRequired = false
 }: PublicRouteRedirectInput): string | null {
 	if (!isAuthenticated) {
 		if (setupRequired) {
 			return pathname === '/register' ? null : '/register';
 		}
-		return null;
-	}
-
-	if (needsVerification && pathname === '/verify-email') {
 		return null;
 	}
 

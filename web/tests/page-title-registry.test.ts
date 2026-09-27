@@ -61,7 +61,6 @@ describe('routeTitleKey', () => {
 		['/library', 'common_library'],
 		['/library/articles', 'library_nav_articles'],
 		['/library/books', 'library_nav_books'],
-		['/library/emails', 'library_nav_emails'],
 		['/library/pdfs', 'library_nav_pdfs'],
 		['/library/videos', 'library_nav_videos'],
 		['/feed', 'common_feed'],

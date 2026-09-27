@@ -21,7 +21,6 @@ export const DEFAULT_CONFIG_SECTIONS: DashboardConfigItem[] = [
 export const DEFAULT_CONFIG_TYPES: DashboardConfigItem[] = [
 	{ id: 'articles', labelKey: 'dashboard_type_articles', on: true },
 	{ id: 'books', labelKey: 'dashboard_type_books', on: true },
-	{ id: 'emails', labelKey: 'dashboard_type_emails', on: true },
 	{ id: 'pdfs', labelKey: 'dashboard_type_pdfs', on: true },
 	{ id: 'videos', labelKey: 'dashboard_type_videos', on: true },
 	{ id: 'feeds', labelKey: 'dashboard_type_feeds', on: true }

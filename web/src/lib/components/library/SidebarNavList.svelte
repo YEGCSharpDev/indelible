@@ -8,7 +8,6 @@
 	type LibraryItemHref =
 		| '/library/articles'
 		| '/library/books'
-		| '/library/emails'
 		| '/library/pdfs'
 		| '/library/videos'
 		| '/library/podcasts'
@@ -38,7 +37,6 @@
 			countKey: 'article'
 		},
 		{ href: '/library/books', labelKey: 'library_nav_books', icon: 'books', countKey: 'book' },
-		{ href: '/library/emails', labelKey: 'library_nav_emails', icon: 'emails', countKey: 'email' },
 		{ href: '/library/pdfs', labelKey: 'library_nav_pdfs', icon: 'pdfs', countKey: 'pdf' },
 		{ href: '/library/videos', labelKey: 'library_nav_videos', icon: 'videos', countKey: 'video' },
 		{ href: '/tags', labelKey: 'common_tags', icon: 'tags' },

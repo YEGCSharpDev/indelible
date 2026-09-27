@@ -111,12 +111,6 @@ pub(super) const FEED_OPERATIONS: &[OperationContract] = &[
     OperationContract::new("post", "/api/v1/feeds/deliveries/{delivery_id}/seen", "feeds:write"),
     OperationContract::new("post", "/api/v1/feeds/deliveries/{delivery_id}/dismiss", "feeds:write"),
     OperationContract::new("post", "/api/v1/feeds/deliveries/{delivery_id}/prepare", "feeds:write"),
-    OperationContract::new("get", "/api/v1/email-aliases", "feeds:read"),
-    OperationContract::new("post", "/api/v1/email-aliases", "feeds:write"),
-    OperationContract::new("delete", "/api/v1/email-aliases/{id}", "feeds:write"),
-    OperationContract::new("get", "/api/v1/email-senders", "feeds:read"),
-    OperationContract::new("patch", "/api/v1/email-senders/{id}", "feeds:write"),
-    OperationContract::new("post", "/api/v1/email-senders/{id}/unsubscribe", "feeds:write"),
 ];
 
 #[rustfmt::skip]
@@ -145,7 +139,6 @@ pub(super) const JWT_ONLY_OPERATIONS: &[(&str, &str)] = &[
     ("patch", "/api/v1/me"),
     ("delete", "/api/v1/me"),
     ("post", "/api/v1/me/password"),
-    ("post", "/api/v1/me/email"),
     ("post", "/api/v1/me/avatar"),
     ("get", "/api/v1/onboarding"),
     ("post", "/api/v1/onboarding/steps/{step}/complete"),

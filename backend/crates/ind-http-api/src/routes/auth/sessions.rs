@@ -27,7 +27,7 @@ pub async fn register(
         .auth_service
         .register(
             ind_auth::RegisterRequest {
-                email: body.email,
+                username: body.username,
                 password: body.password,
                 display_name: body.display_name,
             },
@@ -102,7 +102,7 @@ pub async fn login(
         .auth_service
         .login(
             ind_auth::LoginRequest {
-                email: body.email,
+                username: body.username,
                 password: body.password,
             },
             client_type,
@@ -314,134 +314,4 @@ pub async fn list_refresh_tokens(
         .collect();
 
     Ok(axum::Json(RefreshTokenListResponse { tokens }))
-}
-
-/// Request a password reset email.
-#[utoipa::path(
-    post,
-    path = "/api/v1/auth/password/forgot",
-    request_body = ForgotPasswordRequest,
-    responses(
-        (status = 200, description = "If the email exists, a reset link has been sent", body = MessageResponse),
-        (status = 422, description = "Validation error"),
-    ),
-    tag = "Auth",
-)]
-pub async fn forgot_password(
-    State(state): State<AppState>,
-    ValidatedJson(body): ValidatedJson<ForgotPasswordRequest>,
-) -> Result<axum::Json<MessageResponse>, ApiError> {
-    match state.auth_service.forgot_password(&body.email).await {
-        Ok(_) => {}
-        Err(e) => {
-            tracing::warn!(error = %e, "forgot_password service error (suppressed to prevent enumeration)");
-        }
-    }
-
-    Ok(axum::Json(MessageResponse {
-        message: "If an account with that email exists, a password reset link has been sent."
-            .to_string(),
-    }))
-}
-
-/// Complete a password reset using a token.
-#[utoipa::path(
-    post,
-    path = "/api/v1/auth/password/reset",
-    request_body = ResetPasswordRequest,
-    responses(
-        (status = 200, description = "Password reset successful", body = AuthResponse),
-        (status = 400, description = "Invalid or expired token"),
-        (status = 422, description = "Validation error"),
-    ),
-    tag = "Auth",
-)]
-pub async fn reset_password(
-    State(state): State<AppState>,
-    ValidatedJson(body): ValidatedJson<ResetPasswordRequest>,
-) -> Result<Response, ApiError> {
-    let user = state
-        .auth_service
-        .reset_password(&body.token, &body.new_password)
-        .await
-        .map_err(ApiError::from)?;
-
-    let response_body = AuthResponse::from_user(&user);
-    let body_bytes = serde_json::to_vec(&response_body).map_err(ApiError::from)?;
-
-    let mut cookie_headers = HeaderMap::new();
-    clear_refresh_cookie(&mut cookie_headers, &state.config);
-    clear_asset_cookie(&mut cookie_headers, &state.config);
-
-    let mut response = (StatusCode::OK, body_bytes).into_response();
-    #[expect(
-        clippy::unwrap_used,
-        reason = "parsing a static ASCII literal into a header value is infallible"
-    )]
-    let content_type = "application/json".parse().unwrap();
-    response
-        .headers_mut()
-        .insert(http::header::CONTENT_TYPE, content_type);
-    response.headers_mut().extend(cookie_headers.drain());
-
-    Ok(response)
-}
-
-/// Resend the email verification link.
-#[utoipa::path(
-    post,
-    path = "/api/v1/auth/email/resend",
-    responses(
-        (status = 200, description = "Verification email sent (or already verified)", body = MessageResponse),
-        (status = 401, description = "Authentication required"),
-        (status = 403, description = "Account session required"),
-        (status = 429, description = "Rate limited"),
-    ),
-    security(("bearer" = [])),
-    tag = "Auth",
-)]
-pub async fn resend_verification(
-    State(state): State<AppState>,
-    RequireAccountSession(auth_user): RequireAccountSession,
-) -> Result<axum::Json<MessageResponse>, ApiError> {
-    let result = state
-        .auth_service
-        .resend_verification(&auth_user.user_id)
-        .await
-        .map_err(ApiError::from)?;
-
-    let message = if result.is_some() {
-        "Verification email sent."
-    } else {
-        "Email is already verified."
-    };
-
-    Ok(axum::Json(MessageResponse {
-        message: message.to_string(),
-    }))
-}
-
-/// Verify email address using a token.
-#[utoipa::path(
-    post,
-    path = "/api/v1/auth/email/verify",
-    request_body = VerifyEmailRequest,
-    responses(
-        (status = 200, description = "Email verified", body = AuthResponse),
-        (status = 400, description = "Invalid or expired token"),
-        (status = 422, description = "Validation error"),
-    ),
-    tag = "Auth",
-)]
-pub async fn verify_email(
-    State(state): State<AppState>,
-    ValidatedJson(body): ValidatedJson<VerifyEmailRequest>,
-) -> Result<axum::Json<AuthResponse>, ApiError> {
-    let user = state
-        .auth_service
-        .verify_email(&body.token)
-        .await
-        .map_err(ApiError::from)?;
-
-    Ok(axum::Json(AuthResponse::from_user(&user)))
 }

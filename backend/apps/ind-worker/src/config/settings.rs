@@ -3,10 +3,9 @@ use secrecy::SecretString;
 use serde::Deserialize;
 
 use super::{
-    AutoHealSettings, CaptureWorkerSettings, EmailIngestWorkerSettings,
-    FeedRetentionCleanupSettings, FeedWorkerSettings, RelaySettings, TrashCleanupSettings,
-    WorkerAuthSettings, WorkerRuntimeSettings, WorkerServerSettings, default_s3_force_path_style,
-    default_s3_region,
+    AutoHealSettings, CaptureWorkerSettings, FeedRetentionCleanupSettings, FeedWorkerSettings,
+    RelaySettings, TrashCleanupSettings, WorkerAuthSettings, WorkerRuntimeSettings,
+    WorkerServerSettings, default_s3_force_path_style, default_s3_region,
 };
 
 #[derive(Clone, Debug, Deserialize)]
@@ -36,8 +35,6 @@ pub struct WorkerConfig {
     pub trash_cleanup: TrashCleanupSettings,
     #[serde(default)]
     pub feed_retention_cleanup: FeedRetentionCleanupSettings,
-    #[serde(default)]
-    pub email_ingest: EmailIngestWorkerSettings,
     #[serde(default)]
     pub auth: WorkerAuthSettings,
     #[serde(default)]

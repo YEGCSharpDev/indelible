@@ -2,24 +2,24 @@
 	import { t } from '$lib/i18n';
 
 	interface Props {
-		email: string;
-		confirmEmail: string;
-		deleteEmailMatches: boolean;
+		username: string;
+		confirmUsername: string;
+		deleteUsernameMatches: boolean;
 		deleting: boolean;
 		error: string;
 		onClose: () => void;
-		onConfirmEmailChange: (value: string) => void;
+		onConfirmUsernameChange: (value: string) => void;
 		onDelete: () => void;
 	}
 
 	let {
-		email,
-		confirmEmail,
-		deleteEmailMatches,
+		username,
+		confirmUsername,
+		deleteUsernameMatches,
 		deleting,
 		error,
 		onClose,
-		onConfirmEmailChange,
+		onConfirmUsernameChange,
 		onDelete
 	}: Props = $props();
 </script>
@@ -44,18 +44,18 @@
 		<h2 id="delete-title">{$t('account_delete_title')}</h2>
 		<p>
 			{$t('account_delete_dialog_body', {
-				values: { account: email || $t('account_your_account_lower') }
+				values: { account: username || $t('account_your_account_lower') }
 			})}
 		</p>
 		<p>{$t('account_delete_confirm_hint')}</p>
 		<input
 			class="input modal-input"
-			type="email"
-			value={confirmEmail}
-			placeholder={email || $t('account_email_placeholder')}
+			type="text"
+			value={confirmUsername}
+			placeholder={username || $t('account_username_placeholder')}
 			autocomplete="off"
 			aria-label={$t('account_delete_confirm_aria')}
-			oninput={(event) => onConfirmEmailChange((event.currentTarget as HTMLInputElement).value)}
+			oninput={(event) => onConfirmUsernameChange((event.currentTarget as HTMLInputElement).value)}
 		/>
 		{#if error}
 			<p class="modal-error">{error}</p>
@@ -68,7 +68,7 @@
 				type="button"
 				class="btn danger"
 				onclick={onDelete}
-				disabled={!deleteEmailMatches || deleting}
+				disabled={!deleteUsernameMatches || deleting}
 			>
 				{deleting ? $t('account_deleting') : $t('account_delete_forever')}
 			</button>

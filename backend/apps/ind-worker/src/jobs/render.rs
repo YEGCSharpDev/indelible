@@ -10,21 +10,6 @@ pub async fn dispatch_generic_job(
     ctx: &WorkerContext,
     envelope: GenericJobEnvelope,
 ) -> Result<(), AppError> {
-    let email = ctx.email_jobs();
-    if crate::jobs::email_ingest::dispatch_generic_job(&email, envelope.clone())
-        .await?
-        .is_some()
-    {
-        return Ok(());
-    }
-
-    if crate::jobs::email_unsubscribe::dispatch_generic_job(&email, envelope.clone())
-        .await?
-        .is_some()
-    {
-        return Ok(());
-    }
-
     let feed = ctx.feed_jobs();
     if crate::jobs::feed::dispatch_generic_job(&feed, envelope.clone())
         .await?

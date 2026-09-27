@@ -4,7 +4,6 @@
 	import AddPopover from '$lib/components/library/AddPopover.svelte';
 	import SaveUrlModal from '$lib/components/library/SaveUrlModal.svelte';
 	import UploadFileModal from '$lib/components/library/UploadFileModal.svelte';
-	import EmailForwardingModal from '$lib/components/library/EmailForwardingModal.svelte';
 	import AddRssFeedModal from '$lib/components/library/AddRssFeedModal.svelte';
 	import YouTubeModal from '$lib/components/library/YouTubeModal.svelte';
 	import { goto } from '$app/navigation';
@@ -63,7 +62,6 @@
 	<AddPopover />
 	{#if modal.active === 'url'}<SaveUrlModal />{/if}
 	{#if modal.active === 'upload'}<UploadFileModal />{/if}
-	{#if modal.active === 'email'}<EmailForwardingModal />{/if}
 	{#if modal.active === 'rss'}<AddRssFeedModal />{/if}
 	{#if modal.active === 'youtube'}<YouTubeModal />{/if}
 	{#if helpOpen}<ShortcutHelpOverlay onClose={() => (helpOpen = false)} />{/if}

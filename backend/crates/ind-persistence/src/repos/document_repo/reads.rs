@@ -53,11 +53,7 @@ impl PgDocumentRepository {
                 EXISTS(
                     SELECT 1 FROM item_notes n
                     WHERE n.user_id = $1 AND n.document_id = $2
-                ) AS "has_note!",
-                EXISTS(
-                    SELECT 1 FROM mila_sessions m
-                    WHERE m.user_id = $1 AND m.document_id = $2
-                ) AS "has_mila_session!"
+                ) AS "has_note!"
                FROM documents d
                WHERE d.id = $2 AND d.user_id = $1"#,
             user_id.into_uuid(),
@@ -109,7 +105,6 @@ impl PgDocumentRepository {
             origins,
             has_highlights: row.has_highlights,
             has_note: row.has_note,
-            has_mila_session: row.has_mila_session,
         }))
     }
 

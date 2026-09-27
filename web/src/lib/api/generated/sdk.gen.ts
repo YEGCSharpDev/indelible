@@ -15,8 +15,6 @@ import type {
 	AuthorizeIntegrationData,
 	AuthorizeIntegrationErrors,
 	AuthorizeIntegrationResponses,
-	ChangeEmailData,
-	ChangeEmailErrors,
 	ChangePasswordData,
 	ChangePasswordErrors,
 	ChangePasswordResponses,
@@ -38,9 +36,6 @@ import type {
 	CreateDocumentHighlightData,
 	CreateDocumentHighlightErrors,
 	CreateDocumentHighlightResponses,
-	CreateEmailAliasData,
-	CreateEmailAliasErrors,
-	CreateEmailAliasResponses,
 	CreateSmartListData,
 	CreateSmartListErrors,
 	CreateSmartListResponses,
@@ -59,9 +54,6 @@ import type {
 	DeleteCollectionData,
 	DeleteCollectionErrors,
 	DeleteCollectionResponses,
-	DeleteEmailAliasData,
-	DeleteEmailAliasErrors,
-	DeleteEmailAliasResponses,
 	DeleteHighlightData,
 	DeleteHighlightErrors,
 	DeleteHighlightResponses,
@@ -145,9 +137,6 @@ import type {
 	ExtensionUpsertNoteData,
 	ExtensionUpsertNoteErrors,
 	ExtensionUpsertNoteResponses,
-	ForgotPasswordData,
-	ForgotPasswordErrors,
-	ForgotPasswordResponses,
 	GetArchivalData,
 	GetArchivalResponses,
 	GetArticleTocData,
@@ -236,12 +225,6 @@ import type {
 	ListDocumentHighlightsData,
 	ListDocumentHighlightsErrors,
 	ListDocumentHighlightsResponses,
-	ListEmailAliasesData,
-	ListEmailAliasesErrors,
-	ListEmailAliasesResponses,
-	ListEmailSendersData,
-	ListEmailSendersErrors,
-	ListEmailSendersResponses,
 	ListEntitiesData,
 	ListEntitiesErrors,
 	ListEntitiesResponses,
@@ -360,12 +343,6 @@ import type {
 	ReprocessDocumentData,
 	ReprocessDocumentErrors,
 	ReprocessDocumentResponses,
-	ResendVerificationData,
-	ResendVerificationErrors,
-	ResendVerificationResponses,
-	ResetPasswordData,
-	ResetPasswordErrors,
-	ResetPasswordResponses,
 	RestoreEntryData,
 	RestoreEntryErrors,
 	RestoreEntryResponses,
@@ -437,9 +414,6 @@ import type {
 	TriageEntryErrors,
 	TriageEntryResponses,
 	UnsubscribeData,
-	UnsubscribeEmailSenderData,
-	UnsubscribeEmailSenderErrors,
-	UnsubscribeEmailSenderResponses,
 	UnsubscribeErrors,
 	UnsubscribeResponses,
 	UpdateArchivalData,
@@ -450,9 +424,6 @@ import type {
 	UpdateDocumentProgressData,
 	UpdateDocumentProgressErrors,
 	UpdateDocumentProgressResponses,
-	UpdateEmailSenderData,
-	UpdateEmailSenderErrors,
-	UpdateEmailSenderResponses,
 	UpdateEntityData,
 	UpdateEntityErrors,
 	UpdateEntityResponses,
@@ -495,10 +466,7 @@ import type {
 	UpsertDocumentNoteResponses,
 	UpsertNoteData,
 	UpsertNoteErrors,
-	UpsertNoteResponses,
-	VerifyEmailData,
-	VerifyEmailErrors,
-	VerifyEmailResponses
+	UpsertNoteResponses
 } from './types.gen';
 
 export type Options<
@@ -554,37 +522,6 @@ export const streamAvatar = <ThrowOnError extends boolean = false>(
 		],
 		url: '/api/v1/assets/{user_id}/avatars/{filename}',
 		...options
-	});
-
-/**
- * Resend the email verification link.
- */
-export const resendVerification = <ThrowOnError extends boolean = false>(
-	options?: Options<ResendVerificationData, ThrowOnError>
-) =>
-	(options?.client ?? client).post<
-		ResendVerificationResponses,
-		ResendVerificationErrors,
-		ThrowOnError
-	>({
-		security: [{ scheme: 'bearer', type: 'http' }],
-		url: '/api/v1/auth/email/resend',
-		...options
-	});
-
-/**
- * Verify email address using a token.
- */
-export const verifyEmail = <ThrowOnError extends boolean = false>(
-	options: Options<VerifyEmailData, ThrowOnError>
-) =>
-	(options.client ?? client).post<VerifyEmailResponses, VerifyEmailErrors, ThrowOnError>({
-		url: '/api/v1/auth/email/verify',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
 	});
 
 /**
@@ -757,36 +694,6 @@ export const oauthStart = <ThrowOnError extends boolean = false>(
 	(options.client ?? client).get<unknown, OauthStartErrors, ThrowOnError>({
 		url: '/api/v1/auth/oauth/{provider}/start',
 		...options
-	});
-
-/**
- * Request a password reset email.
- */
-export const forgotPassword = <ThrowOnError extends boolean = false>(
-	options: Options<ForgotPasswordData, ThrowOnError>
-) =>
-	(options.client ?? client).post<ForgotPasswordResponses, ForgotPasswordErrors, ThrowOnError>({
-		url: '/api/v1/auth/password/forgot',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-/**
- * Complete a password reset using a token.
- */
-export const resetPassword = <ThrowOnError extends boolean = false>(
-	options: Options<ResetPasswordData, ThrowOnError>
-) =>
-	(options.client ?? client).post<ResetPasswordResponses, ResetPasswordErrors, ThrowOnError>({
-		url: '/api/v1/auth/password/reset',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
 	});
 
 export const listProviders = <ThrowOnError extends boolean = false>(
@@ -1207,98 +1114,6 @@ export const getArticleToc = <ThrowOnError extends boolean = false>(
 			{ scheme: 'bearer', type: 'http' }
 		],
 		url: '/api/v1/documents/{document_id}/toc',
-		...options
-	});
-
-export const listEmailAliases = <ThrowOnError extends boolean = false>(
-	options?: Options<ListEmailAliasesData, ThrowOnError>
-) =>
-	(options?.client ?? client).get<ListEmailAliasesResponses, ListEmailAliasesErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/email-aliases',
-		...options
-	});
-
-export const createEmailAlias = <ThrowOnError extends boolean = false>(
-	options: Options<CreateEmailAliasData, ThrowOnError>
-) =>
-	(options.client ?? client).post<CreateEmailAliasResponses, CreateEmailAliasErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/email-aliases',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const deleteEmailAlias = <ThrowOnError extends boolean = false>(
-	options: Options<DeleteEmailAliasData, ThrowOnError>
-) =>
-	(options.client ?? client).delete<
-		DeleteEmailAliasResponses,
-		DeleteEmailAliasErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/email-aliases/{id}',
-		...options
-	});
-
-export const listEmailSenders = <ThrowOnError extends boolean = false>(
-	options?: Options<ListEmailSendersData, ThrowOnError>
-) =>
-	(options?.client ?? client).get<ListEmailSendersResponses, ListEmailSendersErrors, ThrowOnError>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/email-senders',
-		...options
-	});
-
-export const updateEmailSender = <ThrowOnError extends boolean = false>(
-	options: Options<UpdateEmailSenderData, ThrowOnError>
-) =>
-	(options.client ?? client).patch<
-		UpdateEmailSenderResponses,
-		UpdateEmailSenderErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/email-senders/{id}',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		}
-	});
-
-export const unsubscribeEmailSender = <ThrowOnError extends boolean = false>(
-	options: Options<UnsubscribeEmailSenderData, ThrowOnError>
-) =>
-	(options.client ?? client).post<
-		UnsubscribeEmailSenderResponses,
-		UnsubscribeEmailSenderErrors,
-		ThrowOnError
-	>({
-		security: [
-			{ scheme: 'bearer', type: 'http' },
-			{ scheme: 'bearer', type: 'http' }
-		],
-		url: '/api/v1/email-senders/{id}/unsubscribe',
 		...options
 	});
 
@@ -2365,19 +2180,6 @@ export const uploadAvatar = <ThrowOnError extends boolean = false>(
 		...options,
 		headers: {
 			'Content-Type': null,
-			...options.headers
-		}
-	});
-
-export const changeEmail = <ThrowOnError extends boolean = false>(
-	options: Options<ChangeEmailData, ThrowOnError>
-) =>
-	(options.client ?? client).post<unknown, ChangeEmailErrors, ThrowOnError>({
-		security: [{ scheme: 'bearer', type: 'http' }],
-		url: '/api/v1/me/email',
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
 			...options.headers
 		}
 	});

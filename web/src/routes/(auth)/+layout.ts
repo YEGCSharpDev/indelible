@@ -13,7 +13,6 @@ export async function load({ url, parent }: LayoutLoadEvent) {
 		pathname: url.pathname,
 		isAuthenticated: auth.isAuthenticated,
 		needsOnboarding: auth.needsOnboarding,
-		needsVerification: auth.needsVerification,
 		setupRequired
 	});
 

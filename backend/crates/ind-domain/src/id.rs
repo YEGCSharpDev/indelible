@@ -188,8 +188,6 @@ prefixed_id!(TtsVoicePersonaId, "vper_");
 prefixed_id!(TtsChunkRecordId, "tch_");
 prefixed_id!(TtsAudioAssetId, "taa_");
 prefixed_id!(TtsSessionId, "tss_");
-prefixed_id!(EmailSenderId, "snd_");
-prefixed_id!(EmailAliasId, "als_");
 prefixed_id!(DocumentId, "doc_");
 prefixed_id!(LibraryEntryId, "lib_");
 prefixed_id!(FeedDeliveryId, "dlv_");

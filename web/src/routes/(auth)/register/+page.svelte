@@ -20,13 +20,13 @@
 	});
 
 	let displayName = $state('');
-	let email = $state('');
+	let username = $state('');
 	let password = $state('');
 	let submitting = $state(false);
 
 	let fieldErrors = $state<{
 		displayName?: string;
-		email?: string;
+		username?: string;
 		password?: string;
 	}>({});
 
@@ -39,10 +39,8 @@
 			errors.displayName = $t('auth_display_name_too_long');
 		}
 
-		if (!email.trim()) {
-			errors.email = $t('auth_email_required');
-		} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-			errors.email = $t('auth_email_invalid');
+		if (!username.trim()) {
+			errors.username = $t('auth_username_required');
 		}
 
 		if (!password) {
@@ -67,23 +65,13 @@
 		submitting = true;
 		fieldErrors = {};
 
-		const { success } = await auth.register(email, password, displayName.trim());
+		const { success } = await auth.register(username.trim(), password, displayName.trim());
 		submitting = false;
 
 		if (success) {
-			if (auth.needsVerification) {
-				const redirectParam = $page.url.searchParams.get('redirect');
-				if (redirectParam) {
-					// eslint-disable-next-line svelte/no-navigation-without-resolve -- URL is built from resolve()
-					goto(`${resolve('/verify-email')}?redirect=${encodeURIComponent(redirectParam)}`);
-				} else {
-					goto(resolve('/verify-email'));
-				}
-			} else {
-				const redirectUrl = $page.url.searchParams.get('redirect');
-				// eslint-disable-next-line svelte/no-navigation-without-resolve -- fallback is a static application route.
-				goto(redirectUrl ?? '/onboarding/welcome');
-			}
+			const redirectUrl = $page.url.searchParams.get('redirect');
+			// eslint-disable-next-line svelte/no-navigation-without-resolve -- fallback is a static application route.
+			goto(redirectUrl ?? '/onboarding/welcome');
 		}
 	}
 
@@ -117,13 +105,13 @@
 		/>
 
 		<FormInput
-			label={$t('common_email')}
-			type="email"
-			autocomplete="email"
-			placeholder={$t('auth_email_placeholder')}
+			label={$t('common_username')}
+			type="text"
+			autocomplete="username"
+			placeholder={$t('auth_username_placeholder')}
 			required
-			bind:value={email}
-			error={fieldErrors.email}
+			bind:value={username}
+			error={fieldErrors.username}
 		/>
 
 		<div class="password-field">

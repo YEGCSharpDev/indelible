@@ -4,8 +4,8 @@ use ind_domain::{
     ArchivalSettings, ArchiveFormatPreferences, DefaultView, DuplicateAction,
     DuplicateDetectionSettings, DuplicateSensitivity, LayoutSettings, ListDensity,
     NotificationPreferences, PreferencesSettings, ProxySettings, ReaderFontFamily, ReaderFontSize,
-    ReaderLineHeight, ReaderOpenMode, ReaderSettings, SidePanelMode, SidebarMode, Theme,
-    TriageMode, WorkflowSettings,
+    ReaderLineHeight, ReaderSettings, SidePanelMode, SidebarMode, Theme, TriageMode,
+    WorkflowSettings,
 };
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -71,7 +71,6 @@ dto_enum!(TriageModeDto => TriageMode { Manual, Focus });
 dto_enum!(ReaderFontFamilyDto => ReaderFontFamily { Serif, Sans, Mono });
 dto_enum!(ReaderFontSizeDto => ReaderFontSize { Small, Medium, Large });
 dto_enum!(ReaderLineHeightDto => ReaderLineHeight { Compact, Relaxed });
-dto_enum!(ReaderOpenModeDto => ReaderOpenMode { Reader, Original });
 dto_enum!(DuplicateSensitivityDto => DuplicateSensitivity { Low, Medium, High });
 dto_enum!(DuplicateActionDto => DuplicateAction { NotifyMe, SkipSilently, MergeWithExisting });
 
@@ -155,7 +154,6 @@ pub struct ReaderSettingsDto {
     pub font_family: ReaderFontFamilyDto,
     pub font_size: ReaderFontSizeDto,
     pub line_height: ReaderLineHeightDto,
-    pub email_open_mode: ReaderOpenModeDto,
 }
 
 impl From<ReaderSettings> for ReaderSettingsDto {
@@ -164,7 +162,6 @@ impl From<ReaderSettings> for ReaderSettingsDto {
             font_family: value.font_family.into(),
             font_size: value.font_size.into(),
             line_height: value.line_height.into(),
-            email_open_mode: value.email_open_mode.into(),
         }
     }
 }
@@ -175,7 +172,6 @@ impl From<ReaderSettingsDto> for ReaderSettings {
             font_family: value.font_family.into(),
             font_size: value.font_size.into(),
             line_height: value.line_height.into(),
-            email_open_mode: value.email_open_mode.into(),
         }
     }
 }
@@ -254,7 +250,6 @@ pub struct NotificationsSettingsResponse {
     pub weekly_digest_enabled: bool,
     pub new_highlights_sync: bool,
     pub feed_updates: bool,
-    pub marketing_emails: bool,
     #[schema(value_type = String, format = DateTime)]
     pub updated_at: DateTime<Utc>,
 }
@@ -269,7 +264,6 @@ impl From<NotificationPreferences> for NotificationsSettingsResponse {
             weekly_digest_enabled: value.weekly_digest_enabled,
             new_highlights_sync: value.new_highlights_sync,
             feed_updates: value.feed_updates,
-            marketing_emails: value.marketing_emails,
             updated_at: value.updated_at,
         }
     }
@@ -284,7 +278,6 @@ impl UpdateNotificationsRequest {
             weekly_digest_enabled: self.weekly_digest_enabled,
             new_highlights_sync: self.new_highlights_sync,
             feed_updates: self.feed_updates,
-            marketing_emails: self.marketing_emails,
             updated_at: self.updated_at,
         }
     }

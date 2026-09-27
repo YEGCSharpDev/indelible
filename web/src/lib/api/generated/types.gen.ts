@@ -18,10 +18,6 @@ export type AiPreferenceSettingsDto = {
 	mila_enabled: boolean;
 };
 
-export type AliasDestinationDto = 'feed' | 'library';
-
-export type AliasStatusDto = 'active' | 'retired';
-
 export type ApiPermissionDto =
 	| 'library:read'
 	| 'library:write'
@@ -109,13 +105,12 @@ export type ArticleTocResponseStatus = 'ready' | 'none' | 'pending';
 export type AuthResponse = {
 	access_token?: string | null;
 	display_name: string;
-	email: string;
-	email_verified: boolean;
 	expires_at?: number | null;
 	id: string;
 	object: string;
 	onboarding_completed: boolean;
 	refresh_token?: string | null;
+	username: string;
 };
 
 export type AuthorizeExtensionRequest = {
@@ -136,11 +131,6 @@ export type AuthorizeIntegrationRequest = {
 
 export type AuthorizeIntegrationResponse = {
 	authorize_url: string;
-};
-
-export type ChangeEmailRequest = {
-	new_email: string;
-	password: string;
 };
 
 export type ChangePasswordRequest = {
@@ -194,12 +184,6 @@ export type CreateCollectionBody = {
 	sort_order?: number | null;
 };
 
-export type CreateEmailAliasRequest = {
-	destination: AliasDestinationDto;
-	is_default?: boolean;
-	local_part: string;
-};
-
 export type CreateHighlightBody = {
 	color: string;
 	locator: LocatorSchemaFlat;
@@ -240,8 +224,6 @@ export type DeleteAccountRequest = {
 };
 
 export type DeliveryHistoryTick = 's2xx' | 's4xx' | 's5xx' | 'failed' | 'pending';
-
-export type DestinationDto = 'feed' | 'library';
 
 /**
  * Document asset metadata plus an API-origin download URL for its bytes (the
@@ -333,34 +315,6 @@ export type DuplicateDetectionSettingsDto = {
 };
 
 export type DuplicateSensitivityDto = 'low' | 'medium' | 'high';
-
-export type EmailAliasResponse = {
-	address?: string | null;
-	created_at: string;
-	destination: AliasDestinationDto;
-	id: string;
-	is_default: boolean;
-	local_part: string;
-	object: string;
-	retire_at?: string | null;
-	retired_at?: string | null;
-	status: AliasStatusDto;
-};
-
-export type EmailSenderResponse = {
-	blocked: boolean;
-	blocked_at?: string | null;
-	canonical_addr: string;
-	delivery_count: number;
-	display_name?: string | null;
-	first_seen_at: string;
-	id: string;
-	last_seen_at: string;
-	list_id?: string | null;
-	object: string;
-	render_default: RenderDefaultDto;
-	routing_default?: null | DestinationDto;
-};
 
 /**
  * Result of emptying the Library trash: how many entries were permanently purged.
@@ -536,8 +490,8 @@ export type ExtensionUrlCheckResponse = {
 
 export type ExtensionUserInfo = {
 	display_name: string;
-	email: string;
 	id: string;
+	username: string;
 };
 
 export type FeedDeliveryCountResponse = {
@@ -643,10 +597,6 @@ export type FilterExpressionOperator =
 	'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte' | 'contains' | 'in';
 
 export type FilterExpressionValue = string | boolean | number | Array<string>;
-
-export type ForgotPasswordRequest = {
-	email: string;
-};
 
 export type FullArchiveRequest = {
 	author?: string | null;
@@ -968,22 +918,6 @@ export type ListCollectionsParams = {
 
 export type ListDensityDto = 'comfortable' | 'compact';
 
-export type ListEmailAliasesResponse = {
-	data: Array<EmailAliasResponse>;
-};
-
-export type ListEmailSendersParams = {
-	limit?: number | null;
-	offset?: number | null;
-};
-
-export type ListEmailSendersResponse = {
-	data: Array<EmailSenderResponse>;
-	limit: number;
-	offset: number;
-	total: number;
-};
-
 export type ListEntitiesParams = {
 	cursor?: string | null;
 	limit?: number | null;
@@ -1105,8 +1039,8 @@ export type LocatorSchemaFlat = {
 };
 
 export type LoginRequest = {
-	email: string;
 	password: string;
+	username: string;
 };
 
 /**
@@ -1312,8 +1246,6 @@ export type ProfileResponse = {
 	avatar_url?: string | null;
 	created_at: string;
 	display_name: string;
-	email: string;
-	email_verified: boolean;
 	has_password: boolean;
 	id: string;
 	ingest_email?: string | null;
@@ -1324,6 +1256,7 @@ export type ProfileResponse = {
 	theme: string;
 	timezone: string;
 	updated_at: string;
+	username: string;
 };
 
 export type ProxySettingsDto = {
@@ -1476,18 +1409,11 @@ export type RefreshTokenRequest = {
 
 export type RegisterRequest = {
 	display_name: string;
-	email: string;
 	password: string;
+	username: string;
 };
-
-export type RenderDefaultDto = 'reader' | 'original';
 
 export type RequiredNullableDuration = number | null;
-
-export type ResetPasswordRequest = {
-	new_password: string;
-	token: string;
-};
 
 /**
  * Save a feed delivery into the Library.
@@ -1693,13 +1619,6 @@ export type TokenListResponse = {
 
 export type TriageModeDto = 'manual' | 'focus';
 
-export type UnsubscribeEmailSenderResponse = {
-	blocked_at: string;
-	job_id: string;
-	object: string;
-	sender_id: string;
-};
-
 export type UpdateCollectionBody = {
 	color?: string | null;
 	description?: string | null;
@@ -1713,12 +1632,6 @@ export type UpdateDocumentProgressBody = {
 	chapter_locator?: string | null;
 	chapter_offset?: number | null;
 	progress_percent: number;
-};
-
-export type UpdateEmailSenderRequest = {
-	blocked?: boolean | null;
-	render_default?: null | RenderDefaultDto;
-	routing_default?: null | DestinationDto;
 };
 
 export type UpdateEntityBody = {
@@ -1779,10 +1692,6 @@ export type UploadLimitsResponse = {
 
 export type UpsertNoteBody = {
 	body: string;
-};
-
-export type VerifyEmailRequest = {
-	token: string;
 };
 
 export type WebhookDeliveryListResponse = {
@@ -1921,65 +1830,6 @@ export type StreamAvatarResponses = {
 };
 
 export type StreamAvatarResponse = StreamAvatarResponses[keyof StreamAvatarResponses];
-
-export type ResendVerificationData = {
-	body?: never;
-	path?: never;
-	query?: never;
-	url: '/api/v1/auth/email/resend';
-};
-
-export type ResendVerificationErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Account session required
-	 */
-	403: unknown;
-	/**
-	 * Rate limited
-	 */
-	429: unknown;
-};
-
-export type ResendVerificationResponses = {
-	/**
-	 * Verification email sent (or already verified)
-	 */
-	200: MessageResponse;
-};
-
-export type ResendVerificationResponse =
-	ResendVerificationResponses[keyof ResendVerificationResponses];
-
-export type VerifyEmailData = {
-	body: VerifyEmailRequest;
-	path?: never;
-	query?: never;
-	url: '/api/v1/auth/email/verify';
-};
-
-export type VerifyEmailErrors = {
-	/**
-	 * Invalid or expired token
-	 */
-	400: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-};
-
-export type VerifyEmailResponses = {
-	/**
-	 * Email verified
-	 */
-	200: AuthResponse;
-};
-
-export type VerifyEmailResponse = VerifyEmailResponses[keyof VerifyEmailResponses];
 
 export type ExtensionAuthorizeData = {
 	body: AuthorizeExtensionRequest;
@@ -2285,56 +2135,6 @@ export type OauthStartErrors = {
 	 */
 	400: unknown;
 };
-
-export type ForgotPasswordData = {
-	body: ForgotPasswordRequest;
-	path?: never;
-	query?: never;
-	url: '/api/v1/auth/password/forgot';
-};
-
-export type ForgotPasswordErrors = {
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-};
-
-export type ForgotPasswordResponses = {
-	/**
-	 * If the email exists, a reset link has been sent
-	 */
-	200: MessageResponse;
-};
-
-export type ForgotPasswordResponse = ForgotPasswordResponses[keyof ForgotPasswordResponses];
-
-export type ResetPasswordData = {
-	body: ResetPasswordRequest;
-	path?: never;
-	query?: never;
-	url: '/api/v1/auth/password/reset';
-};
-
-export type ResetPasswordErrors = {
-	/**
-	 * Invalid or expired token
-	 */
-	400: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-};
-
-export type ResetPasswordResponses = {
-	/**
-	 * Password reset successful
-	 */
-	200: AuthResponse;
-};
-
-export type ResetPasswordResponse = ResetPasswordResponses[keyof ResetPasswordResponses];
 
 export type ListProvidersData = {
 	body?: never;
@@ -3261,212 +3061,6 @@ export type GetArticleTocResponses = {
 };
 
 export type GetArticleTocResponse = GetArticleTocResponses[keyof GetArticleTocResponses];
-
-export type ListEmailAliasesData = {
-	body?: never;
-	path?: never;
-	query?: never;
-	url: '/api/v1/email-aliases';
-};
-
-export type ListEmailAliasesErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Email alias operations not configured
-	 */
-	503: unknown;
-};
-
-export type ListEmailAliasesResponses = {
-	/**
-	 * All aliases for the authenticated user
-	 */
-	200: ListEmailAliasesResponse;
-};
-
-export type ListEmailAliasesResponse2 = ListEmailAliasesResponses[keyof ListEmailAliasesResponses];
-
-export type CreateEmailAliasData = {
-	body: CreateEmailAliasRequest;
-	path?: never;
-	query?: never;
-	url: '/api/v1/email-aliases';
-};
-
-export type CreateEmailAliasErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Local part already taken on this destination
-	 */
-	409: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-	/**
-	 * Email alias operations not configured
-	 */
-	503: unknown;
-};
-
-export type CreateEmailAliasResponses = {
-	/**
-	 * Alias created
-	 */
-	201: EmailAliasResponse;
-};
-
-export type CreateEmailAliasResponse = CreateEmailAliasResponses[keyof CreateEmailAliasResponses];
-
-export type DeleteEmailAliasData = {
-	body?: never;
-	path: {
-		/**
-		 * Email alias ID with als_ prefix
-		 */
-		id: string;
-	};
-	query?: never;
-	url: '/api/v1/email-aliases/{id}';
-};
-
-export type DeleteEmailAliasErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Email alias not found
-	 */
-	404: unknown;
-	/**
-	 * Email alias operations not configured
-	 */
-	503: unknown;
-};
-
-export type DeleteEmailAliasResponses = {
-	/**
-	 * Alias retired
-	 */
-	204: void;
-};
-
-export type DeleteEmailAliasResponse = DeleteEmailAliasResponses[keyof DeleteEmailAliasResponses];
-
-export type ListEmailSendersData = {
-	body?: never;
-	path?: never;
-	query?: {
-		offset?: number | null;
-		limit?: number | null;
-	};
-	url: '/api/v1/email-senders';
-};
-
-export type ListEmailSendersErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Email sender operations not configured
-	 */
-	503: unknown;
-};
-
-export type ListEmailSendersResponses = {
-	/**
-	 * Paginated list of email senders
-	 */
-	200: ListEmailSendersResponse;
-};
-
-export type ListEmailSendersResponse2 = ListEmailSendersResponses[keyof ListEmailSendersResponses];
-
-export type UpdateEmailSenderData = {
-	body: UpdateEmailSenderRequest;
-	path: {
-		/**
-		 * Email sender ID with snd_ prefix
-		 */
-		id: string;
-	};
-	query?: never;
-	url: '/api/v1/email-senders/{id}';
-};
-
-export type UpdateEmailSenderErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Email sender not found
-	 */
-	404: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-	/**
-	 * Email sender operations not configured
-	 */
-	503: unknown;
-};
-
-export type UpdateEmailSenderResponses = {
-	/**
-	 * Email sender updated
-	 */
-	200: EmailSenderResponse;
-};
-
-export type UpdateEmailSenderResponse =
-	UpdateEmailSenderResponses[keyof UpdateEmailSenderResponses];
-
-export type UnsubscribeEmailSenderData = {
-	body?: never;
-	path: {
-		/**
-		 * Email sender ID with snd_ prefix
-		 */
-		id: string;
-	};
-	query?: never;
-	url: '/api/v1/email-senders/{id}/unsubscribe';
-};
-
-export type UnsubscribeEmailSenderErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Email sender not found
-	 */
-	404: unknown;
-	/**
-	 * Email sender operations not configured
-	 */
-	503: unknown;
-};
-
-export type UnsubscribeEmailSenderResponses = {
-	/**
-	 * Local block applied + unsubscribe job enqueued
-	 */
-	200: UnsubscribeEmailSenderResponse;
-};
-
-export type UnsubscribeEmailSenderResponse2 =
-	UnsubscribeEmailSenderResponses[keyof UnsubscribeEmailSenderResponses];
 
 export type ListEntitiesData = {
 	body?: never;
@@ -5888,32 +5482,6 @@ export type UploadAvatarResponses = {
 };
 
 export type UploadAvatarResponse = UploadAvatarResponses[keyof UploadAvatarResponses];
-
-export type ChangeEmailData = {
-	body: ChangeEmailRequest;
-	path?: never;
-	query?: never;
-	url: '/api/v1/me/email';
-};
-
-export type ChangeEmailErrors = {
-	/**
-	 * Authentication required
-	 */
-	401: unknown;
-	/**
-	 * Verified user access JWT from a supported client and verified email required
-	 */
-	403: unknown;
-	/**
-	 * Validation error
-	 */
-	422: unknown;
-	/**
-	 * Changing an email address needs an outbound mail transport, which is not configured
-	 */
-	503: unknown;
-};
 
 export type ChangePasswordData = {
 	body: ChangePasswordRequest;

@@ -8,28 +8,25 @@ use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 use uuid::Uuid;
 
-use crate::{ContentSource, DocumentId, EmailSenderId, UserId};
+use crate::{ContentSource, DocumentId, UserId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DocumentType {
     Article,
     Book,
-    Email,
     Pdf,
     Video,
     Podcast,
 }
 
 impl DocumentType {
-    pub const NAMES: &'static [&'static str] =
-        &["article", "book", "email", "pdf", "video", "podcast"];
+    pub const NAMES: &'static [&'static str] = &["article", "book", "pdf", "video", "podcast"];
 
     pub fn as_str(self) -> &'static str {
         match self {
             Self::Article => "article",
             Self::Book => "book",
-            Self::Email => "email",
             Self::Pdf => "pdf",
             Self::Video => "video",
             Self::Podcast => "podcast",
@@ -50,7 +47,6 @@ impl FromStr for DocumentType {
         match value {
             "article" => Ok(Self::Article),
             "book" => Ok(Self::Book),
-            "email" => Ok(Self::Email),
             "pdf" => Ok(Self::Pdf),
             "video" => Ok(Self::Video),
             "podcast" => Ok(Self::Podcast),
@@ -185,14 +181,13 @@ pub struct DocumentProvenance {
     pub origins: Vec<DocumentOriginType>,
     pub has_highlights: bool,
     pub has_note: bool,
-    pub has_mila_session: bool,
 }
 
 impl DocumentProvenance {
     /// Whether the document is engaged enough for engagement-gated AI paths. Saving or any durable
-    /// authored engagement (chat/highlight/note) counts; reading progress alone does not.
+    /// authored engagement (highlight/note) counts; reading progress alone does not.
     pub fn is_engaged_for_ai(&self) -> bool {
-        self.is_saved || self.has_highlights || self.has_note || self.has_mila_session
+        self.is_saved || self.has_highlights || self.has_note
     }
 }
 
@@ -253,7 +248,4 @@ pub struct NewOriginDocument {
     pub domain: Option<String>,
     pub lead_image_url: Option<String>,
     pub thumbnail_url: Option<String>,
-    /// Email-sender linkage. Set only for `Email` documents (an email has exactly one
-    /// sender); `None` for every other origin-backed source.
-    pub sender_id: Option<EmailSenderId>,
 }

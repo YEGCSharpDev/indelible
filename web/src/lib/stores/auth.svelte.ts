@@ -9,16 +9,13 @@ function message(key: MessageKey): string {
 
 export type AuthUser = {
 	id: string;
-	email: string;
+	username: string;
 	display_name: string;
-	email_verified: boolean;
 	onboarding_completed: boolean;
 	avatar_url?: string | null;
 	locale?: string | null;
 	theme?: 'light' | 'dark' | 'system';
 	timezone?: string;
-	ingest_email?: string;
-	ingest_library_email?: string;
 	created_at?: string;
 };
 
@@ -44,10 +41,8 @@ function updateAccessToken(token: string | null) {
 }
 
 const isAuthenticated = $derived(user !== null);
-const needsVerification = $derived(user !== null && !user.email_verified);
-const needsOnboarding = $derived(
-	user !== null && user.email_verified && !user.onboarding_completed
-);
+const needsVerification = $derived(false);
+const needsOnboarding = $derived(user !== null && !user.onboarding_completed);
 
 const AUTH_CHANNEL =
 	typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('indelible:auth') : null;
@@ -148,13 +143,8 @@ export function getAuth() {
 		register,
 		logout,
 		refresh,
-		forgotPassword,
-		resetPassword,
-		verifyEmail,
-		resendVerification,
 		updateProfile,
 		changePassword,
-		changeEmail,
 		deleteAccount
 	};
 }
@@ -171,16 +161,13 @@ function getProblemMessage(problem: unknown, fallback: string): string {
 function applyProfile(data: apiSdk.ProfileResponse) {
 	user = {
 		id: data.id,
-		email: data.email,
+		username: data.username,
 		display_name: data.display_name,
-		email_verified: data.email_verified,
 		onboarding_completed: data.onboarding_completed,
 		avatar_url: data.avatar_url,
 		locale: data.locale,
 		theme: data.theme as 'light' | 'dark' | 'system' | undefined,
 		timezone: data.timezone,
-		ingest_email: data.ingest_email ?? undefined,
-		ingest_library_email: data.ingest_library_email ?? undefined,
 		created_at: data.created_at
 	};
 }
@@ -227,7 +214,7 @@ async function initialize() {
 }
 
 async function login(
-	email: string,
+	username: string,
 	password: string
 ): Promise<{ success: boolean; rateLimited?: boolean; retryAfter?: number }> {
 	error = null;
@@ -237,7 +224,7 @@ async function login(
 			error: apiError,
 			response
 		} = await apiSdk.login({
-			body: { email, password }
+			body: { username, password }
 		});
 		if (data) {
 			updateAccessToken(data.access_token ?? null);
@@ -245,9 +232,8 @@ async function login(
 			scheduleRefresh();
 			user = {
 				id: data.id,
-				email: data.email,
+				username: data.username,
 				display_name: data.display_name,
-				email_verified: data.email_verified,
 				onboarding_completed: data.onboarding_completed,
 				theme: undefined,
 				locale: undefined,
@@ -274,14 +260,14 @@ async function login(
 }
 
 async function register(
-	email: string,
+	username: string,
 	password: string,
 	displayName: string
 ): Promise<{ success: boolean }> {
 	error = null;
 	try {
 		const { data, error: apiError } = await apiSdk.register({
-			body: { email, password, display_name: displayName }
+			body: { username, password, display_name: displayName }
 		});
 		if (data) {
 			updateAccessToken(data.access_token ?? null);
@@ -289,9 +275,8 @@ async function register(
 			scheduleRefresh();
 			user = {
 				id: data.id,
-				email: data.email,
+				username: data.username,
 				display_name: data.display_name,
-				email_verified: data.email_verified,
 				onboarding_completed: data.onboarding_completed,
 				theme: undefined,
 				locale: undefined,
@@ -335,94 +320,6 @@ async function refresh(): Promise<boolean> {
 	return true;
 }
 
-async function forgotPassword(email: string): Promise<{ success: boolean }> {
-	error = null;
-	try {
-		const { data, response } = await apiSdk.forgotPassword({
-			body: { email }
-		});
-		if (data) {
-			return { success: true };
-		}
-		if (response?.status === 429) {
-			error = message('auth_error_too_many_requests');
-			return { success: false };
-		}
-		return { success: true };
-	} catch {
-		error = message('auth_error_unexpected');
-		return { success: false };
-	}
-}
-
-async function resetPassword(
-	token: string,
-	password: string
-): Promise<{ success: boolean; expired?: boolean }> {
-	error = null;
-	try {
-		const { data, error: apiError } = await apiSdk.resetPassword({
-			body: { token, new_password: password }
-		});
-		if (data) {
-			user = null;
-			updateAccessToken(null);
-			expiresAt = null;
-			return { success: true };
-		}
-		const msg = getProblemMessage(apiError, message('auth_error_password_reset_failed'));
-		error = msg;
-		const isExpired =
-			msg.toLowerCase().includes('expired') || msg.toLowerCase().includes('invalid');
-		return { success: false, expired: isExpired };
-	} catch {
-		error = message('auth_error_unexpected');
-		return { success: false };
-	}
-}
-
-async function verifyEmail(token: string): Promise<{ success: boolean }> {
-	error = null;
-	try {
-		const { data, error: apiError } = await apiSdk.verifyEmail({
-			body: { token }
-		});
-		if (data) {
-			user = {
-				id: data.id,
-				email: data.email,
-				display_name: data.display_name,
-				email_verified: data.email_verified,
-				onboarding_completed: data.onboarding_completed
-			};
-			return { success: true };
-		}
-		error = getProblemMessage(apiError, message('auth_error_email_verification_failed'));
-		return { success: false };
-	} catch {
-		error = message('auth_error_unexpected');
-		return { success: false };
-	}
-}
-
-async function resendVerification(): Promise<{ success: boolean }> {
-	error = null;
-	try {
-		const { data, response } = await apiSdk.resendVerification();
-		if (data) {
-			return { success: true };
-		}
-		if (response?.status === 429) {
-			error = message('auth_error_too_many_requests');
-			return { success: false };
-		}
-		return { success: true };
-	} catch {
-		error = message('auth_error_unexpected');
-		return { success: false };
-	}
-}
-
 async function updateProfile(body: {
 	display_name?: string;
 	avatar_url?: string | null;
@@ -459,29 +356,6 @@ async function changePassword(
 		return {
 			success: false,
 			error: getProblemMessage(apiError, message('auth_error_password_change_failed'))
-		};
-	} catch {
-		return { success: false, error: message('auth_error_unexpected') };
-	}
-}
-
-async function changeEmail(
-	newEmail: string,
-	password: string
-): Promise<{ success: boolean; error?: string }> {
-	try {
-		const { data, error: apiError } = await apiSdk.changeEmail({
-			body: { new_email: newEmail, password }
-		});
-		if (data) {
-			user = null;
-			updateAccessToken(null);
-			expiresAt = null;
-			return { success: true };
-		}
-		return {
-			success: false,
-			error: getProblemMessage(apiError, message('auth_error_email_change_failed'))
 		};
 	} catch {
 		return { success: false, error: message('auth_error_unexpected') };

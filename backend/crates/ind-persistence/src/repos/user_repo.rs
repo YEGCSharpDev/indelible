@@ -19,19 +19,18 @@ impl PgUserRepository {
     }
 }
 
+#[derive(sqlx::FromRow)]
 struct UserRow {
     id: Uuid,
-    email: String,
+    username: String,
     password_hash: Option<String>,
     display_name: String,
     avatar_url: Option<String>,
     locale: Option<String>,
     timezone: String,
     theme: String,
-    email_verified: bool,
     onboarding_completed: bool,
     onboarding_step: i16,
-    email_token: String,
     status: String,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
@@ -46,17 +45,15 @@ impl TryFrom<UserRow> for User {
 
         Ok(User {
             id: UserId::from_uuid(row.id),
-            email: row.email,
+            username: row.username,
             password_hash: row.password_hash,
             display_name: row.display_name,
             avatar_url: row.avatar_url,
             locale: row.locale,
             timezone: row.timezone,
             theme,
-            email_verified: row.email_verified,
             onboarding_completed: row.onboarding_completed,
             onboarding_step: row.onboarding_step,
-            email_token: row.email_token,
             status,
             created_at: row.created_at,
             updated_at: row.updated_at,
@@ -104,7 +101,7 @@ fn oauth_provider_to_str(provider: OAuthProvider) -> &'static str {
 }
 
 fn map_sqlx_error(err: sqlx::Error) -> AppError {
-    super::map_sqlx_error("user", "email already exists", err)
+    super::map_sqlx_error("user", "username already exists", err)
 }
 
 fn map_oauth_identity_sqlx_error(err: sqlx::Error) -> AppError {
@@ -118,13 +115,12 @@ impl UserRepository for PgUserRepository {
     }
 
     async fn find_by_id(&self, id: UserId) -> Result<Option<User>, AppError> {
-        let row = sqlx::query_as!(
-            UserRow,
-            "SELECT id, email, password_hash, display_name, avatar_url, locale, timezone, theme, \
-             email_verified, onboarding_completed, onboarding_step, email_token, status, \
+        let row: Option<UserRow> = sqlx::query_as::<_, UserRow>(
+            "SELECT id, username, password_hash, display_name, avatar_url, locale, timezone, theme, \
+             onboarding_completed, onboarding_step, status, \
              created_at, updated_at FROM users WHERE id = $1 AND status != 'deleted'",
-            id.into_uuid()
         )
+        .bind(id.into_uuid())
         .fetch_optional(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
@@ -132,30 +128,14 @@ impl UserRepository for PgUserRepository {
         row.map(User::try_from).transpose()
     }
 
-    async fn find_by_email(&self, email: &str) -> Result<Option<User>, AppError> {
-        let normalized = User::normalize_email(email);
-        let row = sqlx::query_as!(
-            UserRow,
-            "SELECT id, email, password_hash, display_name, avatar_url, locale, timezone, theme, \
-             email_verified, onboarding_completed, onboarding_step, email_token, status, \
-             created_at, updated_at FROM users WHERE email = $1 AND status != 'deleted'",
-            normalized
+    async fn find_by_username(&self, username: &str) -> Result<Option<User>, AppError> {
+        let normalized = username.to_string();
+        let row: Option<UserRow> = sqlx::query_as::<_, UserRow>(
+            "SELECT id, username, password_hash, display_name, avatar_url, locale, timezone, theme, \
+             onboarding_completed, onboarding_step, status, \
+             created_at, updated_at FROM users WHERE username = $1 AND status != 'deleted'",
         )
-        .fetch_optional(&self.pool)
-        .await
-        .map_err(map_sqlx_error)?;
-
-        row.map(User::try_from).transpose()
-    }
-
-    async fn find_by_email_token(&self, token: &str) -> Result<Option<User>, AppError> {
-        let row = sqlx::query_as!(
-            UserRow,
-            "SELECT id, email, password_hash, display_name, avatar_url, locale, timezone, theme, \
-             email_verified, onboarding_completed, onboarding_step, email_token, status, \
-             created_at, updated_at FROM users WHERE email_token = $1 AND status != 'deleted'",
-            token
-        )
+        .bind(normalized)
         .fetch_optional(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
@@ -164,32 +144,28 @@ impl UserRepository for PgUserRepository {
     }
 
     async fn create(&self, user: User) -> Result<User, AppError> {
-        let normalized_email = User::normalize_email(&user.email);
-        let row = sqlx::query_as!(
-            UserRow,
-            "INSERT INTO users (id, email, password_hash, display_name, avatar_url, \
-             locale, timezone, theme, email_verified, onboarding_completed, \
-             onboarding_step, email_token, status, created_at, updated_at) \
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) \
-             RETURNING id, email, password_hash, display_name, avatar_url, locale, timezone, \
-             theme, email_verified, onboarding_completed, onboarding_step, email_token, status, \
+        let row: UserRow = sqlx::query_as::<_, UserRow>(
+            "INSERT INTO users (id, username, password_hash, display_name, avatar_url, \
+             locale, timezone, theme, onboarding_completed, \
+             onboarding_step, status, created_at, updated_at) \
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) \
+             RETURNING id, username, password_hash, display_name, avatar_url, locale, timezone, \
+             theme, onboarding_completed, onboarding_step, status, \
              created_at, updated_at",
-            user.id.into_uuid(),
-            normalized_email,
-            user.password_hash.as_deref(),
-            user.display_name,
-            user.avatar_url.as_deref(),
-            user.locale,
-            user.timezone,
-            theme_to_str(user.theme),
-            user.email_verified,
-            user.onboarding_completed,
-            user.onboarding_step,
-            user.email_token,
-            status_to_str(user.status),
-            user.created_at,
-            user.updated_at,
         )
+        .bind(user.id.into_uuid())
+        .bind(user.username)
+        .bind(user.password_hash.as_deref())
+        .bind(user.display_name)
+        .bind(user.avatar_url.as_deref())
+        .bind(user.locale)
+        .bind(user.timezone)
+        .bind(theme_to_str(user.theme))
+        .bind(user.onboarding_completed)
+        .bind(user.onboarding_step)
+        .bind(status_to_str(user.status))
+        .bind(user.created_at)
+        .bind(user.updated_at)
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
@@ -207,7 +183,6 @@ impl UserRepository for PgUserRepository {
     }
 
     async fn create_first_user(&self, user: User) -> Result<Option<User>, AppError> {
-        let normalized_email = User::normalize_email(&user.email);
         let mut tx = self.pool.begin().await.map_err(map_sqlx_error)?;
 
         sqlx::query!("SELECT pg_advisory_xact_lock($1)", BOOTSTRAP_USER_LOCK_KEY)
@@ -226,31 +201,28 @@ impl UserRepository for PgUserRepository {
             return Ok(None);
         }
 
-        let row = sqlx::query_as!(
-            UserRow,
-            "INSERT INTO users (id, email, password_hash, display_name, avatar_url, \
-             locale, timezone, theme, email_verified, onboarding_completed, \
-             onboarding_step, email_token, status, created_at, updated_at) \
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) \
-             RETURNING id, email, password_hash, display_name, avatar_url, locale, timezone, \
-             theme, email_verified, onboarding_completed, onboarding_step, email_token, status, \
+        let row: UserRow = sqlx::query_as::<_, UserRow>(
+            "INSERT INTO users (id, username, password_hash, display_name, avatar_url, \
+             locale, timezone, theme, onboarding_completed, \
+             onboarding_step, status, created_at, updated_at) \
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) \
+             RETURNING id, username, password_hash, display_name, avatar_url, locale, timezone, \
+             theme, onboarding_completed, onboarding_step, status, \
              created_at, updated_at",
-            user.id.into_uuid(),
-            normalized_email,
-            user.password_hash.as_deref(),
-            user.display_name,
-            user.avatar_url.as_deref(),
-            user.locale,
-            user.timezone,
-            theme_to_str(user.theme),
-            user.email_verified,
-            user.onboarding_completed,
-            user.onboarding_step,
-            user.email_token,
-            status_to_str(user.status),
-            user.created_at,
-            user.updated_at,
         )
+        .bind(user.id.into_uuid())
+        .bind(user.username)
+        .bind(user.password_hash.as_deref())
+        .bind(user.display_name)
+        .bind(user.avatar_url.as_deref())
+        .bind(user.locale)
+        .bind(user.timezone)
+        .bind(theme_to_str(user.theme))
+        .bind(user.onboarding_completed)
+        .bind(user.onboarding_step)
+        .bind(status_to_str(user.status))
+        .bind(user.created_at)
+        .bind(user.updated_at)
         .fetch_one(&mut *tx)
         .await
         .map_err(map_sqlx_error)?;
@@ -265,7 +237,6 @@ impl UserRepository for PgUserRepository {
         user: User,
         identity: OAuthIdentity,
     ) -> Result<Option<User>, AppError> {
-        let normalized_email = User::normalize_email(&user.email);
         let mut tx = self.pool.begin().await.map_err(map_sqlx_error)?;
 
         sqlx::query!("SELECT pg_advisory_xact_lock($1)", BOOTSTRAP_USER_LOCK_KEY)
@@ -284,31 +255,28 @@ impl UserRepository for PgUserRepository {
             return Ok(None);
         }
 
-        let row = sqlx::query_as!(
-            UserRow,
-            "INSERT INTO users (id, email, password_hash, display_name, avatar_url, \
-             locale, timezone, theme, email_verified, onboarding_completed, \
-             onboarding_step, email_token, status, created_at, updated_at) \
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) \
-             RETURNING id, email, password_hash, display_name, avatar_url, locale, timezone, \
-             theme, email_verified, onboarding_completed, onboarding_step, email_token, status, \
+        let row: UserRow = sqlx::query_as::<_, UserRow>(
+            "INSERT INTO users (id, username, password_hash, display_name, avatar_url, \
+             locale, timezone, theme, onboarding_completed, \
+             onboarding_step, status, created_at, updated_at) \
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) \
+             RETURNING id, username, password_hash, display_name, avatar_url, locale, timezone, \
+             theme, onboarding_completed, onboarding_step, status, \
              created_at, updated_at",
-            user.id.into_uuid(),
-            normalized_email,
-            user.password_hash.as_deref(),
-            user.display_name,
-            user.avatar_url.as_deref(),
-            user.locale,
-            user.timezone,
-            theme_to_str(user.theme),
-            user.email_verified,
-            user.onboarding_completed,
-            user.onboarding_step,
-            user.email_token,
-            status_to_str(user.status),
-            user.created_at,
-            user.updated_at,
         )
+        .bind(user.id.into_uuid())
+        .bind(user.username)
+        .bind(user.password_hash.as_deref())
+        .bind(user.display_name)
+        .bind(user.avatar_url.as_deref())
+        .bind(user.locale)
+        .bind(user.timezone)
+        .bind(theme_to_str(user.theme))
+        .bind(user.onboarding_completed)
+        .bind(user.onboarding_step)
+        .bind(status_to_str(user.status))
+        .bind(user.created_at)
+        .bind(user.updated_at)
         .fetch_one(&mut *tx)
         .await
         .map_err(map_sqlx_error)?;
@@ -344,25 +312,25 @@ impl UserRepository for PgUserRepository {
         timezone: String,
         theme: Theme,
     ) -> Result<User, AppError> {
-        let row = sqlx::query_as!(
-            UserRow,
+        let row: Option<UserRow> = sqlx::query_as::<_, UserRow>(
             "UPDATE users SET display_name = $2, avatar_url = $3, locale = $4, \
              timezone = $5, theme = $6, updated_at = now() \
              WHERE id = $1 AND status != 'deleted' \
-             RETURNING id, email, password_hash, display_name, avatar_url, locale, timezone, \
-             theme, email_verified, onboarding_completed, onboarding_step, email_token, status, \
+             RETURNING id, username, password_hash, display_name, avatar_url, locale, timezone, \
+             theme, onboarding_completed, onboarding_step, status, \
              created_at, updated_at",
-            id.into_uuid(),
-            display_name,
-            avatar_url.as_deref(),
-            locale.as_deref(),
-            timezone,
-            theme_to_str(theme),
         )
+        .bind(id.into_uuid())
+        .bind(display_name)
+        .bind(avatar_url.as_deref())
+        .bind(locale.as_deref())
+        .bind(timezone)
+        .bind(theme_to_str(theme))
         .fetch_optional(&self.pool)
         .await
-        .map_err(map_sqlx_error)?
-        .ok_or_else(|| {
+        .map_err(map_sqlx_error)?;
+
+        let row = row.ok_or_else(|| {
             AppError::Domain(DomainError::NotFound {
                 entity: "user",
                 id: id.to_string(),
@@ -378,22 +346,22 @@ impl UserRepository for PgUserRepository {
         onboarding_step: i16,
         onboarding_completed: bool,
     ) -> Result<User, AppError> {
-        let row = sqlx::query_as!(
-            UserRow,
+        let row: Option<UserRow> = sqlx::query_as::<_, UserRow>(
             "UPDATE users SET onboarding_step = $2, onboarding_completed = $3, \
              updated_at = now() \
              WHERE id = $1 AND status != 'deleted' \
-             RETURNING id, email, password_hash, display_name, avatar_url, locale, timezone, \
-             theme, email_verified, onboarding_completed, onboarding_step, email_token, status, \
+             RETURNING id, username, password_hash, display_name, avatar_url, locale, timezone, \
+             theme, onboarding_completed, onboarding_step, status, \
              created_at, updated_at",
-            id.into_uuid(),
-            onboarding_step,
-            onboarding_completed,
         )
+        .bind(id.into_uuid())
+        .bind(onboarding_step)
+        .bind(onboarding_completed)
         .fetch_optional(&self.pool)
         .await
-        .map_err(map_sqlx_error)?
-        .ok_or_else(|| {
+        .map_err(map_sqlx_error)?;
+
+        let row = row.ok_or_else(|| {
             AppError::Domain(DomainError::NotFound {
                 entity: "user",
                 id: id.to_string(),
@@ -408,79 +376,20 @@ impl UserRepository for PgUserRepository {
         id: UserId,
         password_hash: String,
     ) -> Result<User, AppError> {
-        let row = sqlx::query_as!(
-            UserRow,
+        let row: Option<UserRow> = sqlx::query_as::<_, UserRow>(
             "UPDATE users SET password_hash = $2, updated_at = now() \
              WHERE id = $1 AND status != 'deleted' \
-             RETURNING id, email, password_hash, display_name, avatar_url, locale, timezone, \
-             theme, email_verified, onboarding_completed, onboarding_step, email_token, status, \
+             RETURNING id, username, password_hash, display_name, avatar_url, locale, timezone, \
+             theme, onboarding_completed, onboarding_step, status, \
              created_at, updated_at",
-            id.into_uuid(),
-            password_hash,
         )
+        .bind(id.into_uuid())
+        .bind(password_hash)
         .fetch_optional(&self.pool)
         .await
-        .map_err(map_sqlx_error)?
-        .ok_or_else(|| {
-            AppError::Domain(DomainError::NotFound {
-                entity: "user",
-                id: id.to_string(),
-            })
-        })?;
+        .map_err(map_sqlx_error)?;
 
-        User::try_from(row)
-    }
-
-    async fn update_email_verified(
-        &self,
-        id: UserId,
-        email_verified: bool,
-    ) -> Result<User, AppError> {
-        let row = sqlx::query_as!(
-            UserRow,
-            "UPDATE users SET email_verified = $2, updated_at = now() \
-             WHERE id = $1 AND status != 'deleted' \
-             RETURNING id, email, password_hash, display_name, avatar_url, locale, timezone, \
-             theme, email_verified, onboarding_completed, onboarding_step, email_token, status, \
-             created_at, updated_at",
-            id.into_uuid(),
-            email_verified,
-        )
-        .fetch_optional(&self.pool)
-        .await
-        .map_err(map_sqlx_error)?
-        .ok_or_else(|| {
-            AppError::Domain(DomainError::NotFound {
-                entity: "user",
-                id: id.to_string(),
-            })
-        })?;
-
-        User::try_from(row)
-    }
-
-    async fn update_email_and_verification(
-        &self,
-        id: UserId,
-        email: String,
-        email_verified: bool,
-    ) -> Result<User, AppError> {
-        let normalized = User::normalize_email(&email);
-        let row = sqlx::query_as!(
-            UserRow,
-            "UPDATE users SET email = $2, email_verified = $3, updated_at = now() \
-             WHERE id = $1 AND status != 'deleted' \
-             RETURNING id, email, password_hash, display_name, avatar_url, locale, timezone, \
-             theme, email_verified, onboarding_completed, onboarding_step, email_token, status, \
-             created_at, updated_at",
-            id.into_uuid(),
-            normalized,
-            email_verified,
-        )
-        .fetch_optional(&self.pool)
-        .await
-        .map_err(map_sqlx_error)?
-        .ok_or_else(|| {
+        let row = row.ok_or_else(|| {
             AppError::Domain(DomainError::NotFound {
                 entity: "user",
                 id: id.to_string(),

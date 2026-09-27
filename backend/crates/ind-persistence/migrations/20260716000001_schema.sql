@@ -337,10 +337,9 @@ CREATE TABLE public.documents (
     thumbnail_url text,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    sender_id uuid,
     word_count integer,
     reading_time_minutes integer,
-    CONSTRAINT ck_documents_type CHECK ((document_type = ANY (ARRAY['article'::text, 'book'::text, 'email'::text, 'pdf'::text, 'video'::text, 'podcast'::text])))
+    CONSTRAINT ck_documents_type CHECK ((document_type = ANY (ARRAY['article'::text, 'book'::text, 'pdf'::text, 'video'::text, 'podcast'::text])))
 );
 
 CREATE TABLE public.domain_events (
@@ -350,68 +349,6 @@ CREATE TABLE public.domain_events (
     aggregate_id uuid NOT NULL,
     user_id uuid NOT NULL,
     payload jsonb NOT NULL,
-    created_at timestamp with time zone NOT NULL
-);
-
-CREATE TABLE public.email_aliases (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid NOT NULL,
-    destination text NOT NULL,
-    local_part text NOT NULL,
-    status text DEFAULT 'active'::text NOT NULL,
-    is_default boolean DEFAULT false NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    retire_at timestamp with time zone,
-    retired_at timestamp with time zone,
-    CONSTRAINT chk_email_aliases_destination CHECK ((destination = ANY (ARRAY['feed'::text, 'library'::text]))),
-    CONSTRAINT chk_email_aliases_status CHECK ((status = ANY (ARRAY['active'::text, 'retired'::text])))
-);
-
-CREATE TABLE public.email_ingest_log (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    provider text NOT NULL,
-    provider_email_id text NOT NULL,
-    user_id uuid NOT NULL,
-    destination text NOT NULL,
-    status text DEFAULT 'pending'::text NOT NULL,
-    error text,
-    raw_payload bytea,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    processed_at timestamp with time zone,
-    CONSTRAINT chk_email_ingest_log_status CHECK ((status = ANY (ARRAY['pending'::text, 'blocked'::text, 'duplicate'::text, 'failed'::text, 'processed'::text, 'gmail_confirmation'::text])))
-);
-
-CREATE TABLE public.email_senders (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid NOT NULL,
-    canonical_addr text NOT NULL,
-    list_id text,
-    display_name text,
-    render_default text DEFAULT 'reader'::text NOT NULL,
-    routing_default text,
-    blocked_at timestamp with time zone,
-    first_seen_at timestamp with time zone DEFAULT now() NOT NULL,
-    last_seen_at timestamp with time zone DEFAULT now() NOT NULL,
-    delivery_count integer DEFAULT 0 NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT chk_email_senders_render_default CHECK ((render_default = ANY (ARRAY['reader'::text, 'original'::text]))),
-    CONSTRAINT chk_email_senders_routing_default CHECK (((routing_default IS NULL) OR (routing_default = ANY (ARRAY['feed'::text, 'library'::text]))))
-);
-
-CREATE TABLE public.email_unsubscribe_targets (
-    sender_id uuid NOT NULL,
-    one_click_post_url text,
-    mailto_addr text,
-    web_url text,
-    last_seen_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-CREATE TABLE public.email_verification_tokens (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid NOT NULL,
-    token_hash text NOT NULL,
-    expires_at timestamp with time zone NOT NULL,
     created_at timestamp with time zone NOT NULL
 );
 
@@ -713,8 +650,6 @@ CREATE TABLE public.miniflux_sync_map (
 
 CREATE TABLE public.notification_preferences (
     user_id uuid NOT NULL,
-    email_digest boolean DEFAULT true NOT NULL,
-    email_review_reminder boolean DEFAULT true NOT NULL,
     push_enabled boolean DEFAULT true NOT NULL,
     push_new_feed_items boolean DEFAULT false NOT NULL,
     push_ingestion_complete boolean DEFAULT false NOT NULL,
@@ -725,8 +660,7 @@ CREATE TABLE public.notification_preferences (
     daily_review_reminder_time text DEFAULT '09:00'::text NOT NULL,
     weekly_digest_enabled boolean DEFAULT true NOT NULL,
     new_highlights_sync boolean DEFAULT true NOT NULL,
-    feed_updates boolean DEFAULT true NOT NULL,
-    marketing_emails boolean DEFAULT false NOT NULL
+    feed_updates boolean DEFAULT true NOT NULL
 );
 
 CREATE TABLE public.notifications (
@@ -759,15 +693,6 @@ CREATE TABLE public.oauth_identities (
     provider_email text,
     access_token_enc bytea,
     refresh_token_enc bytea,
-    created_at timestamp with time zone NOT NULL
-);
-
-CREATE TABLE public.password_reset_tokens (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid NOT NULL,
-    token_hash text NOT NULL,
-    expires_at timestamp with time zone NOT NULL,
-    used_at timestamp with time zone,
     created_at timestamp with time zone NOT NULL
 );
 
@@ -990,27 +915,23 @@ CREATE TABLE public.user_preferences (
     proxy_all_requests boolean DEFAULT false NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    home_widget_config jsonb,
-    reader_email_open_mode text DEFAULT 'reader'::text NOT NULL,
-    CONSTRAINT user_preferences_email_open_mode_check CHECK ((reader_email_open_mode = ANY (ARRAY['reader'::text, 'original'::text])))
+    home_widget_config jsonb
 );
 
 CREATE TABLE public.users (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    email text NOT NULL,
+    username text NOT NULL,
     password_hash text,
     display_name text NOT NULL,
     avatar_url text,
     locale text,
     theme text DEFAULT 'system'::text NOT NULL,
-    email_verified boolean DEFAULT false NOT NULL,
     onboarding_completed boolean DEFAULT false NOT NULL,
     onboarding_step smallint DEFAULT 0 NOT NULL,
     status text DEFAULT 'active'::text NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    timezone text DEFAULT 'UTC'::text NOT NULL,
-    email_token text DEFAULT "left"(replace((gen_random_uuid())::text, '-'::text, ''::text), 8) NOT NULL
+    timezone text DEFAULT 'UTC'::text NOT NULL
 );
 
 CREATE TABLE public.webhook_deliveries (

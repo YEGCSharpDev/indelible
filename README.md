@@ -20,8 +20,7 @@ library, permanently. Links rot; your library does not.
   everything you have saved.
 - **Mila, an optional AI assistant.** Ask questions across your library and
   summarize long reads, using your own provider key.
-- **Content in, from anywhere.** Personal email-in
-  addresses, RSS feeds, and file uploads.
+- **Content in, from anywhere.** RSS feeds and file uploads.
 
 <img alt="Four Indelible screens: the Home dashboard, full-text and semantic search, Collections, and the RSS feed" src="https://assets.useindelible.com/readme/wall.webp" width="100%" />
 

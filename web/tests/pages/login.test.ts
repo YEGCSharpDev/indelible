@@ -83,10 +83,10 @@ describe('Login page', () => {
 		expect(screen.getByRole('button', { name: 'Se connecter' })).toBeTruthy();
 	});
 
-	it('renders email and password fields', () => {
+	it('renders username and password fields', () => {
 		render(LoginPage);
 
-		expect(screen.getByLabelText('Email')).toBeTruthy();
+		expect(screen.getByLabelText('Username')).toBeTruthy();
 		expect(screen.getByLabelText('Password')).toBeTruthy();
 	});
 
@@ -94,14 +94,6 @@ describe('Login page', () => {
 		render(LoginPage);
 
 		expect(screen.getByRole('button', { name: /sign in/i })).toBeTruthy();
-	});
-
-	it('renders forgot password link', () => {
-		render(LoginPage);
-
-		const link = screen.getByText('Forgot password?');
-		expect(link).toBeTruthy();
-		expect(link.getAttribute('href')).toBe('/forgot-password');
 	});
 
 	it('renders register link', async () => {
@@ -129,7 +121,7 @@ describe('Login page', () => {
 		const button = screen.getByRole('button', { name: /sign in/i });
 		await fireEvent.click(button);
 
-		expect(screen.getByText('Email is required')).toBeTruthy();
+		expect(screen.getByText('Username is required')).toBeTruthy();
 		expect(screen.getByText('Password is required')).toBeTruthy();
 		expect(mockLogin).not.toHaveBeenCalled();
 	});
@@ -138,17 +130,17 @@ describe('Login page', () => {
 		mockLogin.mockResolvedValue({ success: true });
 		render(LoginPage);
 
-		const emailInput = screen.getByLabelText('Email');
+		const usernameInput = screen.getByLabelText('Username');
 		const passwordInput = screen.getByLabelText('Password');
 
-		await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
+		await fireEvent.input(usernameInput, { target: { value: 'testuser' } });
 		await fireEvent.input(passwordInput, { target: { value: 'password123' } });
 
 		const button = screen.getByRole('button', { name: /sign in/i });
 		await fireEvent.click(button);
 
 		await waitFor(() => {
-			expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
+			expect(mockLogin).toHaveBeenCalledWith('testuser', 'password123');
 		});
 	});
 
@@ -156,10 +148,10 @@ describe('Login page', () => {
 		mockLogin.mockResolvedValue({ success: true });
 		render(LoginPage);
 
-		const emailInput = screen.getByLabelText('Email');
+		const usernameInput = screen.getByLabelText('Username');
 		const passwordInput = screen.getByLabelText('Password');
 
-		await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
+		await fireEvent.input(usernameInput, { target: { value: 'testuser' } });
 		await fireEvent.input(passwordInput, { target: { value: 'password123' } });
 		await fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
@@ -175,8 +167,8 @@ describe('Login page', () => {
 		mockLogin.mockResolvedValue({ success: true });
 		render(LoginPage);
 
-		await fireEvent.input(screen.getByLabelText('Email'), {
-			target: { value: 'test@example.com' }
+		await fireEvent.input(screen.getByLabelText('Username'), {
+			target: { value: 'testuser' }
 		});
 		await fireEvent.input(screen.getByLabelText('Password'), {
 			target: { value: 'password123' }
@@ -195,8 +187,8 @@ describe('Login page', () => {
 		mockLogin.mockResolvedValue({ success: true });
 		render(LoginPage);
 
-		await fireEvent.input(screen.getByLabelText('Email'), {
-			target: { value: 'test@example.com' }
+		await fireEvent.input(screen.getByLabelText('Username'), {
+			target: { value: 'testuser' }
 		});
 		await fireEvent.input(screen.getByLabelText('Password'), {
 			target: { value: 'password123' }
@@ -213,8 +205,8 @@ describe('Login page', () => {
 		mockLogin.mockResolvedValue({ success: true });
 		render(LoginPage);
 
-		await fireEvent.input(screen.getByLabelText('Email'), {
-			target: { value: 'test@example.com' }
+		await fireEvent.input(screen.getByLabelText('Username'), {
+			target: { value: 'testuser' }
 		});
 		await fireEvent.input(screen.getByLabelText('Password'), {
 			target: { value: 'password123' }
@@ -231,10 +223,10 @@ describe('Login page', () => {
 		mockAuthError = 'Email or password is incorrect.';
 		render(LoginPage);
 
-		const emailInput = screen.getByLabelText('Email');
+		const usernameInput = screen.getByLabelText('Username');
 		const passwordInput = screen.getByLabelText('Password');
 
-		await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
+		await fireEvent.input(usernameInput, { target: { value: 'testuser' } });
 		await fireEvent.input(passwordInput, { target: { value: 'wrong' } });
 		await fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
@@ -248,10 +240,10 @@ describe('Login page', () => {
 		mockLogin.mockResolvedValue({ success: false });
 		render(LoginPage);
 
-		const emailInput = screen.getByLabelText('Email');
+		const usernameInput = screen.getByLabelText('Username');
 		const passwordInput = screen.getByLabelText('Password');
 
-		await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
+		await fireEvent.input(usernameInput, { target: { value: 'testuser' } });
 		await fireEvent.input(passwordInput, { target: { value: 'wrong' } });
 
 		for (let i = 0; i < 5; i++) {
@@ -272,7 +264,7 @@ describe('Login page', () => {
 		expect(screen.getByText('Welcome back')).toBeTruthy();
 	});
 
-	it('does not call login when form has empty email', async () => {
+	it('does not call login when form has empty username', async () => {
 		render(LoginPage);
 
 		const passwordInput = screen.getByLabelText('Password');

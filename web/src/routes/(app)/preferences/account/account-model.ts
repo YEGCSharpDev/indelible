@@ -12,18 +12,18 @@ export function createAccountSnapshot(input: AccountSnapshotInput): string {
 	});
 }
 
-export function getAccountUsername(email: string | null | undefined): string {
-	return email ? `@${email.split('@')[0]}` : '';
+export function getAccountUsername(username: string | null | undefined): string {
+	return username ? `@${username}` : '';
 }
 
 export function getAccountAvatarInitial({
 	displayName,
-	email
+	username
 }: {
-	displayName: string | null | undefined;
-	email: string | null | undefined;
+	displayName?: string | null | undefined;
+	username?: string | null | undefined;
 }): string {
-	return (displayName?.[0] ?? email?.[0] ?? 'U').toUpperCase();
+	return (displayName?.[0] ?? username?.[0] ?? 'U').toUpperCase();
 }
 
 export function formatMemberSince(iso: string | null | undefined): string {
@@ -33,13 +33,13 @@ export function formatMemberSince(iso: string | null | undefined): string {
 	return get(date)(parsed, { month: 'short', year: 'numeric' });
 }
 
-export function isDeleteEmailConfirmed(
-	confirmEmail: string,
-	accountEmail: string | null | undefined
+export function isDeleteUsernameConfirmed(
+	confirmUsername: string,
+	accountUsername: string | null | undefined
 ): boolean {
 	return (
-		confirmEmail.trim().toLowerCase() === (accountEmail ?? '').toLowerCase() &&
-		confirmEmail.length > 0
+		confirmUsername.trim().toLowerCase() === (accountUsername ?? '').toLowerCase() &&
+		confirmUsername.length > 0
 	);
 }
 import { date } from '$lib/i18n';

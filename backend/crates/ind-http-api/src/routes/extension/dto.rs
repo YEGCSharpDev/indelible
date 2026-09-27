@@ -10,7 +10,7 @@ pub struct ExtensionStatusResponse {
 #[derive(Debug, Serialize, ToSchema)]
 pub struct ExtensionUserInfo {
     pub id: String,
-    pub email: String,
+    pub username: String,
     pub display_name: String,
 }
 

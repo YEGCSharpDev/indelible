@@ -64,85 +64,29 @@ impl PgSearchRepository {
 
     pub(super) async fn suggest_senders_impl(
         &self,
-        user_id: UserId,
-        prefix: &str,
-        limit: i64,
+        _user_id: UserId,
+        _prefix: &str,
+        _limit: i64,
     ) -> Result<Vec<String>, AppError> {
-        let prefix = format!("{}%", prefix.to_lowercase());
-        sqlx::query_scalar!(
-            r#"
-            SELECT es.canonical_addr AS "canonical_addr!"
-            FROM email_senders es
-            JOIN documents d ON d.sender_id = es.id AND d.user_id = $1
-            WHERE es.user_id = $1
-              AND lower(es.canonical_addr) LIKE $2
-            GROUP BY es.canonical_addr
-            ORDER BY count(d.id) DESC, lower(es.canonical_addr)
-            LIMIT $3
-            "#,
-            user_id.into_uuid(),
-            prefix,
-            limit,
-        )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(map_sqlx_error)
+        Ok(vec![])
     }
 
     pub(super) async fn suggest_sender_domains_impl(
         &self,
-        user_id: UserId,
-        prefix: &str,
-        limit: i64,
+        _user_id: UserId,
+        _prefix: &str,
+        _limit: i64,
     ) -> Result<Vec<String>, AppError> {
-        let prefix = format!("{}%", prefix.to_lowercase());
-        sqlx::query_scalar!(
-            r#"
-            SELECT split_part(es.canonical_addr, '@', 2) AS "domain!"
-            FROM email_senders es
-            JOIN documents d ON d.sender_id = es.id AND d.user_id = $1
-            WHERE es.user_id = $1
-              AND split_part(es.canonical_addr, '@', 2) <> ''
-              AND lower(split_part(es.canonical_addr, '@', 2)) LIKE $2
-            GROUP BY split_part(es.canonical_addr, '@', 2)
-            ORDER BY count(d.id) DESC, lower(split_part(es.canonical_addr, '@', 2))
-            LIMIT $3
-            "#,
-            user_id.into_uuid(),
-            prefix,
-            limit,
-        )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(map_sqlx_error)
+        Ok(vec![])
     }
 
     pub(super) async fn suggest_list_ids_impl(
         &self,
-        user_id: UserId,
-        prefix: &str,
-        limit: i64,
+        _user_id: UserId,
+        _prefix: &str,
+        _limit: i64,
     ) -> Result<Vec<String>, AppError> {
-        let prefix = format!("{}%", prefix.to_lowercase());
-        sqlx::query_scalar!(
-            r#"
-            SELECT es.list_id AS "list_id!"
-            FROM email_senders es
-            JOIN documents d ON d.sender_id = es.id AND d.user_id = $1
-            WHERE es.user_id = $1
-              AND es.list_id IS NOT NULL
-              AND lower(es.list_id) LIKE $2
-            GROUP BY es.list_id
-            ORDER BY count(d.id) DESC, lower(es.list_id)
-            LIMIT $3
-            "#,
-            user_id.into_uuid(),
-            prefix,
-            limit,
-        )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(map_sqlx_error)
+        Ok(vec![])
     }
 
     pub(super) async fn suggest_authors_impl(

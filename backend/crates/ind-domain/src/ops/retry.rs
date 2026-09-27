@@ -68,14 +68,6 @@ pub fn retry_policy_for(job_type: &str) -> RetryPolicy {
                 Duration::from_secs(3600),
             ],
         },
-        job_types::EMAIL_INGEST => RetryPolicy {
-            max_attempts: 3,
-            backoff_durations: vec![
-                Duration::from_secs(30),
-                Duration::from_secs(120),
-                Duration::from_secs(600),
-            ],
-        },
         job_types::DOCUMENT_AI_EMBED
         | job_types::DOCUMENT_AI_SUMMARIZE
         | job_types::DOCUMENT_AI_TAGS

@@ -21,11 +21,10 @@ use crate::middleware::{
 };
 use crate::state::{AppConfig, AppState};
 pub(crate) use dto::{
-    AuthResponse, ForgotPasswordRequest, LoginRequest, MessageResponse, NativeOAuthStartQuery,
-    NativeOAuthTokenForm, NativeOAuthTokenResponse, OAuthCallbackForm, OAuthCallbackQuery,
-    OAuthProviderInfo, OAuthProvidersResponse, RefreshResponse, RefreshTokenDetail,
-    RefreshTokenListResponse, RefreshTokenRequest, RegisterRequest, ResetPasswordRequest,
-    VerifyEmailRequest,
+    AuthResponse, LoginRequest, MessageResponse, NativeOAuthStartQuery, NativeOAuthTokenForm,
+    NativeOAuthTokenResponse, OAuthCallbackForm, OAuthCallbackQuery, OAuthProviderInfo,
+    OAuthProvidersResponse, RefreshResponse, RefreshTokenDetail, RefreshTokenListResponse,
+    RefreshTokenRequest, RegisterRequest,
 };
 
 // ---------------------------------------------------------------------------

@@ -82,24 +82,18 @@ impl AvatarContentType {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
     pub id: UserId,
-    pub email: String,
+    pub username: String,
     pub password_hash: Option<String>,
     pub display_name: String,
     pub avatar_url: Option<String>,
     pub locale: Option<String>,
     pub timezone: String,
     pub theme: Theme,
-    pub email_verified: bool,
     pub onboarding_completed: bool,
     pub onboarding_step: i16,
-    pub email_token: String,
     pub status: UserStatus,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
 
-impl User {
-    pub fn normalize_email(raw: &str) -> String {
-        raw.trim().to_lowercase()
-    }
-}
+impl User {}

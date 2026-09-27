@@ -1,11 +1,9 @@
-use ind_domain::CanonicalAddress;
-
 use super::types::{SearchHitRow, map_sqlx_error};
 use super::*;
 
 fn canonicalize_sender_filter(value: &str) -> String {
     if value.contains('@') {
-        CanonicalAddress::new(value).to_string()
+        value.to_lowercase()
     } else {
         value.trim().to_lowercase()
     }
@@ -29,8 +27,7 @@ impl PgSearchRepository {
             .iter()
             .map(|v| canonicalize_sender_filter(v))
             .collect();
-        let rows = sqlx::query_as!(
-            SearchHitRow,
+        let rows: Vec<SearchHitRow> = sqlx::query_as::<_, SearchHitRow>(
             r#"
             WITH documents_matched AS (
                 SELECT
@@ -98,8 +95,7 @@ impl PgSearchRepository {
                     sd.updated_at,
                     CASE WHEN sd.section_key = '' THEN NULL ELSE sd.document_kind END AS section_kind,
                     CASE WHEN sd.section_key = '' THEN NULL ELSE sd.section_key END AS section_key,
-                    CASE WHEN sd.section_key = '' THEN NULL ELSE sd.section_title END AS section_title,
-                    d.sender_id AS sender_id
+                    CASE WHEN sd.section_key = '' THEN NULL ELSE sd.section_title END AS section_title
                 FROM search_documents sd
                 JOIN documents d ON d.id = sd.document_id AND d.user_id = $1
                 LEFT JOIN library_entries le
@@ -310,57 +306,13 @@ impl PgSearchRepository {
                         )
                   )
                   AND (NOT $39 OR le.id IS NOT NULL)
-                  -- Email-sender filters resolve through documents.sender_id -> email_senders.
-                  -- Require variants demand a matching linked sender; negated variants exclude
-                  -- documents whose linked sender matches.
-                  AND (
-                        cardinality($37::text[]) = 0
-                        OR EXISTS (
-                            SELECT 1 FROM email_senders es
-                            WHERE es.id = d.sender_id AND es.user_id = $1
-                              AND lower(es.canonical_addr) = ANY($37::text[])
-                        )
-                  )
-                  AND (
-                        cardinality($38::text[]) = 0
-                        OR NOT EXISTS (
-                            SELECT 1 FROM email_senders es
-                            WHERE es.id = d.sender_id AND es.user_id = $1
-                              AND lower(es.canonical_addr) = ANY($38::text[])
-                        )
-                  )
-                  AND (
-                        cardinality($40::text[]) = 0
-                        OR EXISTS (
-                            SELECT 1 FROM email_senders es
-                            WHERE es.id = d.sender_id AND es.user_id = $1
-                              AND lower(split_part(es.canonical_addr, '@', 2)) = ANY($40::text[])
-                        )
-                  )
-                  AND (
-                        cardinality($41::text[]) = 0
-                        OR NOT EXISTS (
-                            SELECT 1 FROM email_senders es
-                            WHERE es.id = d.sender_id AND es.user_id = $1
-                              AND lower(split_part(es.canonical_addr, '@', 2)) = ANY($41::text[])
-                        )
-                  )
-                  AND (
-                        cardinality($42::text[]) = 0
-                        OR EXISTS (
-                            SELECT 1 FROM email_senders es
-                            WHERE es.id = d.sender_id AND es.user_id = $1
-                              AND lower(COALESCE(es.list_id, '')) = ANY($42::text[])
-                        )
-                  )
-                  AND (
-                        cardinality($43::text[]) = 0
-                        OR NOT EXISTS (
-                            SELECT 1 FROM email_senders es
-                            WHERE es.id = d.sender_id AND es.user_id = $1
-                              AND lower(COALESCE(es.list_id, '')) = ANY($43::text[])
-                        )
-                  )
+                  -- Email-sender filters: email tables have been removed, so require filters match nothing and exclude filters match all.
+                  AND (cardinality($37::text[]) = 0)
+                  AND (cardinality($38::text[]) >= 0)
+                  AND (cardinality($40::text[]) = 0)
+                  AND (cardinality($41::text[]) >= 0)
+                  AND (cardinality($42::text[]) = 0)
+                  AND (cardinality($43::text[]) >= 0)
                   AND (
                         cardinality($44::text[]) = 0
                         OR EXISTS (
@@ -375,36 +327,8 @@ impl PgSearchRepository {
                             WHERE lower(d.title) LIKE '%' || needle.value || '%'
                         )
                   )
-                  AND (
-                        NOT $46
-                        OR EXISTS (
-                            SELECT 1 FROM email_unsubscribe_targets eut
-                            WHERE eut.sender_id = d.sender_id
-                        )
-                  )
-                  AND (
-                        NOT $47
-                        OR NOT EXISTS (
-                            SELECT 1 FROM email_unsubscribe_targets eut
-                            WHERE eut.sender_id = d.sender_id
-                        )
-                  )
-                  AND (
-                        NOT $48
-                        OR EXISTS (
-                            SELECT 1 FROM email_senders es
-                            WHERE es.id = d.sender_id AND es.user_id = $1
-                              AND es.blocked_at IS NOT NULL
-                        )
-                  )
-                  AND (
-                        NOT $49
-                        OR NOT EXISTS (
-                            SELECT 1 FROM email_senders es
-                            WHERE es.id = d.sender_id AND es.user_id = $1
-                              AND es.blocked_at IS NOT NULL
-                        )
-                  )
+                  AND (NOT $46)
+                  AND (NOT $48)
             ),
             feed_preview_matched AS (
                 SELECT
@@ -469,8 +393,7 @@ impl PgSearchRepository {
                     fd.updated_at,
                     NULL::text AS section_kind,
                     NULL::text AS section_key,
-                    NULL::text AS section_title,
-                    NULL::uuid AS sender_id
+                    NULL::text AS section_title
                 FROM feed_deliveries fd
                 JOIN feed_source_entries fse ON fse.id = fd.source_entry_id
                 JOIN feed_sources fs ON fs.id = fd.source_id
@@ -588,79 +511,77 @@ impl PgSearchRepository {
                 )
             )
             SELECT
-                document_id AS "document_id?",
-                delivery_id AS "delivery_id?",
-                source_entry_id AS "source_entry_id?",
-                result_kind AS "result_kind!",
-                item_title AS "item_title!",
-                snippet AS "snippet!",
-                final_score AS "final_score!",
-                item_type AS "item_type!",
-                url AS "url?",
-                saved_at AS "saved_at!",
-                updated_at AS "updated_at!",
-                section_kind AS "section_kind?",
-                section_key AS "section_key?",
-                section_title AS "section_title?",
-                sender_id AS "sender_id?"
+                document_id,
+                delivery_id,
+                source_entry_id,
+                result_kind,
+                item_title,
+                snippet,
+                final_score,
+                item_type,
+                url,
+                saved_at,
+                updated_at,
+                section_kind,
+                section_key,
+                section_title
             FROM ranked
             ORDER BY final_score DESC, saved_at DESC, result_id DESC, COALESCE(section_key, '') DESC
             LIMIT $35
-            "#,
-            query.user_id.into_uuid(),
-            query.text_query.as_deref(),
-            &query.tag_values,
-            &query.negated_tag_values,
-            &query.collection_values,
-            &query.negated_collection_values,
-            &query.type_values,
-            &query.negated_type_values,
-            &query.author_values,
-            &query.negated_author_values,
-            &query.url_values,
-            &query.negated_url_values,
-            &query.entity_values,
-            &query.negated_entity_values,
-            query.before_saved_at,
-            query.after_saved_at,
-            query.require_read,
-            query.exclude_read,
-            query.require_unread,
-            query.exclude_unread,
-            query.require_archived,
-            query.exclude_archived,
-            query.require_favorited,
-            query.exclude_favorited,
-            query.require_has_highlights,
-            query.exclude_has_highlights,
-            query.require_has_notes,
-            query.exclude_has_notes,
-            query.require_pinned,
-            query.exclude_pinned,
-            query.cursor_score,
-            query.cursor_saved_at,
-            query.cursor_result_id,
-            query.cursor_section_key.as_deref(),
-            query.limit,
-            query.require_feed_only,
-            &normalized_senders,
-            &normalized_negated_senders,
-            query.exclude_feed_only,
-            &query.sender_domain_values,
-            &query.negated_sender_domain_values,
-            &query.list_values,
-            &query.negated_list_values,
-            &query.subject_values,
-            &query.negated_subject_values,
-            query.require_has_unsubscribe,
-            query.exclude_has_unsubscribe,
-            query.require_sender_blocked,
-            query.exclude_sender_blocked,
-            query.score_reference_at,
-        )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(map_sqlx_error)?;
+            "#)
+            .bind(query.user_id.into_uuid())
+            .bind(query.text_query.as_deref())
+            .bind(&query.tag_values)
+            .bind(&query.negated_tag_values)
+            .bind(&query.collection_values)
+            .bind(&query.negated_collection_values)
+            .bind(&query.type_values)
+            .bind(&query.negated_type_values)
+            .bind(&query.author_values)
+            .bind(&query.negated_author_values)
+            .bind(&query.url_values)
+            .bind(&query.negated_url_values)
+            .bind(&query.entity_values)
+            .bind(&query.negated_entity_values)
+            .bind(query.before_saved_at)
+            .bind(query.after_saved_at)
+            .bind(query.require_read)
+            .bind(query.exclude_read)
+            .bind(query.require_unread)
+            .bind(query.exclude_unread)
+            .bind(query.require_archived)
+            .bind(query.exclude_archived)
+            .bind(query.require_favorited)
+            .bind(query.exclude_favorited)
+            .bind(query.require_has_highlights)
+            .bind(query.exclude_has_highlights)
+            .bind(query.require_has_notes)
+            .bind(query.exclude_has_notes)
+            .bind(query.require_pinned)
+            .bind(query.exclude_pinned)
+            .bind(query.cursor_score)
+            .bind(query.cursor_saved_at)
+            .bind(query.cursor_result_id)
+            .bind(query.cursor_section_key.as_deref())
+            .bind(query.limit)
+            .bind(query.require_feed_only)
+            .bind(&normalized_senders)
+            .bind(&normalized_negated_senders)
+            .bind(query.exclude_feed_only)
+            .bind(&query.sender_domain_values)
+            .bind(&query.negated_sender_domain_values)
+            .bind(&query.list_values)
+            .bind(&query.negated_list_values)
+            .bind(&query.subject_values)
+            .bind(&query.negated_subject_values)
+            .bind(query.require_has_unsubscribe)
+            .bind(query.exclude_has_unsubscribe)
+            .bind(query.require_sender_blocked)
+            .bind(query.exclude_sender_blocked)
+            .bind(query.score_reference_at)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(map_sqlx_error)?;
 
         rows.into_iter()
             .map(SearchHit::try_from)

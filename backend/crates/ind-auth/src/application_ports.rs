@@ -120,34 +120,6 @@ impl AuthOperations for AuthOperationsService {
         Box::pin(self.0.list_active_refresh_families(user_id))
     }
 
-    fn forgot_password(&self, email: &str) -> BoxFuture<'_, Result<Option<String>, AuthError>> {
-        let email = email.to_owned();
-        Box::pin(async move { self.0.forgot_password(&email).await })
-    }
-
-    fn reset_password(
-        &self,
-        raw_token: &str,
-        new_password: &str,
-    ) -> BoxFuture<'_, Result<User, AuthError>> {
-        let token = raw_token.to_owned();
-        let password = new_password.to_owned();
-        Box::pin(async move { self.0.reset_password(&token, &password).await })
-    }
-
-    fn verify_email(&self, raw_token: &str) -> BoxFuture<'_, Result<User, AuthError>> {
-        let token = raw_token.to_owned();
-        Box::pin(async move { self.0.verify_email(&token).await })
-    }
-
-    fn resend_verification(
-        &self,
-        user_id: &UserId,
-    ) -> BoxFuture<'_, Result<Option<String>, AuthError>> {
-        let id = *user_id;
-        Box::pin(async move { self.0.resend_verification(&id).await })
-    }
-
     fn create_tokens_for_user(
         &self,
         user_id: UserId,
@@ -189,18 +161,6 @@ impl AccountOperations for AuthOperationsService {
         req: crate::ChangePasswordRequest,
     ) -> BoxFuture<'_, Result<(), AuthError>> {
         Box::pin(self.0.change_password(user_id, req))
-    }
-
-    fn change_email(
-        &self,
-        user_id: UserId,
-        new_email: String,
-        password: String,
-    ) -> BoxFuture<'_, Result<(), AuthError>> {
-        Box::pin(async move {
-            self.0.change_email(&user_id, &new_email, &password).await?;
-            Ok(())
-        })
     }
 
     fn delete_account(

@@ -150,38 +150,11 @@ pub async fn search(
 }
 
 async fn enrich_results_with_senders(
-    state: &AppState,
-    user_id: ind_domain::UserId,
-    results: &mut SearchResultsResponse,
+    _state: &AppState,
+    _user_id: ind_domain::UserId,
+    _results: &mut SearchResultsResponse,
 ) -> Result<(), ApiError> {
-    let Some(ops) = state.email_sender_ops.as_ref() else {
-        return Ok(());
-    };
-    let mut seen = std::collections::HashSet::new();
-    let sender_ids: Vec<ind_domain::EmailSenderId> = results
-        .results
-        .iter()
-        .filter_map(|r| r.sender_id.as_deref())
-        .filter_map(|s| s.parse().ok())
-        .filter(|id: &ind_domain::EmailSenderId| seen.insert(*id))
-        .collect();
-    if sender_ids.is_empty() {
-        return Ok(());
-    }
-
-    let senders = ops
-        .list_by_ids(user_id, sender_ids)
-        .await
-        .map_err(ApiError::from)?;
-    let by_id: std::collections::HashMap<String, ind_domain::EmailSender> =
-        senders.into_iter().map(|s| (s.id.to_string(), s)).collect();
-    for result in &mut results.results {
-        if let Some(sid) = result.sender_id.as_deref()
-            && let Some(sender) = by_id.get(sid).cloned()
-        {
-            result.attach_sender(sender);
-        }
-    }
+    // Email sender enrichment removed — email feature removed.
     Ok(())
 }
 

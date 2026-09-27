@@ -1,14 +1,13 @@
 use std::sync::Arc;
 
 use ind_persistence::repos::{
-    PgCollectionRepository, PgEmailAliasRepository, PgRefreshTokenRepository, PgTagRepository,
-    PgUsageCounterRepository, PgUserRepository,
+    PgCollectionRepository, PgRefreshTokenRepository, PgTagRepository, PgUsageCounterRepository,
+    PgUserRepository,
 };
 use sqlx::PgPool;
 
 pub(crate) struct Repositories {
     pub collection: Arc<PgCollectionRepository>,
-    pub email_alias: Arc<PgEmailAliasRepository>,
     pub refresh_token: Arc<PgRefreshTokenRepository>,
     pub tag: Arc<PgTagRepository>,
     pub usage_counter: Arc<PgUsageCounterRepository>,
@@ -19,7 +18,6 @@ impl Repositories {
     pub fn new(pool: &PgPool) -> Self {
         Self {
             collection: Arc::new(PgCollectionRepository::new(pool.clone())),
-            email_alias: Arc::new(PgEmailAliasRepository::new(pool.clone())),
             refresh_token: Arc::new(PgRefreshTokenRepository::new(pool.clone())),
             tag: Arc::new(PgTagRepository::new(pool.clone())),
             usage_counter: Arc::new(PgUsageCounterRepository::new(pool.clone())),

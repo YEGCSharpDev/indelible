@@ -4,10 +4,10 @@ use std::sync::Arc;
 
 use chrono::Utc;
 use ind_application::repos::refresh_token::RefreshTokenRepository;
+use ind_auth::crypto::hash_token;
 use ind_auth::{
     AuthError, AuthorizationCodeService, NativeOAuthFlow, RefreshTokenService, StoredOAuthFlow,
-    StoredOAuthFlowKind, consume_oauth_flow, hash_token, open_oauth_flow, seal_oauth_flow,
-    store_oauth_flow,
+    StoredOAuthFlowKind, consume_oauth_flow, open_oauth_flow, seal_oauth_flow, store_oauth_flow,
 };
 use ind_domain::{ClientType, RefreshToken, RefreshTokenId};
 use ind_persistence::repos::{

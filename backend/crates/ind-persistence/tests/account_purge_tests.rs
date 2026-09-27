@@ -58,7 +58,7 @@ async fn every_user_owned_column_cascades_from_users() {
 
     // Anti-vacuity: if the catalog query breaks, fail loudly rather than pass empty.
     assert!(
-        rows.len() >= 45,
+        rows.len() >= 40,
         "only {} user-owned columns discovered; the catalog query is broken",
         rows.len()
     );
@@ -215,10 +215,6 @@ const UNSEEDED_ACKNOWLEDGED: &[(&str, &str)] = &[
     ("collection_entries", "user_id"),
     ("document_origins", "user_id"),
     ("document_playback_states", "user_id"),
-    ("email_aliases", "user_id"),
-    ("email_ingest_log", "user_id"),
-    ("email_senders", "user_id"),
-    ("email_verification_tokens", "user_id"),
     ("entities", "user_id"),
     ("entitlement_snapshots", "user_id"),
     ("entity_aliases", "user_id"),
@@ -231,7 +227,6 @@ const UNSEEDED_ACKNOWLEDGED: &[(&str, &str)] = &[
     ("miniflux_sync_map", "user_id"),
     ("notification_preferences", "user_id"),
     ("oauth_identities", "user_id"),
-    ("password_reset_tokens", "user_id"),
     ("push_tokens", "user_id"),
     ("referral_credits", "user_id"),
     ("refresh_tokens", "user_id"),
@@ -387,7 +382,7 @@ async fn purge_removes_user_scoped_queue_payloads_but_keeps_the_cleanup_job() {
         });
         sqlx::query(
             "INSERT INTO job_outbox (id, job_type, payload, dedupe_key, available_at, created_at) \
-             VALUES (gen_random_uuid(), 'email.ingest', $1, $2, now(), now())",
+             VALUES (gen_random_uuid(), 'feed.autosave', $1, $2, now(), now())",
         )
         .bind(&payload)
         .bind(format!("seed-outbox-{marker}"))
@@ -398,7 +393,7 @@ async fn purge_removes_user_scoped_queue_payloads_but_keeps_the_cleanup_job() {
             "INSERT INTO background_job_recoveries \
              (id, recovery_key, job_type, payload, status, failure_class, failure_reason_code, \
               error_message, first_failed_at, last_failed_at, created_at, updated_at) \
-             VALUES (gen_random_uuid(), $2, 'email.ingest', $1, 'terminal', 'terminal', \
+             VALUES (gen_random_uuid(), $2, 'feed.autosave', $1, 'terminal', 'terminal', \
                      'external_service_error', 'seeded', now(), now(), now(), now())",
         )
         .bind(&payload)
@@ -409,7 +404,7 @@ async fn purge_removes_user_scoped_queue_payloads_but_keeps_the_cleanup_job() {
         sqlx::query(
             "INSERT INTO dead_letter_jobs \
              (id, original_job_type, original_payload, error_message, attempts, failed_at) \
-             VALUES (gen_random_uuid(), 'email.ingest', $1, 'seeded', 3, now())",
+             VALUES (gen_random_uuid(), 'feed.autosave', $1, 'seeded', 3, now())",
         )
         .bind(&payload)
         .execute(&pool)

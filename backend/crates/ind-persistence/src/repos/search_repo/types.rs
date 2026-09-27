@@ -42,7 +42,6 @@ pub(super) struct SearchHitRow {
     pub(super) section_kind: Option<String>,
     pub(super) section_key: Option<String>,
     pub(super) section_title: Option<String>,
-    pub(super) sender_id: Option<Uuid>,
 }
 
 #[derive(sqlx::FromRow)]
@@ -213,7 +212,6 @@ impl TryFrom<SearchHitRow> for SearchHit {
                 _ => None,
             },
             entity_chips: Vec::new(),
-            sender_id: row.sender_id.map(ind_domain::EmailSenderId::from_uuid),
         })
     }
 }

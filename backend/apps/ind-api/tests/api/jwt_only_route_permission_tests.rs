@@ -5,7 +5,6 @@ const JWT_ONLY_ROUTES: &[RouteCase] = &[
     RouteCase::patch("/api/v1/me"),
     RouteCase::delete("/api/v1/me"),
     RouteCase::post("/api/v1/me/password"),
-    RouteCase::post("/api/v1/me/email"),
     RouteCase::post("/api/v1/me/avatar"),
     RouteCase::get("/api/v1/onboarding"),
     RouteCase::post("/api/v1/onboarding/steps/1/complete"),

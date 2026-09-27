@@ -6,7 +6,6 @@ use axum::routing::{get, post};
 use ind_application::storage::ObjectStorage;
 use ind_auth::{self as auth};
 use ind_domain::Theme;
-use ind_integrations::email::format_ingest_address;
 
 use axum::response::{IntoResponse, Response};
 use http::StatusCode;
@@ -17,8 +16,8 @@ use crate::middleware::{RequireVerifiedUserAccessJwt, clear_asset_cookie, clear_
 use crate::response::ApiResponse;
 use crate::state::{AppConfig, AppState};
 pub(crate) use dto::{
-    AvatarUploadSchema, ChangeEmailRequest, ChangePasswordRequest, DeleteAccountRequest,
-    ProfileResponse, UpdateProfileRequest,
+    AvatarUploadSchema, ChangePasswordRequest, DeleteAccountRequest, ProfileResponse,
+    UpdateProfileRequest,
 };
 
 // -- Handlers --
@@ -153,38 +152,6 @@ pub async fn change_password(
     ))
 }
 
-#[utoipa::path(
-    post,
-    path = "/api/v1/me/email",
-    request_body = ChangeEmailRequest,
-    responses(
-        (status = 401, description = "Authentication required"),
-        (status = 403, description = "Verified user access JWT from a supported client and verified email required"),
-        (status = 422, description = "Validation error"),
-        (status = 503, description = "Changing an email address needs an outbound mail transport, which is not configured"),
-    ),
-    security(("bearer" = [])),
-    tag = "Account",
-)]
-pub async fn change_email(
-    RequireVerifiedUserAccessJwt(_auth_user): RequireVerifiedUserAccessJwt,
-    State(_state): State<AppState>,
-    ValidatedJson(_body): ValidatedJson<ChangeEmailRequest>,
-) -> Result<Response, ApiError> {
-    // Changing an address clears verification and revokes every session, then
-    // relies on a verification link to restore access. This release configures no
-    // outbound mail transport, so that link can never arrive: the account would
-    // be left unverified, signed out everywhere, and unrecoverable short of
-    // editing the database.
-    //
-    // The refusal happens here rather than inside the service so the change-email
-    // implementation stays intact for the release that adds a transport, and so
-    // that no password is checked first — the endpoint cannot be used to probe
-    // credentials. Restore the body below, and revisit the unconditional
-    // `email_verified: true` in `ind-auth`'s registration path, together.
-    Err(auth::AuthError::MailTransportUnavailable.into())
-}
-
 const AVATAR_MAX_UPLOAD_BYTES: usize = 2 * 1024 * 1024;
 
 #[utoipa::path(
@@ -304,32 +271,17 @@ fn build_profile_response(
     profile: auth::UserProfile,
 ) -> ProfileResponse {
     let avatar_url = resolve_avatar_url(config, storage, profile.id, profile.avatar_url.as_deref());
-    let ingest_email = format_ingest_address(
-        &profile.email_token,
-        ind_domain::EmailDestination::Feed,
-        config.email_feed_domain.as_deref(),
-        config.email_library_domain.as_deref(),
-    );
-    let ingest_library_email = format_ingest_address(
-        &profile.email_token,
-        ind_domain::EmailDestination::Library,
-        config.email_feed_domain.as_deref(),
-        config.email_library_domain.as_deref(),
-    );
     ProfileResponse {
         id: profile.id.to_string(),
         object: "user",
-        email: profile.email,
+        username: profile.username,
         display_name: profile.display_name,
         avatar_url,
         locale: profile.locale,
         timezone: profile.timezone,
         theme: theme_to_string(profile.theme),
-        email_verified: profile.email_verified,
         onboarding_completed: profile.onboarding_completed,
         has_password: profile.has_password,
-        ingest_email,
-        ingest_library_email,
         created_at: profile.created_at,
         updated_at: profile.updated_at,
     }
@@ -382,7 +334,6 @@ pub fn account_routes() -> Router<AppState> {
                 .delete(delete_account),
         )
         .route("/api/v1/me/password", post(change_password))
-        .route("/api/v1/me/email", post(change_email))
         .route("/api/v1/me/avatar", post(upload_avatar))
         // Leave headroom over the avatar cap for multipart framing; the
         // handler enforces the real per-file limit.

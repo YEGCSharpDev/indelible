@@ -43,7 +43,7 @@ async fn identity_lifecycle_creates_links_reuses_rejects_and_unlinks_real_rows()
     );
     let (created, is_new) = service.find_or_create_user(google).await.unwrap();
     assert!(is_new);
-    assert_eq!(created.email, "mixedcase@example.com");
+    assert_eq!(created.username, "mixedcase@example.com");
     assert_eq!(created.status, UserStatus::Active);
 
     let (reused, is_new) = service

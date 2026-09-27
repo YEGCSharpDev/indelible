@@ -9,8 +9,7 @@
 
 use ind_application::{AppError, normalize_language_tag, text::strip_nul};
 use ind_domain::{
-    DocumentId, DocumentOriginType, DomainError, EmailSenderId, NewOriginDocument, NewUrlDocument,
-    UserId,
+    DocumentId, DocumentOriginType, DomainError, NewOriginDocument, NewUrlDocument, UserId,
 };
 use sqlx::Acquire;
 use uuid::Uuid;
@@ -88,12 +87,6 @@ pub(crate) async fn materialize_origin_backed_tx(
     let user_id = doc.user_id;
 
     if let Some(row) = select_document_by_origin(tx, user_id, origin_type, origin_id).await? {
-        // Re-ingesting the same email resolves the existing document; a sender resolved on this
-        // pass (e.g. the sender row only existed after a later delivery) is linked via a targeted
-        // column-scoped UPDATE so the linkage is not lost on re-materialization.
-        if let Some(sender_id) = doc.sender_id {
-            set_document_sender_tx(tx, user_id, DocumentId::from_uuid(row.id), sender_id).await?;
-        }
         return Ok((row, false));
     }
 
@@ -110,8 +103,8 @@ pub(crate) async fn materialize_origin_backed_tx(
             DocumentRow,
             "INSERT INTO documents \
                 (id, user_id, document_type, content_hash, original_url, title, author, \
-                 excerpt, published_at, language, domain, lead_image_url, thumbnail_url, sender_id) \
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) \
+                 excerpt, published_at, language, domain, lead_image_url, thumbnail_url) \
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) \
              ON CONFLICT (user_id, content_hash) \
                 WHERE canonical_url IS NULL AND content_hash IS NOT NULL DO NOTHING \
              RETURNING id, user_id, document_type, canonical_url, original_url, content_hash, \
@@ -130,7 +123,6 @@ pub(crate) async fn materialize_origin_backed_tx(
             doc.domain,
             doc.lead_image_url,
             doc.thumbnail_url,
-            doc.sender_id.map(|id| id.into_uuid()),
         )
         .fetch_optional(&mut *sp)
         .await
@@ -160,8 +152,8 @@ pub(crate) async fn materialize_origin_backed_tx(
             DocumentRow,
             "INSERT INTO documents \
                 (id, user_id, document_type, content_hash, original_url, title, author, \
-                 excerpt, published_at, language, domain, lead_image_url, thumbnail_url, sender_id) \
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) \
+                 excerpt, published_at, language, domain, lead_image_url, thumbnail_url) \
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) \
              RETURNING id, user_id, document_type, canonical_url, original_url, content_hash, \
                        title, author, excerpt, published_at, language, domain, lead_image_url, \
                        thumbnail_url, word_count, reading_time_minutes, created_at, updated_at",
@@ -178,7 +170,6 @@ pub(crate) async fn materialize_origin_backed_tx(
             doc.domain,
             doc.lead_image_url,
             doc.thumbnail_url,
-            doc.sender_id.map(|id| id.into_uuid()),
         )
         .fetch_one(&mut *sp)
         .await
@@ -300,27 +291,6 @@ pub(crate) async fn select_document_by_origin(
     .fetch_optional(&mut **tx)
     .await
     .map_err(map_document_error)
-}
-
-/// Column-scoped sender linkage write. Idempotent: skips the write when the column already holds
-/// the target sender so re-ingest does not bump `updated_at` needlessly.
-async fn set_document_sender_tx(
-    tx: &mut PgTx<'_>,
-    user_id: UserId,
-    document_id: DocumentId,
-    sender_id: EmailSenderId,
-) -> Result<(), AppError> {
-    sqlx::query!(
-        "UPDATE documents SET sender_id = $3, updated_at = now() \
-         WHERE id = $1 AND user_id = $2 AND sender_id IS DISTINCT FROM $3",
-        document_id.into_uuid(),
-        user_id.into_uuid(),
-        sender_id.into_uuid(),
-    )
-    .execute(&mut **tx)
-    .await
-    .map_err(map_document_error)?;
-    Ok(())
 }
 
 async fn insert_origin(

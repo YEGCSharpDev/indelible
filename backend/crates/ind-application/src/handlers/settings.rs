@@ -223,7 +223,6 @@ fn default_notification_preferences(user_id: UserId) -> NotificationPreferences 
         weekly_digest_enabled: true,
         new_highlights_sync: true,
         feed_updates: true,
-        marketing_emails: false,
         updated_at: Utc::now(),
     }
 }

@@ -8,12 +8,11 @@
 		| '/preferences/reading-appearance'
 		| '/preferences/integrations'
 		| '/preferences/feed-management'
-		| '/preferences/email'
 		| '/preferences/archival'
 		| '/preferences/developer';
 
 	type IconKey =
-		'account' | 'reading' | 'integrations' | 'feed' | 'email' | 'archival' | 'mila' | 'developer';
+		'account' | 'reading' | 'integrations' | 'feed' | 'archival' | 'mila' | 'developer';
 
 	interface NavItem {
 		labelKey: MessageKey;
@@ -30,7 +29,6 @@
 		},
 		{ labelKey: 'settings_integrations', href: '/preferences/integrations', icon: 'integrations' },
 		{ labelKey: 'settings_feed_management', href: '/preferences/feed-management', icon: 'feed' },
-		{ labelKey: 'settings_email', href: '/preferences/email', icon: 'email' },
 		{ labelKey: 'settings_archival', href: '/preferences/archival', icon: 'archival' },
 		{ labelKey: 'settings_developer', href: '/preferences/developer', icon: 'developer' }
 	];
@@ -73,11 +71,6 @@
 								<path d="M4 11a9 9 0 0 1 9 9" />
 								<path d="M4 4a16 16 0 0 1 16 16" />
 								<circle cx="5" cy="19" r="1" />
-							</svg>
-						{:else if item.icon === 'email'}
-							<svg viewBox="0 0 24 24">
-								<rect x="3" y="5" width="18" height="14" rx="2" />
-								<polyline points="3 7 12 13 21 7" />
 							</svg>
 						{:else if item.icon === 'archival'}
 							<svg viewBox="0 0 24 24">

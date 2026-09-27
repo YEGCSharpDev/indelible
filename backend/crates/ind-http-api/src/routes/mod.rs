@@ -5,8 +5,6 @@ pub mod asset_urls;
 pub mod auth;
 pub mod collections;
 pub mod documents;
-pub mod email_aliases;
-pub mod email_senders;
 pub mod entities;
 pub mod epub;
 pub mod events;
@@ -32,8 +30,6 @@ pub use archive::archive_routes;
 pub use asset_proxy::asset_proxy_routes;
 pub use collections::collection_routes;
 pub use documents::document_routes;
-pub use email_aliases::email_alias_routes;
-pub use email_senders::email_sender_routes;
 pub use entities::entity_routes;
 pub use epub::epub_routes;
 pub use events::event_routes;
@@ -56,8 +52,7 @@ pub use webhooks::webhook_routes;
 use axum::Router;
 
 use crate::middleware::rate_limit::{
-    RateLimiters, login_account_rate_limit, login_rate_limit, password_reset_account_rate_limit,
-    password_reset_rate_limit, registration_rate_limit,
+    RateLimiters, login_account_rate_limit, login_rate_limit, registration_rate_limit,
 };
 use crate::state::AppState;
 
@@ -71,9 +66,6 @@ pub fn auth_routes() -> Router<AppState> {
             "/api/v1/auth/refresh-tokens",
             get(auth::list_refresh_tokens).delete(auth::revoke_all_refresh_tokens),
         )
-        .route("/api/v1/auth/password/reset", post(auth::reset_password))
-        .route("/api/v1/auth/email/resend", post(auth::resend_verification))
-        .route("/api/v1/auth/email/verify", post(auth::verify_email))
         .route("/api/v1/auth/providers", get(auth::list_providers))
         .route(
             "/api/v1/auth/oauth/native/token",
@@ -117,18 +109,6 @@ pub fn rate_limited_auth_routes(limiters: RateLimiters) -> Router<AppState> {
                 .route_layer(axum::middleware::from_fn_with_state(
                     limiters.clone(),
                     login_rate_limit,
-                )),
-        )
-        .route(
-            "/api/v1/auth/password/forgot",
-            post(auth::forgot_password)
-                .route_layer(axum::middleware::from_fn_with_state(
-                    limiters.clone(),
-                    password_reset_account_rate_limit,
-                ))
-                .route_layer(axum::middleware::from_fn_with_state(
-                    limiters,
-                    password_reset_rate_limit,
                 )),
         )
 }

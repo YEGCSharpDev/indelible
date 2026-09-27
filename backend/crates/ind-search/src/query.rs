@@ -1,8 +1,7 @@
 use chrono::{Duration, NaiveDate, Utc};
 use ind_application::repos::search::SearchFtsQuery;
 use ind_domain::{
-    CanonicalAddress, SearchCursor, SearchFilter, SearchHasFilter, SearchSourceFilter,
-    SearchStatusFilter, UserId,
+    SearchCursor, SearchFilter, SearchHasFilter, SearchSourceFilter, SearchStatusFilter, UserId,
 };
 
 pub(crate) const FILTER_HINTS: &[&str] = &[
@@ -225,11 +224,7 @@ fn push_sender_filter(
     positive: &mut Vec<String>,
     negative: &mut Vec<String>,
 ) {
-    let normalized = if value.contains('@') {
-        CanonicalAddress::new(value).into_string()
-    } else {
-        value.to_lowercase()
-    };
+    let normalized = value.to_lowercase();
     if negated {
         negative.push(normalized);
     } else {

@@ -6,7 +6,6 @@ use ind_application::repos::document_lifecycle::{
     LibraryRestorePolicy, MaterializeSideEffects, SaveSideEffectsFn, SaveToLibraryRequest,
 };
 use ind_domain::{ArchiveAssetKind, ContentSource, DomainError, FeedAutosaveJob};
-use ind_integrations::email::prepare_email_for_reader;
 
 use crate::context::FeedJobDeps;
 
@@ -57,14 +56,13 @@ pub async fn handle_feed_autosave(ctx: &FeedJobDeps, job: FeedAutosaveJob) -> Re
                             .into(),
                     )
                 })?;
-                let reader_html = prepare_email_for_reader(content_html);
                 Some(
                     stage_provided_content(
                         storage,
                         job.user_id,
                         ArchiveAssetKind::ReadableHtml,
                         "text/html",
-                        Bytes::from(reader_html),
+                        Bytes::from(content_html.to_string()),
                     )
                     .await?,
                 )

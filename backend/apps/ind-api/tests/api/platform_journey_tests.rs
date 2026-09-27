@@ -1,11 +1,11 @@
-use ind_test_support::{TestAppOptions, UserFactory, spawn_app, spawn_app_with_options};
+use ind_test_support::spawn_app;
 use reqwest::StatusCode;
 use serde_json::json;
 
 use super::common::{assert_json_response, assert_status};
 
 #[tokio::test]
-async fn home_alias_and_webhook_settings_persist_with_tenant_isolation() {
+async fn home_and_webhook_settings_persist_with_tenant_isolation() {
     let app = spawn_app().await;
     let owner = app.create_web_session().await;
     let stranger = app.create_web_session().await;
@@ -55,37 +55,6 @@ async fn home_alias_and_webhook_settings_persist_with_tenant_isolation() {
     )
     .await;
     assert_eq!(persisted, settings);
-
-    let alias = assert_json_response(
-        owner_client
-            .post_json(
-                "/api/v1/email-aliases",
-                &json!({
-                    "destination": "library",
-                    "local_part": "platform.journey",
-                    "is_default": false
-                }),
-            )
-            .await,
-        StatusCode::CREATED,
-    )
-    .await;
-    assert_eq!(alias["local_part"], "platform.journey");
-    assert_eq!(alias["destination"], "library");
-    let alias_id = alias["id"].as_str().expect("alias id");
-    assert_status(
-        stranger_client
-            .delete(&format!("/api/v1/email-aliases/{alias_id}"))
-            .await,
-        StatusCode::NOT_FOUND,
-    )
-    .await;
-    let aliases = assert_json_response(
-        owner_client.get("/api/v1/email-aliases").await,
-        StatusCode::OK,
-    )
-    .await;
-    assert_eq!(aliases["data"][0]["id"], alias_id);
 
     let webhook = assert_json_response(
         owner_client
@@ -177,155 +146,4 @@ async fn home_alias_and_webhook_settings_persist_with_tenant_isolation() {
         StatusCode::NO_CONTENT,
     )
     .await;
-}
-
-#[tokio::test]
-async fn email_alias_creation_preserves_namespace_and_default_atomicity() {
-    let app = spawn_app().await;
-    let owner = app.create_web_session().await;
-    let client = app.authed_client(&owner);
-
-    assert_status(
-        client
-            .post_json(
-                "/api/v1/email-aliases",
-                &json!({
-                    "destination": "feed",
-                    "local_part": "bad!chars",
-                    "is_default": false
-                }),
-            )
-            .await,
-        StatusCode::UNPROCESSABLE_ENTITY,
-    )
-    .await;
-
-    let original = assert_json_response(
-        client
-            .post_json(
-                "/api/v1/email-aliases",
-                &json!({
-                    "destination": "feed",
-                    "local_part": "stable.default",
-                    "is_default": true
-                }),
-            )
-            .await,
-        StatusCode::CREATED,
-    )
-    .await;
-    assert_status(
-        client
-            .post_json(
-                "/api/v1/email-aliases",
-                &json!({
-                    "destination": "feed",
-                    "local_part": "stable.default",
-                    "is_default": true
-                }),
-            )
-            .await,
-        StatusCode::CONFLICT,
-    )
-    .await;
-
-    let aliases =
-        assert_json_response(client.get("/api/v1/email-aliases").await, StatusCode::OK).await;
-    let original_after_failure = aliases["data"]
-        .as_array()
-        .expect("alias list")
-        .iter()
-        .find(|alias| alias["id"] == original["id"])
-        .expect("original default alias");
-    assert_eq!(original_after_failure["is_default"], true);
-    assert!(original_after_failure["retire_at"].is_null());
-
-    let victim = UserFactory::default().insert(app.pool()).await;
-    assert_status(
-        client
-            .post_json(
-                "/api/v1/email-aliases",
-                &json!({
-                    "destination": "feed",
-                    "local_part": victim.email_token,
-                    "is_default": false
-                }),
-            )
-            .await,
-        StatusCode::CONFLICT,
-    )
-    .await;
-}
-
-#[tokio::test]
-async fn shared_domain_aliases_publish_destination_suffixes() {
-    let app = spawn_app_with_options(TestAppOptions {
-        email_ingest_domains: Some(("shared.test.example".into(), "shared.test.example".into())),
-        ..TestAppOptions::default()
-    })
-    .await;
-    let owner = app.create_web_session().await;
-    let client = app.authed_client(&owner);
-
-    for (destination, suffix) in [("feed", "-feed"), ("library", "-lib")] {
-        let alias = assert_json_response(
-            client
-                .post_json(
-                    "/api/v1/email-aliases",
-                    &json!({
-                        "destination": destination,
-                        "local_part": format!("qa-{destination}"),
-                        "is_default": false
-                    }),
-                )
-                .await,
-            StatusCode::CREATED,
-        )
-        .await;
-        assert_eq!(
-            alias["address"],
-            format!("qa-{destination}{suffix}@shared.test.example")
-        );
-    }
-}
-
-#[tokio::test]
-async fn avatar_round_trip_stays_owner_scoped_through_the_api() {
-    let app = spawn_app().await;
-    let session = app.create_web_session().await;
-    let stranger = app.create_web_session().await;
-    let client = app.authed_client(&session);
-    let avatar = b"\x89PNG\r\n\x1a\nindelible-avatar";
-
-    let form = reqwest::multipart::Form::new().part(
-        "file",
-        reqwest::multipart::Part::bytes(avatar.to_vec())
-            .file_name("avatar.png")
-            .mime_str("image/png")
-            .expect("valid mime"),
-    );
-    let profile = assert_json_response(
-        client.post_multipart("/api/v1/me/avatar", form).await,
-        StatusCode::OK,
-    )
-    .await;
-    let read_url = profile["avatar_url"].as_str().expect("avatar URL");
-    let api_prefix = format!("{}/api/v1/assets/", app.address);
-    assert!(
-        read_url.starts_with(&api_prefix),
-        "avatar_url must target the asset proxy, got {read_url}"
-    );
-
-    let proxy_path = &read_url[app.address.len()..];
-    let proxied = client.get(proxy_path).await;
-    assert_eq!(proxied.status(), StatusCode::OK);
-    assert_eq!(
-        proxied.headers()[reqwest::header::CACHE_CONTROL],
-        "private, max-age=3600"
-    );
-    assert_eq!(proxied.bytes().await.unwrap(), avatar.as_slice());
-    assert_eq!(
-        app.authed_client(&stranger).get(proxy_path).await.status(),
-        StatusCode::NOT_FOUND
-    );
 }

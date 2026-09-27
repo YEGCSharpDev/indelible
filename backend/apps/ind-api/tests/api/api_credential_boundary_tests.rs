@@ -1,6 +1,6 @@
 use ind_domain::ClientType;
 use ind_test_support::{
-    TestApiCredential, TestApp, TestAuthSession, TestPersonalAccessToken, UserFactory, spawn_app,
+    TestApiCredential, TestApp, TestAuthSession, TestPersonalAccessToken, spawn_app,
 };
 use reqwest::StatusCode;
 use serde_json::{Value, json};
@@ -118,32 +118,6 @@ async fn session_management_refuses_personal_tokens_and_keeps_user_jwts() {
 }
 
 #[tokio::test]
-async fn unverified_user_jwts_resend_verification_but_personal_tokens_cannot() {
-    let fixture = CredentialBoundaryFixture::new().await;
-    let unverified = UserFactory::new()
-        .with_email_verified(false)
-        .insert(fixture.app.pool())
-        .await;
-    let session = fixture
-        .app
-        .create_client_session(&unverified, ClientType::Web);
-    assert_eq!(
-        fixture
-            .post_as(&session, "/api/v1/auth/email/resend", &json!({}))
-            .await,
-        StatusCode::OK
-    );
-
-    let token = fixture.mint_token("automation", &["library:read"]).await;
-    assert_eq!(
-        fixture
-            .post_as(&token, "/api/v1/auth/email/resend", &json!({}))
-            .await,
-        StatusCode::FORBIDDEN
-    );
-}
-
-#[tokio::test]
 async fn extension_status_accepts_only_an_extension_jwt() {
     let fixture = CredentialBoundaryFixture::new().await;
     let extension = fixture
@@ -162,7 +136,7 @@ async fn extension_status_accepts_only_an_extension_jwt() {
 }
 
 #[tokio::test]
-async fn only_a_verified_web_jwt_manages_personal_tokens() {
+async fn only_a_web_jwt_manages_personal_tokens() {
     let fixture = CredentialBoundaryFixture::new().await;
     let existing = response(
         fixture
@@ -180,25 +154,6 @@ async fn only_a_verified_web_jwt_manages_personal_tokens() {
     let token = fixture
         .mint_token("automation", &["library:read", "library:write"])
         .await;
-
-    let unverified = UserFactory::new()
-        .with_email_verified(false)
-        .insert(fixture.app.pool())
-        .await;
-    let unverified_web = fixture
-        .app
-        .create_client_session(&unverified, ClientType::Web);
-    assert_eq!(
-        fixture
-            .post_as(
-                &unverified_web,
-                "/api/v1/tokens",
-                &json!({"name": "unverified", "permissions": ["library:read"]}),
-            )
-            .await,
-        StatusCode::FORBIDDEN,
-        "an unverified Web JWT must not mint a personal token"
-    );
 
     assert_eq!(
         fixture.get_as(&token, "/api/v1/tokens").await,

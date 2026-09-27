@@ -15,27 +15,6 @@ pub(super) fn service(
         })
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum DeliveryClaimOutcome {
-    Claimed,
-    Duplicate,
-    Ignored,
-    RetryableFailure,
-}
-
-pub(super) fn status_for_claim_outcomes(
-    outcomes: impl IntoIterator<Item = DeliveryClaimOutcome>,
-) -> StatusCode {
-    if outcomes
-        .into_iter()
-        .any(|outcome| matches!(outcome, DeliveryClaimOutcome::RetryableFailure))
-    {
-        StatusCode::INTERNAL_SERVER_ERROR
-    } else {
-        StatusCode::OK
-    }
-}
-
 pub(super) fn parse_webhook_id(raw: &str) -> Result<WebhookEndpointId, ApiError> {
     raw.parse().map_err(|_| ApiError::NotFound {
         entity: "webhook",

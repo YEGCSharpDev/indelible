@@ -35,8 +35,7 @@ pub use feed_parser::{
 pub use html_extractor::{HtmlExtractor, SpokenHtmlElement};
 pub use http_fetcher::{FetchRequest, FetchResponse, HttpFetchError, HttpFetcher};
 pub use integration::{
-    EmailAliasCreateError, EmailAliasOperations, EmailIngestOperations, EmailSenderOperations,
-    EmailSenderUnsubscribeOutcome, ImportOperations, ImportUpload, IntegrationAuthorizeStart,
-    IntegrationOperations, IntegrationSyncEnqueued, ReadwiseImportUpload, WebhookOperations,
+    ImportOperations, ImportUpload, IntegrationAuthorizeStart, IntegrationOperations,
+    IntegrationSyncEnqueued, ReadwiseImportUpload, WebhookOperations,
 };
 pub use opml_parser::{OpmlParseError, OpmlParser};

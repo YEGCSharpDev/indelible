@@ -60,29 +60,21 @@ impl From<IntegrationConnection> for IntegrationConnectionDto {
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "provider", rename_all = "snake_case")]
 pub enum IntegrationConnectionConfigDto {
-    EmailIngest {
-        address: String,
-    },
     /// Catch-all for providers that don't have first-class structured config
-    /// on this surface yet (currently Logseq, BrowserExtension). Kept as one
+    /// on this surface yet (currently Logseq, BrowserExtension, Miniflux, Custom). Kept as one
     /// variant so generated mobile/web codegen doesn't ship empty
     /// `LogseqConfig` / `BrowserExtensionConfig` types that can never be
     /// instantiated. When a provider gains structured config, add a dedicated
     /// variant and route to it from `from_domain`.
-    Other {
-        provider_name: String,
-    },
+    Other { provider_name: String },
 }
 
 impl IntegrationConnectionConfigDto {
     pub fn from_domain(
         provider: &IntegrationProvider,
-        raw: &serde_json::Value,
+        _raw: &serde_json::Value,
     ) -> IntegrationConnectionConfigDto {
         match provider {
-            IntegrationProvider::EmailIngest => IntegrationConnectionConfigDto::EmailIngest {
-                address: string_field(raw, "address").unwrap_or_default(),
-            },
             IntegrationProvider::Custom => IntegrationConnectionConfigDto::Other {
                 provider_name: "custom".to_string(),
             },
@@ -97,10 +89,6 @@ impl IntegrationConnectionConfigDto {
             },
         }
     }
-}
-
-fn string_field(raw: &serde_json::Value, key: &str) -> Option<String> {
-    raw.get(key).and_then(|v| v.as_str()).map(|s| s.to_string())
 }
 
 #[derive(Debug, Deserialize, ToSchema, validator::Validate)]

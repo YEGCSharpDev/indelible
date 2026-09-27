@@ -15,18 +15,6 @@ pub struct SearchEmbeddedSenderResponse {
     pub blocked: bool,
 }
 
-impl SearchEmbeddedSenderResponse {
-    pub fn from_domain(sender: ind_domain::EmailSender) -> Self {
-        Self {
-            id: sender.id.to_string(),
-            canonical_addr: sender.canonical_addr,
-            display_name: sender.display_name,
-            list_id: sender.list_id,
-            blocked: sender.blocked_at.is_some(),
-        }
-    }
-}
-
 #[derive(Debug, Deserialize, ToSchema, utoipa::IntoParams)]
 pub struct SearchParams {
     pub q: String,
@@ -100,10 +88,6 @@ pub struct SearchResultResponse {
     pub section: Option<SearchSectionResponse>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub entity_chips: Vec<SearchEntityChipResponse>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub sender_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub sender: Option<SearchEmbeddedSenderResponse>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -190,13 +174,7 @@ impl SearchResultResponse {
                 .into_iter()
                 .map(SearchEntityChipResponse::from_domain)
                 .collect(),
-            sender_id: hit.sender_id.map(|id| id.to_string()),
-            sender: None,
         }
-    }
-
-    pub fn attach_sender(&mut self, sender: ind_domain::EmailSender) {
-        self.sender = Some(SearchEmbeddedSenderResponse::from_domain(sender));
     }
 }
 

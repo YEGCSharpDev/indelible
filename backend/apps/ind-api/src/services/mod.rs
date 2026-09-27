@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 mod app_config;
-mod email;
 mod integrations;
 
 pub(crate) mod repositories;
@@ -16,11 +15,10 @@ use ind_auth::oauth::{OAuthConfigInput, build_oauth_config};
 use ind_http_api::AppState;
 use ind_http_api::middleware::rate_limit::RateLimitConfig;
 use ind_persistence::repos::{
-    PgApiTokenRepository, PgAuthorizationCodeRepository, PgBillingRepository,
-    PgEmailVerificationRepository, PgEntityRepository, PgEventRepository, PgFeedRepository,
-    PgHighlightRepository, PgHomeRepository, PgIntegrationConnectionRepository,
-    PgJobOutboxRepository, PgNotificationPreferencesRepository, PgOAuthFlowRepository,
-    PgOAuthIdentityRepository, PgPasswordResetRepository, PgSearchRepository,
+    PgApiTokenRepository, PgAuthorizationCodeRepository, PgBillingRepository, PgEntityRepository,
+    PgEventRepository, PgFeedRepository, PgHighlightRepository, PgHomeRepository,
+    PgIntegrationConnectionRepository, PgJobOutboxRepository, PgNotificationPreferencesRepository,
+    PgOAuthFlowRepository, PgOAuthIdentityRepository, PgSearchRepository,
     PgUserPreferencesRepository,
 };
 use ind_search::{SearchEngine, SearchRateLimitDefaults, SearchRateLimiter};
@@ -54,8 +52,6 @@ pub async fn build_with_overrides(
     let url_guard: Arc<dyn ind_application::ports::OutboundUrlGuard> =
         Arc::new(ind_ingest::EgressUrlGuard::new(config.egress_policy()));
 
-    let email_verification_repo = PgEmailVerificationRepository::new(pool.clone());
-    let password_reset_repo = PgPasswordResetRepository::new(pool.clone());
     let api_token_repo = PgApiTokenRepository::new(pool.clone());
 
     let account_purge_repo: Arc<dyn ind_application::repos::account_purge::AccountPurgeRepository> =
@@ -65,8 +61,6 @@ pub async fn build_with_overrides(
     let auth_service = Arc::new(ind_auth::AuthOperationsService(ind_auth::AuthService::new(
         repos.user.clone(),
         repos.refresh_token.clone(),
-        Arc::new(email_verification_repo),
-        Arc::new(password_reset_repo),
         account_purge_repo,
         jwt_secret.clone(),
         config.auth.allow_signups,
@@ -262,12 +256,6 @@ pub async fn build_with_overrides(
         Some(Arc::new(ind_application::SmartListService::new(sl_repo)))
     };
 
-    let email_services = email::build_email_services(config, &pool, &repos);
-    let email_ingest_ops = email_services.ingest_ops;
-    let email_ingest_provider = email_services.ingest_provider;
-    let email_sender_ops = email_services.sender_ops;
-    let email_alias_ops = email_services.alias_ops;
-
     let integration_services = integrations::build_integration_services(
         config,
         &pool,
@@ -381,10 +369,6 @@ pub async fn build_with_overrides(
         home_ops,
         search_ops,
         entity_ops,
-        email_ingest_ops,
-        email_ingest_provider,
-        email_sender_ops,
-        email_alias_ops,
         collection_ops,
         tag_ops,
         smart_list_ops,

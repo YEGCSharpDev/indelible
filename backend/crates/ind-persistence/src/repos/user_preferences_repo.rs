@@ -5,8 +5,7 @@ use ind_domain::{
     ArchivalSettings, ArchiveFormatPreferences, DefaultView, DuplicateAction,
     DuplicateDetectionSettings, DuplicateSensitivity, LayoutSettings, ListDensity,
     PreferencesSettings, ProxySettings, ReaderFontFamily, ReaderFontSize, ReaderLineHeight,
-    ReaderOpenMode, ReaderSettings, SidePanelMode, SidebarMode, TriageMode, UserId,
-    WorkflowSettings,
+    ReaderSettings, SidePanelMode, SidebarMode, TriageMode, UserId, WorkflowSettings,
 };
 use sqlx::{FromRow, PgPool};
 
@@ -32,7 +31,6 @@ struct UserPreferencesRow {
     reader_font_family: String,
     reader_font_size: String,
     reader_line_height: String,
-    reader_email_open_mode: String,
     ai_mila_enabled: bool,
     ai_custom_prompt: Option<String>,
     archival_monolith: bool,
@@ -114,13 +112,6 @@ fn parse_reader_line_height(value: &str) -> ReaderLineHeight {
     }
 }
 
-fn parse_reader_open_mode(value: &str) -> ReaderOpenMode {
-    match value {
-        "original" => ReaderOpenMode::Original,
-        _ => ReaderOpenMode::Reader,
-    }
-}
-
 fn parse_accent_color(value: &str) -> AccentColor {
     match value {
         "green" => AccentColor::Green,
@@ -165,7 +156,6 @@ fn row_to_preferences(row: &UserPreferencesRow) -> PreferencesSettings {
             font_family: parse_reader_font_family(&row.reader_font_family),
             font_size: parse_reader_font_size(&row.reader_font_size),
             line_height: parse_reader_line_height(&row.reader_line_height),
-            email_open_mode: parse_reader_open_mode(&row.reader_email_open_mode),
         },
         ai: AiPreferenceSettings {
             mila_enabled: row.ai_mila_enabled,
@@ -201,17 +191,16 @@ fn row_to_archival(row: &UserPreferencesRow) -> ArchivalSettings {
 }
 
 async fn fetch_row(pool: &PgPool, user_id: UserId) -> Result<Option<UserPreferencesRow>, AppError> {
-    sqlx::query_as!(
-        UserPreferencesRow,
+    sqlx::query_as::<_, UserPreferencesRow>(
         "SELECT accent_color, sidebar_mode, default_view, list_density, side_panel, \
          triage_mode, auto_advance, reader_font_family, reader_font_size, reader_line_height, \
-         reader_email_open_mode, ai_mila_enabled, ai_custom_prompt, archival_monolith, \
+         ai_mila_enabled, ai_custom_prompt, archival_monolith, \
          archival_pdf, archival_screenshot, archival_warc, duplicate_detection_enabled, \
          duplicate_sensitivity, duplicate_action, browser_timeout_secs, max_concurrent_archives, \
          ai_auto_processing, proxy_url, proxy_all_requests \
          FROM user_preferences WHERE user_id = $1",
-        user_id.into_uuid(),
     )
+    .bind(user_id.into_uuid())
     .fetch_optional(pool)
     .await
     .map_err(map_sqlx_error)
@@ -233,13 +222,51 @@ impl UserPreferencesRepository for PgUserPreferencesRepository {
         user_id: UserId,
         settings: &PreferencesSettings,
     ) -> Result<PreferencesSettings, AppError> {
-        let row = sqlx::query_as!(
-            UserPreferencesRow,
+        let accent_color = format!("{:?}", settings.appearance.accent_color).to_lowercase();
+        let sidebar_mode = match settings.layout.sidebar_mode {
+            SidebarMode::Expanded => "expanded",
+            SidebarMode::Collapsed => "collapsed",
+            SidebarMode::Auto => "auto",
+        };
+        let default_view = match settings.layout.default_view {
+            DefaultView::Library => "library",
+            DefaultView::Feed => "feed",
+            DefaultView::Search => "search",
+        };
+        let list_density = match settings.layout.list_density {
+            ListDensity::Comfortable => "comfortable",
+            ListDensity::Compact => "compact",
+        };
+        let side_panel = match settings.layout.side_panel {
+            SidePanelMode::Auto => "auto",
+            SidePanelMode::Open => "open",
+            SidePanelMode::Closed => "closed",
+        };
+        let triage_mode = match settings.workflow.triage_mode {
+            TriageMode::Manual => "manual",
+            TriageMode::Focus => "focus",
+        };
+        let reader_font_family = match settings.reader.font_family {
+            ReaderFontFamily::Serif => "serif",
+            ReaderFontFamily::Sans => "sans",
+            ReaderFontFamily::Mono => "mono",
+        };
+        let reader_font_size = match settings.reader.font_size {
+            ReaderFontSize::Small => "small",
+            ReaderFontSize::Medium => "medium",
+            ReaderFontSize::Large => "large",
+        };
+        let reader_line_height = match settings.reader.line_height {
+            ReaderLineHeight::Compact => "compact",
+            ReaderLineHeight::Relaxed => "relaxed",
+        };
+
+        let row = sqlx::query_as::<_, UserPreferencesRow>(
             "INSERT INTO user_preferences \
              (user_id, accent_color, sidebar_mode, default_view, list_density, side_panel, \
               triage_mode, auto_advance, reader_font_family, reader_font_size, reader_line_height, \
-              reader_email_open_mode, ai_mila_enabled, ai_custom_prompt) \
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) \
+              ai_mila_enabled, ai_custom_prompt) \
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) \
              ON CONFLICT (user_id) DO UPDATE SET \
                accent_color = EXCLUDED.accent_color, \
                sidebar_mode = EXCLUDED.sidebar_mode, \
@@ -251,63 +278,29 @@ impl UserPreferencesRepository for PgUserPreferencesRepository {
                reader_font_family = EXCLUDED.reader_font_family, \
                reader_font_size = EXCLUDED.reader_font_size, \
                reader_line_height = EXCLUDED.reader_line_height, \
-               reader_email_open_mode = EXCLUDED.reader_email_open_mode, \
                ai_mila_enabled = EXCLUDED.ai_mila_enabled, \
                ai_custom_prompt = EXCLUDED.ai_custom_prompt, \
                updated_at = now() \
              RETURNING accent_color, sidebar_mode, default_view, list_density, side_panel, \
              triage_mode, auto_advance, reader_font_family, reader_font_size, reader_line_height, \
-             reader_email_open_mode, ai_mila_enabled, ai_custom_prompt, archival_monolith, \
+             ai_mila_enabled, ai_custom_prompt, archival_monolith, \
              archival_pdf, archival_screenshot, archival_warc, duplicate_detection_enabled, \
              duplicate_sensitivity, duplicate_action, browser_timeout_secs, max_concurrent_archives, \
              ai_auto_processing, proxy_url, proxy_all_requests",
-            user_id.into_uuid(),
-            format!("{:?}", settings.appearance.accent_color).to_lowercase(),
-            match settings.layout.sidebar_mode {
-                SidebarMode::Expanded => "expanded",
-                SidebarMode::Collapsed => "collapsed",
-                SidebarMode::Auto => "auto",
-            },
-            match settings.layout.default_view {
-                DefaultView::Library => "library",
-                DefaultView::Feed => "feed",
-                DefaultView::Search => "search",
-            },
-            match settings.layout.list_density {
-                ListDensity::Comfortable => "comfortable",
-                ListDensity::Compact => "compact",
-            },
-            match settings.layout.side_panel {
-                SidePanelMode::Auto => "auto",
-                SidePanelMode::Open => "open",
-                SidePanelMode::Closed => "closed",
-            },
-            match settings.workflow.triage_mode {
-                TriageMode::Manual => "manual",
-                TriageMode::Focus => "focus",
-            },
-            settings.workflow.auto_advance,
-            match settings.reader.font_family {
-                ReaderFontFamily::Serif => "serif",
-                ReaderFontFamily::Sans => "sans",
-                ReaderFontFamily::Mono => "mono",
-            },
-            match settings.reader.font_size {
-                ReaderFontSize::Small => "small",
-                ReaderFontSize::Medium => "medium",
-                ReaderFontSize::Large => "large",
-            },
-            match settings.reader.line_height {
-                ReaderLineHeight::Compact => "compact",
-                ReaderLineHeight::Relaxed => "relaxed",
-            },
-            match settings.reader.email_open_mode {
-                ReaderOpenMode::Reader => "reader",
-                ReaderOpenMode::Original => "original",
-            },
-            settings.ai.mila_enabled,
-            settings.ai.custom_prompt.as_deref(),
         )
+        .bind(user_id.into_uuid())
+        .bind(accent_color)
+        .bind(sidebar_mode)
+        .bind(default_view)
+        .bind(list_density)
+        .bind(side_panel)
+        .bind(triage_mode)
+        .bind(settings.workflow.auto_advance)
+        .bind(reader_font_family)
+        .bind(reader_font_size)
+        .bind(reader_line_height)
+        .bind(settings.ai.mila_enabled)
+        .bind(settings.ai.custom_prompt.as_deref())
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
@@ -326,8 +319,18 @@ impl UserPreferencesRepository for PgUserPreferencesRepository {
         user_id: UserId,
         settings: &ArchivalSettings,
     ) -> Result<ArchivalSettings, AppError> {
-        let row = sqlx::query_as!(
-            UserPreferencesRow,
+        let duplicate_sensitivity = match settings.duplicate_detection.sensitivity {
+            DuplicateSensitivity::Low => "low",
+            DuplicateSensitivity::Medium => "medium",
+            DuplicateSensitivity::High => "high",
+        };
+        let duplicate_action = match settings.duplicate_detection.on_duplicate {
+            DuplicateAction::NotifyMe => "notify_me",
+            DuplicateAction::SkipSilently => "skip_silently",
+            DuplicateAction::MergeWithExisting => "merge_with_existing",
+        };
+
+        let row = sqlx::query_as::<_, UserPreferencesRow>(
             "INSERT INTO user_preferences \
              (user_id, archival_monolith, archival_pdf, archival_screenshot, archival_warc, \
               duplicate_detection_enabled, duplicate_sensitivity, duplicate_action, \
@@ -350,32 +353,24 @@ impl UserPreferencesRepository for PgUserPreferencesRepository {
                updated_at = now() \
              RETURNING accent_color, sidebar_mode, default_view, list_density, side_panel, \
              triage_mode, auto_advance, reader_font_family, reader_font_size, reader_line_height, \
-             reader_email_open_mode, ai_mila_enabled, ai_custom_prompt, archival_monolith, \
+             ai_mila_enabled, ai_custom_prompt, archival_monolith, \
              archival_pdf, archival_screenshot, archival_warc, duplicate_detection_enabled, \
              duplicate_sensitivity, duplicate_action, browser_timeout_secs, max_concurrent_archives, \
              ai_auto_processing, proxy_url, proxy_all_requests",
-            user_id.into_uuid(),
-            settings.archive_formats.monolith,
-            settings.archive_formats.pdf,
-            settings.archive_formats.screenshot,
-            settings.archive_formats.warc,
-            settings.duplicate_detection.enabled,
-            match settings.duplicate_detection.sensitivity {
-                DuplicateSensitivity::Low => "low",
-                DuplicateSensitivity::Medium => "medium",
-                DuplicateSensitivity::High => "high",
-            },
-            match settings.duplicate_detection.on_duplicate {
-                DuplicateAction::NotifyMe => "notify_me",
-                DuplicateAction::SkipSilently => "skip_silently",
-                DuplicateAction::MergeWithExisting => "merge_with_existing",
-            },
-            settings.processing.browser_timeout_secs as i32,
-            settings.processing.max_concurrent_archives as i32,
-            settings.processing.ai_auto_processing,
-            settings.proxy.url.as_deref(),
-            settings.proxy.all_requests,
         )
+        .bind(user_id.into_uuid())
+        .bind(settings.archive_formats.monolith)
+        .bind(settings.archive_formats.pdf)
+        .bind(settings.archive_formats.screenshot)
+        .bind(settings.archive_formats.warc)
+        .bind(settings.duplicate_detection.enabled)
+        .bind(duplicate_sensitivity)
+        .bind(duplicate_action)
+        .bind(settings.processing.browser_timeout_secs as i32)
+        .bind(settings.processing.max_concurrent_archives as i32)
+        .bind(settings.processing.ai_auto_processing)
+        .bind(settings.proxy.url.as_deref())
+        .bind(settings.proxy.all_requests)
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;

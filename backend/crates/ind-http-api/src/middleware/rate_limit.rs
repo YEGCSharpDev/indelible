@@ -260,6 +260,7 @@ pub struct RateLimiters {
     registration: Arc<EndpointLimiter>,
     password_reset: Arc<EndpointLimiter>,
     login_account: Arc<EndpointLimiter<String>>,
+    #[allow(dead_code)]
     password_reset_account: Arc<EndpointLimiter<String>>,
     trusted_proxies: TrustedProxies,
 }
@@ -361,8 +362,8 @@ pub async fn password_reset_rate_limit(
     .await
 }
 
-/// Per-account login throttle. Buffers the body to read the `email`, then keys
-/// the limiter on the normalized address so IP rotation can't defeat it.
+/// Per-account login throttle. Buffers the body to read the `username`, then keys
+/// the limiter on the normalized username so IP rotation can't defeat it.
 pub async fn login_account_rate_limit(
     axum::extract::State(limiters): axum::extract::State<RateLimiters>,
     req: Request<Body>,
@@ -371,13 +372,15 @@ pub async fn login_account_rate_limit(
     account_rate_limit(&limiters.login_account, req, next).await
 }
 
-/// Per-account forgot-password throttle (limits reset-email spam to one account).
-pub async fn password_reset_account_rate_limit(
-    axum::extract::State(limiters): axum::extract::State<RateLimiters>,
-    req: Request<Body>,
-    next: Next,
-) -> Response {
-    account_rate_limit(&limiters.password_reset_account, req, next).await
+fn account_login_body_key(bytes: &[u8]) -> Option<String> {
+    serde_json::from_slice::<serde_json::Value>(bytes)
+        .ok()
+        .and_then(|v| {
+            v.get("username")
+                .and_then(|e| e.as_str())
+                .map(|e| e.trim().to_ascii_lowercase())
+        })
+        .filter(|e| !e.is_empty())
 }
 
 async fn account_rate_limit(
@@ -392,14 +395,7 @@ async fn account_rate_limit(
         Err(_) => return next.run(Request::from_parts(parts, Body::empty())).await,
     };
 
-    let account_key = serde_json::from_slice::<serde_json::Value>(&bytes)
-        .ok()
-        .and_then(|v| {
-            v.get("email")
-                .and_then(|e| e.as_str())
-                .map(|e| e.trim().to_ascii_lowercase())
-        })
-        .filter(|e| !e.is_empty());
+    let account_key = account_login_body_key(&bytes);
 
     let rebuilt = Request::from_parts(parts, Body::from(bytes));
 

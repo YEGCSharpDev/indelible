@@ -72,8 +72,6 @@ pub async fn handle_job(
                         "job hit terminal failure"
                     );
 
-                    mark_ingest_log_failed(&ctx, &job_type, &payload, &error_message).await;
-
                     if let Err(record_err) = recovery_handler::record_terminal_failure(
                         &ctx.background_recovery_repo,
                         recovery_handler::RecordedFailure {
@@ -159,7 +157,6 @@ pub async fn handle_job(
                             reason_code = classified.reason_code,
                             "job exhausted apalis retries; recording recovery row"
                         );
-                        mark_ingest_log_failed(&ctx, &job_type, &payload, &error_message).await;
 
                         let now = chrono::Utc::now();
                         let recovery_next = now
@@ -211,35 +208,6 @@ pub async fn handle_job(
                 }
             }
         }
-    }
-}
-
-fn extract_ingest_log_id(job_type: &str, payload: &serde_json::Value) -> Option<uuid::Uuid> {
-    if job_type == "email.ingest" {
-        payload
-            .get("ingest_log_id")
-            .and_then(|v| v.as_str())
-            .and_then(|s| s.parse::<uuid::Uuid>().ok())
-    } else {
-        None
-    }
-}
-
-async fn mark_ingest_log_failed(
-    ctx: &WorkerContext,
-    job_type: &str,
-    payload: &serde_json::Value,
-    error: &str,
-) {
-    if let Some(log_id) = extract_ingest_log_id(job_type, payload)
-        && let Some(repo) = ctx.email_ingest_log_repo.as_ref()
-        && let Err(e) = repo.mark_failed(log_id, error).await
-    {
-        tracing::error!(
-            ingest_log_id = %log_id,
-            error = %e,
-            "failed to mark email ingest log as failed"
-        );
     }
 }
 

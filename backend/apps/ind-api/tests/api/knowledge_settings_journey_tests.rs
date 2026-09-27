@@ -21,7 +21,6 @@ async fn onboarding_and_settings_persist_real_account_configuration() {
     )
     .await;
     preferences["theme"] = json!("dark");
-    preferences["reader"]["email_open_mode"] = json!("original");
     let preferences = assert_json_response(
         client
             .patch_json("/api/v1/settings/preferences", &preferences)
@@ -30,7 +29,6 @@ async fn onboarding_and_settings_persist_real_account_configuration() {
     )
     .await;
     assert_eq!(preferences["theme"], "dark");
-    assert_eq!(preferences["reader"]["email_open_mode"], "original");
 
     let mut notifications = assert_json_response(
         client.get("/api/v1/settings/notifications").await,
@@ -38,7 +36,6 @@ async fn onboarding_and_settings_persist_real_account_configuration() {
     )
     .await;
     notifications["daily_review_reminder_time"] = json!(" 07:30 ");
-    notifications["marketing_emails"] = json!(true);
     let notifications = assert_json_response(
         client
             .patch_json("/api/v1/settings/notifications", &notifications)
@@ -47,7 +44,6 @@ async fn onboarding_and_settings_persist_real_account_configuration() {
     )
     .await;
     assert_eq!(notifications["daily_review_reminder_time"], "07:30");
-    assert_eq!(notifications["marketing_emails"], true);
 
     let mut archival = assert_json_response(
         client.get("/api/v1/settings/archival").await,

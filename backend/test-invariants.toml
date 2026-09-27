@@ -342,21 +342,6 @@ path = "crates/ind-search/src/tests.rs"
 test = "fts_routing_preserves_email_entity_and_source_filters"
 rationale = "Sender, email, entity, and feed filters must reach the durable FTS query unchanged."
 
-[[invariants]]
-id = "email-forwarded-header-spoof-boundary"
-risk = "authentication-authorization"
-owner_layer = "integration-parser"
-path = "crates/ind-integrations/src/email/parsing/tests.rs"
-test = "forwarded_header_precedence_and_spoof_boundary"
-rationale = "Untrusted forwarded headers must not override the authoritative sender identity."
-
-[[invariants]]
-id = "email-recipient-routing"
-risk = "import-routing"
-owner_layer = "integration-parser"
-path = "crates/ind-integrations/src/email/parsing/tests.rs"
-test = "ingest_address_routing_and_validation_table"
-rationale = "Feed and library ingest addresses must route only valid recipient shapes to their intended destination."
 
 [[invariants]]
 id = "epub-malformed-input"
@@ -526,29 +511,6 @@ path = "crates/ind-auth/tests/oauth_flow_journey.rs"
 test = "oauth_state_is_sealed_expiring_and_consumed_exactly_once"
 rationale = "OAuth state must be confidential and tamper-evident at rest, expire durably, and permit exactly one callback to consume it under concurrency."
 
-[[invariants]]
-id = "email-alias-input-contract"
-risk = "input-validation"
-owner_layer = "http"
-path = "apps/ind-api/tests/api/platform_journey_tests.rs"
-test = "email_alias_creation_preserves_namespace_and_default_atomicity"
-rationale = "The public alias boundary must reject local parts outside the supported address grammar."
-
-[[invariants]]
-id = "email-alias-default-rotation-atomicity"
-risk = "transaction-atomicity"
-owner_layer = "http"
-path = "apps/ind-api/tests/api/platform_journey_tests.rs"
-test = "email_alias_creation_preserves_namespace_and_default_atomicity"
-rationale = "A failed replacement must not retire or deselect the user's current default alias."
-
-[[invariants]]
-id = "email-alias-seed-token-namespace"
-risk = "authentication-authorization"
-owner_layer = "http"
-path = "apps/ind-api/tests/api/platform_journey_tests.rs"
-test = "email_alias_creation_preserves_namespace_and_default_atomicity"
-rationale = "Aliases must not claim another user's seed-token address and intercept inbound mail."
 
 [[invariants]]
 id = "import-rollback-preserves-authored-data"

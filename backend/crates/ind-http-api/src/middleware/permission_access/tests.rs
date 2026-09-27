@@ -19,23 +19,21 @@ impl AccessPolicy for EmptyPolicy {
     const REQUIRED: &'static [ApiPermission] = &[];
 }
 
-fn principal(credential: ApiCredential, email_verified: bool) -> Principal {
+fn principal(credential: ApiCredential) -> Principal {
     let user_id = UserId::new();
     let now = Utc::now();
     Principal {
         user: User {
             id: user_id,
-            email: "reader@example.com".to_string(),
+            username: "reader".to_string(),
             password_hash: None,
             display_name: "Reader".to_string(),
             avatar_url: None,
             locale: None,
             timezone: "UTC".to_string(),
             theme: Theme::System,
-            email_verified,
             onboarding_completed: true,
             onboarding_step: 0,
-            email_token: "email-token".to_string(),
             status: UserStatus::Active,
             created_at: now,
             updated_at: now,
@@ -46,17 +44,14 @@ fn principal(credential: ApiCredential, email_verified: bool) -> Principal {
 }
 
 fn pat(permissions: Vec<ApiPermission>) -> Principal {
-    principal(
-        ApiCredential::PersonalAccessToken {
-            token_id: ApiTokenId::new(),
-            permissions,
-        },
-        true,
-    )
+    principal(ApiCredential::PersonalAccessToken {
+        token_id: ApiTokenId::new(),
+        permissions,
+    })
 }
 
 fn jwt(client_type: ClientType) -> Principal {
-    principal(ApiCredential::UserAccessJwt { client_type }, true)
+    principal(ApiCredential::UserAccessJwt { client_type })
 }
 
 fn assert_insufficient_permissions(error: ApiError, expected: Vec<ApiPermission>) {
@@ -64,13 +59,6 @@ fn assert_insufficient_permissions(error: ApiError, expected: Vec<ApiPermission>
         panic!("expected insufficient permissions, got {error:?}");
     };
     assert_eq!(required, expected);
-}
-
-fn assert_verification_required(error: ApiError) {
-    let ApiError::Forbidden { message } = error else {
-        panic!("expected forbidden, got {error:?}");
-    };
-    assert_eq!(message, "email verification required");
 }
 
 #[test]
@@ -211,62 +199,12 @@ fn extension_jwts_are_isolated_unless_the_policy_explicitly_allows_them() {
 
     authorize_permission_access::<DocumentAssetPolicy>(&extension)
         .expect("an explicitly extension-enabled policy must accept an Extension JWT");
-
-    let unverified_extension = principal(
-        ApiCredential::UserAccessJwt {
-            client_type: ClientType::Extension,
-        },
-        false,
-    );
-    let error = authorize_permission_access::<LibraryReadPolicy>(&unverified_extension)
-        .expect_err("Extension isolation must take precedence over email verification");
-    let ApiError::Forbidden { message } = error else {
-        panic!("expected forbidden, got {error:?}");
-    };
-    assert_eq!(
-        message,
-        "extension access is not permitted for this resource"
-    );
-
-    let error = authorize_permission_access::<DocumentAssetPolicy>(&unverified_extension)
-        .expect_err("an admitted Extension JWT must still require verified email");
-    assert_verification_required(error);
 }
 
 #[test]
-fn resource_policies_preserve_verified_email_enforcement() {
-    let unverified_jwt = principal(
-        ApiCredential::UserAccessJwt {
-            client_type: ClientType::Web,
-        },
-        false,
-    );
-    let error = authorize_permission_access::<LibraryReadPolicy>(&unverified_jwt)
-        .expect_err("unverified user JWT must be denied");
-    assert_verification_required(error);
-
-    let unverified_pat = principal(
-        ApiCredential::PersonalAccessToken {
-            token_id: ApiTokenId::new(),
-            permissions: vec![ApiPermission::LibraryRead],
-        },
-        false,
-    );
-    let error = authorize_permission_access::<LibraryReadPolicy>(&unverified_pat)
-        .expect_err("unverified PAT owner must be denied");
-    assert_verification_required(error);
-}
-
-#[test]
-fn under_scoped_pat_reports_the_complete_policy_before_email_verification() {
-    let unverified_pat = principal(
-        ApiCredential::PersonalAccessToken {
-            token_id: ApiTokenId::new(),
-            permissions: vec![ApiPermission::AiUse],
-        },
-        false,
-    );
-    let error = authorize_permission_access::<AiUseAndLibraryReadPolicy>(&unverified_pat)
+fn under_scoped_pat_reports_the_complete_policy() {
+    let under_scoped = pat(vec![ApiPermission::AiUse]);
+    let error = authorize_permission_access::<AiUseAndLibraryReadPolicy>(&under_scoped)
         .expect_err("an under-scoped PAT must be denied");
     assert_insufficient_permissions(
         error,

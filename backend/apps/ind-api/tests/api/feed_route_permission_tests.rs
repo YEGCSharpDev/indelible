@@ -6,8 +6,6 @@ const READ_ROUTES: &[RouteCase] = &[
     RouteCase::get("/api/v1/feeds/deliveries"),
     RouteCase::get("/api/v1/feeds/deliveries/stats"),
     RouteCase::get("/api/v1/feeds/deliveries/bad"),
-    RouteCase::get("/api/v1/email-aliases"),
-    RouteCase::get("/api/v1/email-senders"),
 ];
 
 const WRITE_ROUTES: &[RouteCase] = &[
@@ -21,10 +19,6 @@ const WRITE_ROUTES: &[RouteCase] = &[
     RouteCase::post("/api/v1/feeds/deliveries/bad/seen"),
     RouteCase::post("/api/v1/feeds/deliveries/bad/dismiss"),
     RouteCase::post("/api/v1/feeds/deliveries/bad/prepare"),
-    RouteCase::post("/api/v1/email-aliases"),
-    RouteCase::delete("/api/v1/email-aliases/bad"),
-    RouteCase::patch("/api/v1/email-senders/bad"),
-    RouteCase::post("/api/v1/email-senders/bad/unsubscribe"),
 ];
 
 #[tokio::test]

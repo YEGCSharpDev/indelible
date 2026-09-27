@@ -13,7 +13,7 @@ async fn registration_login_and_profile_access_follow_the_public_auth_contract()
         .post_json_anon(
             "/api/v1/auth/register",
             &serde_json::json!({
-                "email": "login@example.com",
+                "username": "login_user",
                 "password": "SecureP@ss123!",
                 "display_name": "Login User"
             }),
@@ -23,13 +23,13 @@ async fn registration_login_and_profile_access_follow_the_public_auth_contract()
     let body: serde_json::Value = registered.json().await.unwrap();
     assert!(body["access_token"].is_string());
     assert!(body["id"].is_string());
-    assert_eq!(body["email"], "login@example.com");
+    assert_eq!(body["username"], "login_user");
 
     let login = app
         .post_json_anon(
             "/api/v1/auth/login",
             &serde_json::json!({
-                "email": "login@example.com",
+                "username": "login_user",
                 "password": "SecureP@ss123!"
             }),
         )
@@ -41,7 +41,7 @@ async fn registration_login_and_profile_access_follow_the_public_auth_contract()
         .post_json_anon(
             "/api/v1/auth/login",
             &serde_json::json!({
-                "email": "login@example.com",
+                "username": "login_user",
                 "password": "WrongPassword1!"
             }),
         )
@@ -128,7 +128,7 @@ async fn first_run_provider_and_concurrent_signup_admit_exactly_one_owner() {
     let bodies: Vec<serde_json::Value> = (0..5)
         .map(|i| {
             serde_json::json!({
-                "email": format!("race{i}@example.com"),
+                "username": format!("race{i}"),
                 "password": "SecureP@ss123!",
                 "display_name": format!("Racer {i}")
             })
@@ -174,7 +174,7 @@ async fn cli_refresh_family_routes_rotate_list_and_revoke() {
         .post(format!("{}/api/v1/auth/register", app.address))
         .header("x-client-type", "cli")
         .json(&serde_json::json!({
-            "email": "refresh-family@example.com",
+            "username": "refresh_user",
             "password": "SecureP@ss123!",
             "display_name": "Refresh Family"
         }))
@@ -270,7 +270,7 @@ async fn account_profile_password_and_deletion_mutations_preserve_the_public_con
         app.post_json_anon(
             "/api/v1/auth/login",
             &serde_json::json!({
-                "email": session.user.email,
+                "username": session.user.username,
                 "password": "ReplacementP@ss123!"
             }),
         )
@@ -296,7 +296,7 @@ async fn account_profile_password_and_deletion_mutations_preserve_the_public_con
         client
             .delete_json(
                 "/api/v1/me",
-                &serde_json::json!({"confirmation": "wrong@example.com"}),
+                &serde_json::json!({"confirmation": "wrong_user"}),
             )
             .await
             .status(),
@@ -312,7 +312,7 @@ async fn account_profile_password_and_deletion_mutations_preserve_the_public_con
         client
             .delete_json(
                 "/api/v1/me",
-                &serde_json::json!({"confirmation": session.user.email}),
+                &serde_json::json!({"confirmation": session.user.username}),
             )
             .await
             .status(),
@@ -333,13 +333,14 @@ async fn account_profile_password_and_deletion_mutations_preserve_the_public_con
         .unwrap();
     assert_eq!(docs_left, 0, "delete forever must remove owned content");
 
-    let emails_left: i64 = sqlx::query_scalar("SELECT count(*) FROM users WHERE email = $1")
-        .bind(&session.user.email)
-        .fetch_one(app.pool())
-        .await
-        .unwrap();
+    let users_by_username_left: i64 =
+        sqlx::query_scalar("SELECT count(*) FROM users WHERE username = $1")
+            .bind(&session.user.username)
+            .fetch_one(app.pool())
+            .await
+            .unwrap();
     assert_eq!(
-        emails_left, 0,
-        "the deleted account's email address must be free for re-registration"
+        users_by_username_left, 0,
+        "the deleted account's username must be free for re-registration"
     );
 }

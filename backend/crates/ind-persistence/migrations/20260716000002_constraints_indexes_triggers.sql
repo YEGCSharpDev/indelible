@@ -58,21 +58,6 @@ ALTER TABLE ONLY public.documents
 ALTER TABLE ONLY public.domain_events
     ADD CONSTRAINT pk_domain_events PRIMARY KEY (id);
 
-ALTER TABLE ONLY public.email_aliases
-    ADD CONSTRAINT pk_email_aliases PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.email_ingest_log
-    ADD CONSTRAINT pk_email_ingest_log PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.email_senders
-    ADD CONSTRAINT pk_email_senders PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.email_unsubscribe_targets
-    ADD CONSTRAINT pk_email_unsubscribe_targets PRIMARY KEY (sender_id);
-
-ALTER TABLE ONLY public.email_verification_tokens
-    ADD CONSTRAINT pk_email_verification_tokens PRIMARY KEY (id);
-
 ALTER TABLE ONLY public.entities
     ADD CONSTRAINT pk_entities PRIMARY KEY (id);
 
@@ -153,9 +138,6 @@ ALTER TABLE ONLY public.notifications
 
 ALTER TABLE ONLY public.oauth_identities
     ADD CONSTRAINT pk_oauth_identities PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.password_reset_tokens
-    ADD CONSTRAINT pk_password_reset_tokens PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.plans
     ADD CONSTRAINT pk_plans PRIMARY KEY (id);
@@ -244,21 +226,6 @@ ALTER TABLE ONLY public.collections
 ALTER TABLE ONLY public.documents
     ADD CONSTRAINT uq_documents_id_user UNIQUE (id, user_id);
 
-ALTER TABLE ONLY public.email_aliases
-    ADD CONSTRAINT uq_email_aliases_dest_local UNIQUE (destination, local_part);
-
-ALTER TABLE ONLY public.email_ingest_log
-    ADD CONSTRAINT uq_email_ingest_delivery UNIQUE (provider, provider_email_id, user_id, destination);
-
-ALTER TABLE ONLY public.email_senders
-    ADD CONSTRAINT uq_email_senders_id_user UNIQUE (id, user_id);
-
-ALTER TABLE ONLY public.email_senders
-    ADD CONSTRAINT uq_email_senders_user_canonical UNIQUE (user_id, canonical_addr);
-
-ALTER TABLE ONLY public.email_verification_tokens
-    ADD CONSTRAINT uq_email_verification_token_hash UNIQUE (token_hash);
-
 ALTER TABLE ONLY public.entities
     ADD CONSTRAINT uq_entities_user_name_type UNIQUE (user_id, name, entity_type);
 
@@ -286,9 +253,6 @@ ALTER TABLE ONLY public.integration_oauth_tokens
 ALTER TABLE ONLY public.oauth_identities
     ADD CONSTRAINT uq_oauth_provider_user UNIQUE (provider, provider_user_id);
 
-ALTER TABLE ONLY public.password_reset_tokens
-    ADD CONSTRAINT uq_password_reset_token_hash UNIQUE (token_hash);
-
 ALTER TABLE ONLY public.plans
     ADD CONSTRAINT uq_plans_slug UNIQUE (slug);
 
@@ -311,7 +275,7 @@ ALTER TABLE ONLY public.usage_counters
     ADD CONSTRAINT uq_usage_counters_user_quota_period UNIQUE (user_id, quota_name, period_start);
 
 ALTER TABLE ONLY public.users
-    ADD CONSTRAINT uq_users_email UNIQUE (email);
+    ADD CONSTRAINT uq_users_username UNIQUE (username);
 
 ALTER TABLE ONLY public.webhook_dispatches
     ADD CONSTRAINT uq_webhook_dispatches_event_endpoint UNIQUE (domain_event_id, endpoint_id);
@@ -370,18 +334,6 @@ CREATE INDEX idx_document_playback_states_document ON public.document_playback_s
 CREATE INDEX idx_documents_user_author_lower ON public.documents USING btree (user_id, lower(author) text_pattern_ops) WHERE ((author IS NOT NULL) AND (author <> ''::text));
 
 CREATE INDEX idx_documents_user_content_hash ON public.documents USING btree (user_id, content_hash) WHERE (content_hash IS NOT NULL);
-
-CREATE INDEX idx_documents_user_sender ON public.documents USING btree (user_id, sender_id) WHERE (sender_id IS NOT NULL);
-
-CREATE INDEX idx_email_aliases_lookup ON public.email_aliases USING btree (destination, local_part) WHERE (status = 'active'::text);
-
-CREATE INDEX idx_email_aliases_retire ON public.email_aliases USING btree (retire_at) WHERE ((status = 'active'::text) AND (retire_at IS NOT NULL));
-
-CREATE INDEX idx_email_senders_user_blocked ON public.email_senders USING btree (user_id, blocked_at) WHERE (blocked_at IS NOT NULL);
-
-CREATE INDEX idx_email_senders_user_list_id ON public.email_senders USING btree (user_id, list_id) WHERE (list_id IS NOT NULL);
-
-CREATE INDEX idx_email_verification_user ON public.email_verification_tokens USING btree (user_id);
 
 CREATE INDEX idx_entities_norm ON public.entities USING btree (user_id, entity_type, lower(btrim(name)));
 
@@ -463,8 +415,6 @@ CREATE INDEX idx_oauth_flows_expires ON public.oauth_flows USING btree (expires_
 
 CREATE INDEX idx_oauth_user ON public.oauth_identities USING btree (user_id);
 
-CREATE INDEX idx_password_reset_user ON public.password_reset_tokens USING btree (user_id);
-
 CREATE INDEX idx_push_user ON public.push_tokens USING btree (user_id);
 
 CREATE INDEX idx_recent_searches_user_last_searched ON public.recent_searches USING btree (user_id, last_searched_at DESC);
@@ -499,8 +449,6 @@ CREATE INDEX idx_tags_user ON public.tags USING btree (user_id);
 
 CREATE INDEX idx_usage_counters_user ON public.usage_counters USING btree (user_id);
 
-CREATE UNIQUE INDEX idx_users_email_token ON public.users USING btree (email_token);
-
 CREATE INDEX idx_users_status ON public.users USING btree (status);
 
 CREATE INDEX idx_webhook_dispatches_endpoint ON public.webhook_dispatches USING btree (endpoint_id, status, created_at DESC);
@@ -518,8 +466,6 @@ CREATE UNIQUE INDEX uq_collections_id_user ON public.collections USING btree (id
 CREATE UNIQUE INDEX uq_documents_user_canonical_url ON public.documents USING btree (user_id, canonical_url) WHERE (canonical_url IS NOT NULL);
 
 CREATE UNIQUE INDEX uq_documents_user_content_hash_no_url ON public.documents USING btree (user_id, content_hash) WHERE ((canonical_url IS NULL) AND (content_hash IS NOT NULL));
-
-CREATE UNIQUE INDEX uq_email_aliases_default_per_user_destination ON public.email_aliases USING btree (user_id, destination) WHERE (is_default AND (status = 'active'::text));
 
 CREATE UNIQUE INDEX uq_entity_mentions_entity_document ON public.entity_mentions USING btree (entity_id, document_id) WHERE (document_id IS NOT NULL);
 
@@ -561,9 +507,6 @@ ALTER TABLE ONLY public.billing_usage_events
 
 ALTER TABLE ONLY public.document_playback_states
     ADD CONSTRAINT document_playback_states_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.email_ingest_log
-    ADD CONSTRAINT email_ingest_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.entity_aliases
     ADD CONSTRAINT entity_aliases_entity_id_fkey FOREIGN KEY (entity_id) REFERENCES public.entities(id) ON DELETE CASCADE;
@@ -622,25 +565,10 @@ ALTER TABLE ONLY public.document_video_metadata
     ADD CONSTRAINT fk_document_video_metadata_document FOREIGN KEY (document_id) REFERENCES public.documents(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.documents
-    ADD CONSTRAINT fk_documents_sender FOREIGN KEY (sender_id, user_id) REFERENCES public.email_senders(id, user_id) ON DELETE SET NULL (sender_id);
-
-ALTER TABLE ONLY public.documents
     ADD CONSTRAINT fk_documents_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.domain_events
     ADD CONSTRAINT fk_domain_events_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.email_aliases
-    ADD CONSTRAINT fk_email_aliases_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.email_senders
-    ADD CONSTRAINT fk_email_senders_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.email_unsubscribe_targets
-    ADD CONSTRAINT fk_email_unsubscribe_targets_sender FOREIGN KEY (sender_id) REFERENCES public.email_senders(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.email_verification_tokens
-    ADD CONSTRAINT fk_email_verification_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.entities
     ADD CONSTRAINT fk_entities_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
@@ -756,9 +684,6 @@ ALTER TABLE ONLY public.notifications
 
 ALTER TABLE ONLY public.oauth_identities
     ADD CONSTRAINT fk_oauth_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.password_reset_tokens
-    ADD CONSTRAINT fk_password_reset_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.push_tokens
     ADD CONSTRAINT fk_push_tokens_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;

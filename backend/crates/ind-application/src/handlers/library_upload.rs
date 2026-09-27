@@ -119,7 +119,6 @@ impl LibraryUploadService {
             domain: None,
             lead_image_url: None,
             thumbnail_url,
-            sender_id: None,
         };
 
         let has_readable = staged_assets

@@ -1,9 +1,7 @@
 use futures::future::BoxFuture;
 use ind_domain::{
-    EmailAlias, EmailAliasId, EmailDestination, EmailSender, EmailSenderId,
-    EmailSenderRenderDefault, ImportJob, ImportJobId, IntegrationConnection,
-    IntegrationConnectionId, IntegrationOAuthProvider, User, UserId, WebhookDelivery,
-    WebhookEndpoint, WebhookEndpointId,
+    ImportJob, ImportJobId, IntegrationConnection, IntegrationConnectionId,
+    IntegrationOAuthProvider, UserId, WebhookDelivery, WebhookEndpoint, WebhookEndpointId,
 };
 
 use crate::AppError;
@@ -59,19 +57,6 @@ pub trait WebhookOperations: Send + Sync {
         endpoint_id: WebhookEndpointId,
         limit: i64,
     ) -> BoxFuture<'_, Result<Vec<WebhookDelivery>, AppError>>;
-}
-
-pub trait EmailIngestOperations: Send + Sync {
-    fn claim_and_enqueue(
-        &self,
-        input: crate::repos::email_ingest::ClaimAndEnqueueInput<'_>,
-    ) -> BoxFuture<'_, Result<Option<crate::repos::email_ingest::EmailIngestLogRow>, AppError>>;
-
-    fn resolve_ingest_recipient(
-        &self,
-        destination: EmailDestination,
-        local_part: &str,
-    ) -> BoxFuture<'_, Result<Option<User>, AppError>>;
 }
 
 pub struct ImportUpload {
@@ -166,91 +151,4 @@ pub trait IntegrationOperations: Send + Sync {
         url: String,
         api_key: String,
     ) -> BoxFuture<'_, Result<IntegrationConnection, AppError>>;
-}
-
-pub trait EmailSenderOperations: Send + Sync {
-    fn list(
-        &self,
-        user_id: UserId,
-        offset: i64,
-        limit: i64,
-    ) -> BoxFuture<'_, Result<(Vec<EmailSender>, i64), AppError>>;
-
-    fn get(
-        &self,
-        user_id: UserId,
-        sender_id: EmailSenderId,
-    ) -> BoxFuture<'_, Result<EmailSender, AppError>>;
-
-    fn list_by_ids(
-        &self,
-        user_id: UserId,
-        ids: Vec<EmailSenderId>,
-    ) -> BoxFuture<'_, Result<Vec<EmailSender>, AppError>>;
-
-    fn block(
-        &self,
-        user_id: UserId,
-        sender_id: EmailSenderId,
-    ) -> BoxFuture<'_, Result<EmailSender, AppError>>;
-
-    fn unblock(
-        &self,
-        user_id: UserId,
-        sender_id: EmailSenderId,
-    ) -> BoxFuture<'_, Result<EmailSender, AppError>>;
-
-    fn set_render_default(
-        &self,
-        user_id: UserId,
-        sender_id: EmailSenderId,
-        value: EmailSenderRenderDefault,
-    ) -> BoxFuture<'_, Result<EmailSender, AppError>>;
-
-    fn set_routing_default(
-        &self,
-        user_id: UserId,
-        sender_id: EmailSenderId,
-        value: Option<EmailDestination>,
-    ) -> BoxFuture<'_, Result<EmailSender, AppError>>;
-
-    fn unsubscribe(
-        &self,
-        user_id: UserId,
-        sender_id: EmailSenderId,
-    ) -> BoxFuture<'_, Result<EmailSenderUnsubscribeOutcome, AppError>>;
-}
-
-#[derive(Debug, Clone)]
-pub struct EmailSenderUnsubscribeOutcome {
-    pub sender: EmailSender,
-    pub job_id: ind_domain::JobOutboxId,
-}
-
-pub trait EmailAliasOperations: Send + Sync {
-    fn list(&self, user_id: UserId) -> BoxFuture<'_, Result<Vec<EmailAlias>, AppError>>;
-
-    fn create(
-        &self,
-        user_id: UserId,
-        destination: EmailDestination,
-        local_part: String,
-        is_default: bool,
-    ) -> BoxFuture<'_, Result<EmailAlias, EmailAliasCreateError>>;
-
-    fn delete(
-        &self,
-        user_id: UserId,
-        alias_id: EmailAliasId,
-    ) -> BoxFuture<'_, Result<(), AppError>>;
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum EmailAliasCreateError {
-    #[error("invalid local part: {0}")]
-    InvalidLocalPart(ind_domain::AliasLocalPartError),
-    #[error("local part collides with another account's seed token")]
-    SeedTokenCollision,
-    #[error(transparent)]
-    Application(#[from] AppError),
 }
