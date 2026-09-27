@@ -95,7 +95,7 @@ impl PgSearchRepository {
                     sd.updated_at,
                     CASE WHEN sd.section_key = '' THEN NULL ELSE sd.document_kind END AS section_kind,
                     CASE WHEN sd.section_key = '' THEN NULL ELSE sd.section_key END AS section_key,
-                    CASE WHEN sd.section_key = '' THEN NULL ELSE sd.section_title END AS section_title,
+                    CASE WHEN sd.section_key = '' THEN NULL ELSE sd.section_title END AS section_title
                 FROM search_documents sd
                 JOIN documents d ON d.id = sd.document_id AND d.user_id = $1
                 LEFT JOIN library_entries le
@@ -393,7 +393,7 @@ impl PgSearchRepository {
                     fd.updated_at,
                     NULL::text AS section_kind,
                     NULL::text AS section_key,
-                    NULL::text AS section_title,
+                    NULL::text AS section_title
                 FROM feed_deliveries fd
                 JOIN feed_source_entries fse ON fse.id = fd.source_entry_id
                 JOIN feed_sources fs ON fs.id = fd.source_id
@@ -524,7 +524,7 @@ impl PgSearchRepository {
                 updated_at,
                 section_kind,
                 section_key,
-                section_title,
+                section_title
             FROM ranked
             ORDER BY final_score DESC, saved_at DESC, result_id DESC, COALESCE(section_key, '') DESC
             LIMIT $35
