@@ -95,7 +95,7 @@ pub async fn extension_status(
         authenticated: true,
         user: Some(ExtensionUserInfo {
             id: user.id.to_string(),
-            email: user.email.clone(),
+            username: user.username.clone(),
             display_name: user.display_name.clone(),
         }),
     }))

@@ -118,22 +118,3 @@ pub struct AuthorizationCode {
     pub expires_at: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
 }
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EmailVerificationToken {
-    pub id: uuid::Uuid,
-    pub user_id: UserId,
-    pub token_hash: String,
-    pub expires_at: DateTime<Utc>,
-    pub created_at: DateTime<Utc>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PasswordResetToken {
-    pub id: uuid::Uuid,
-    pub user_id: UserId,
-    pub token_hash: String,
-    pub expires_at: DateTime<Utc>,
-    pub used_at: Option<DateTime<Utc>>,
-    pub created_at: DateTime<Utc>,
-}

@@ -107,7 +107,7 @@ fn content_source(source: ContentSource) -> &'static str {
         ContentSource::Extension => "extension",
         ContentSource::ShareSheet => "share_sheet",
         ContentSource::Feed => "feed",
-        ContentSource::Email => "email",
+
         ContentSource::Api => "api",
         ContentSource::Cli => "cli",
         ContentSource::Import => "import",

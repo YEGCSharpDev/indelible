@@ -208,7 +208,7 @@ async fn raw_secret_is_hash_only_at_rest_and_revealed_only_by_creation() {
     let raw = created["raw_token"].as_str().expect("one-time raw token");
     assert!(created.get("token_hash").is_none());
 
-    let persisted_hash = ind_auth::hash_token(raw);
+    let persisted_hash = ind_auth::crypto::hash_token(raw);
     let persisted = PgApiTokenRepository::new(fixture.app.pool().clone())
         .find_by_token_hash(&persisted_hash)
         .await
@@ -241,7 +241,7 @@ async fn expired_token_fails_before_reaching_a_permissioned_route() {
     )
     .await;
     let raw = created["raw_token"].as_str().expect("one-time raw token");
-    let token_hash = ind_auth::hash_token(raw);
+    let token_hash = ind_auth::crypto::hash_token(raw);
     let token = TestPersonalAccessToken::new(raw);
 
     let updated = sqlx::query(

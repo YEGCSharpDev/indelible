@@ -16,11 +16,11 @@
 		signupsEnabled = status.signupsEnabled;
 	});
 
-	let email = $state('');
+	let username = $state('');
 	let password = $state('');
 	let submitting = $state(false);
 
-	let fieldErrors = $state<{ email?: string; password?: string }>({});
+	let fieldErrors = $state<{ username?: string; password?: string }>({});
 
 	const MAX_ATTEMPTS = 5;
 	const COOLDOWN_SECONDS = 30;
@@ -47,10 +47,10 @@
 	}
 
 	function validate(): boolean {
-		const errors: { email?: string; password?: string } = {};
+		const errors: { username?: string; password?: string } = {};
 
-		if (!email.trim()) {
-			errors.email = $t('auth_email_required');
+		if (!username.trim()) {
+			errors.username = $t('auth_username_required');
 		}
 
 		if (!password) {
@@ -71,7 +71,7 @@
 		submitting = true;
 		fieldErrors = {};
 
-		const result = await auth.login(email, password);
+		const result = await auth.login(username.trim(), password);
 		submitting = false;
 
 		if (result.success) {
@@ -100,8 +100,6 @@
 		if (!redirectUrl?.startsWith('/') || redirectUrl.startsWith('//')) return '';
 		return `?redirect=${encodeURIComponent(redirectUrl)}`;
 	}
-
-	const forgotPasswordHref = '/forgot-password';
 </script>
 
 <h1 class="auth-title">{$t('auth_welcome_back')}</h1>
@@ -119,13 +117,13 @@
 
 <form onsubmit={handleSubmit} novalidate>
 	<FormInput
-		label={$t('common_email')}
-		type="email"
-		autocomplete="email"
-		placeholder={$t('auth_email_placeholder')}
+		label={$t('common_username')}
+		type="text"
+		autocomplete="username"
+		placeholder={$t('auth_username_placeholder')}
 		required
-		bind:value={email}
-		error={fieldErrors.email}
+		bind:value={username}
+		error={fieldErrors.username}
 	/>
 
 	<FormInput
@@ -143,9 +141,6 @@
 		<FormButton loading={submitting} disabled={isCoolingDown}>{$t('auth_sign_in')}</FormButton>
 	</div>
 </form>
-
-<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- static application route. -->
-<a href={forgotPasswordHref} class="forgot-password-link">{$t('auth_forgot_password')}</a>
 
 <OAuthButtons dividerText={$t('auth_or')} />
 
@@ -195,22 +190,6 @@
 
 	.form-actions {
 		margin-top: 24px;
-	}
-
-	.forgot-password-link {
-		display: block;
-		margin-top: 12px;
-		font-family: var(--font-sans);
-		font-size: 13px;
-		font-weight: 400;
-		letter-spacing: -0.01em;
-		color: var(--accent);
-		text-decoration: none;
-		text-align: center;
-	}
-
-	.forgot-password-link:hover {
-		text-decoration: underline;
 	}
 
 	.auth-footer {

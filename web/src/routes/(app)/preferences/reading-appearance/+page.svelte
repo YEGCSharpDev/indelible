@@ -21,7 +21,6 @@
 		ThemeDto,
 		TriageModeDto
 	} from '$lib/api';
-	import EmailOpenModeSection from './components/EmailOpenModeSection.svelte';
 	import KeyboardShortcutsSection from './components/KeyboardShortcutsSection.svelte';
 	import LayoutSection from './components/LayoutSection.svelte';
 	import LocaleSection from './components/LocaleSection.svelte';
@@ -249,11 +248,6 @@
 			onFontFamilyChange={(value) => (fontFamily = value)}
 			onFontSizeChange={(value) => (fontSize = value)}
 			onLineHeightChange={(value) => (lineHeight = value)}
-		/>
-
-		<EmailOpenModeSection
-			{emailOpenMode}
-			onEmailOpenModeChange={(value) => (emailOpenMode = value)}
 		/>
 
 		<LocaleSection {locale} {locales} onLocaleChange={(value) => (locale = value)} />

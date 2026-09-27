@@ -2,7 +2,8 @@ use super::prelude::*;
 
 #[derive(Default)]
 pub struct UserFactory {
-    email_verified: bool,
+    username: Option<String>,
+    display_name: Option<String>,
 }
 
 impl UserFactory {
@@ -10,27 +11,35 @@ impl UserFactory {
         Self::default()
     }
 
-    pub fn with_email_verified(mut self, verified: bool) -> Self {
-        self.email_verified = verified;
+    pub fn with_username(mut self, username: impl Into<String>) -> Self {
+        self.username = Some(username.into());
+        self
+    }
+
+    pub fn with_display_name(mut self, display_name: impl Into<String>) -> Self {
+        self.display_name = Some(display_name.into());
         self
     }
 
     pub async fn insert(self, pool: &sqlx::PgPool) -> User {
         let timestamp = Utc::now();
+        let suffix = short_unique_suffix();
+        let username = self.username.unwrap_or_else(|| format!("user-{}", suffix));
+        let display_name = self
+            .display_name
+            .unwrap_or_else(|| format!("{} {}", Name().fake::<String>(), suffix));
         PgUserRepository::new(pool.clone())
             .create(User {
                 id: UserId::new(),
-                email: format!("test-{}@example.com", short_unique_suffix()),
+                username,
                 password_hash: None,
-                display_name: format!("{} {}", Name().fake::<String>(), short_unique_suffix()),
+                display_name,
                 avatar_url: None,
                 locale: None,
                 timezone: "UTC".into(),
                 theme: Theme::System,
-                email_verified: self.email_verified,
                 onboarding_completed: false,
                 onboarding_step: 0,
-                email_token: ind_auth::crypto::generate_email_token(),
                 status: UserStatus::Active,
                 created_at: timestamp,
                 updated_at: timestamp,

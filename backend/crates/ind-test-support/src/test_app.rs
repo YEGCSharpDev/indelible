@@ -244,10 +244,7 @@ impl TestApp {
     }
 
     pub async fn create_web_session(&self) -> TestAuthSession {
-        let user = UserFactory::new()
-            .with_email_verified(true)
-            .insert(self.pool())
-            .await;
+        let user = UserFactory::new().insert(self.pool()).await;
         let token = self.sign_test_token(&user, ClientType::Web);
         TestAuthSession { user, token }
     }

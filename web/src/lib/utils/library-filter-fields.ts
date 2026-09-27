@@ -8,7 +8,6 @@ export type LibraryFilterFieldDef = {
 	valueType: 'select' | 'multi-select' | 'text' | 'number' | 'date' | 'boolean';
 	options?: { value: string; labelKey: MessageKey }[];
 	booleanLabelKeys?: { true: MessageKey; false: MessageKey };
-	scope?: 'email';
 };
 
 const LIBRARY_FILTER_FIELDS: LibraryFilterFieldDef[] = [
@@ -36,7 +35,6 @@ const LIBRARY_FILTER_FIELDS: LibraryFilterFieldDef[] = [
 		options: [
 			{ value: 'article', labelKey: 'library_filter_value_article' },
 			{ value: 'book', labelKey: 'library_filter_value_book' },
-			{ value: 'email', labelKey: 'library_filter_value_email' },
 			{ value: 'pdf', labelKey: 'library_filter_value_pdf' },
 			{ value: 'video', labelKey: 'library_filter_value_video' }
 		]
@@ -47,58 +45,6 @@ const LIBRARY_FILTER_FIELDS: LibraryFilterFieldDef[] = [
 		section: 'content',
 		ops: [
 			{ value: 'eq', labelKey: 'library_filter_operator_is' },
-			{ value: 'neq', labelKey: 'library_filter_operator_is_not' },
-			{ value: 'in', labelKey: 'library_filter_operator_is_any_of' }
-		],
-		valueType: 'text'
-	},
-	{
-		key: 'sender',
-		labelKey: 'library_filter_field_sender',
-		section: 'content',
-		scope: 'email',
-		ops: [
-			{ value: 'contains', labelKey: 'library_filter_operator_contains' },
-			{ value: 'eq', labelKey: 'library_filter_operator_is_exactly' },
-			{ value: 'neq', labelKey: 'library_filter_operator_is_not' },
-			{ value: 'in', labelKey: 'library_filter_operator_is_any_of' }
-		],
-		valueType: 'text'
-	},
-	{
-		key: 'sender_domain',
-		labelKey: 'library_filter_field_sender_domain',
-		section: 'content',
-		scope: 'email',
-		ops: [
-			{ value: 'contains', labelKey: 'library_filter_operator_contains' },
-			{ value: 'eq', labelKey: 'library_filter_operator_is_exactly' },
-			{ value: 'neq', labelKey: 'library_filter_operator_is_not' },
-			{ value: 'in', labelKey: 'library_filter_operator_is_any_of' }
-		],
-		valueType: 'text'
-	},
-	{
-		key: 'list_id',
-		labelKey: 'library_filter_field_list_id',
-		section: 'content',
-		scope: 'email',
-		ops: [
-			{ value: 'contains', labelKey: 'library_filter_operator_contains' },
-			{ value: 'eq', labelKey: 'library_filter_operator_is_exactly' },
-			{ value: 'neq', labelKey: 'library_filter_operator_is_not' },
-			{ value: 'in', labelKey: 'library_filter_operator_is_any_of' }
-		],
-		valueType: 'text'
-	},
-	{
-		key: 'subject',
-		labelKey: 'library_filter_field_subject',
-		section: 'content',
-		scope: 'email',
-		ops: [
-			{ value: 'contains', labelKey: 'library_filter_operator_contains' },
-			{ value: 'eq', labelKey: 'library_filter_operator_is_exactly' },
 			{ value: 'neq', labelKey: 'library_filter_operator_is_not' },
 			{ value: 'in', labelKey: 'library_filter_operator_is_any_of' }
 		],
@@ -123,30 +69,6 @@ const LIBRARY_FILTER_FIELDS: LibraryFilterFieldDef[] = [
 		booleanLabelKeys: {
 			true: 'library_filter_favorited_true',
 			false: 'library_filter_favorited_false'
-		}
-	},
-	{
-		key: 'has_unsubscribe',
-		labelKey: 'library_filter_field_has_unsubscribe',
-		section: 'attributes',
-		scope: 'email',
-		ops: [],
-		valueType: 'boolean',
-		booleanLabelKeys: {
-			true: 'library_filter_has_unsubscribe_true',
-			false: 'library_filter_has_unsubscribe_false'
-		}
-	},
-	{
-		key: 'sender_blocked',
-		labelKey: 'library_filter_field_sender_blocked',
-		section: 'attributes',
-		scope: 'email',
-		ops: [],
-		valueType: 'boolean',
-		booleanLabelKeys: {
-			true: 'library_filter_sender_blocked_true',
-			false: 'library_filter_sender_blocked_false'
 		}
 	},
 	{
@@ -197,7 +119,9 @@ export function getLibraryFilterFieldDef(key: string): LibraryFilterFieldDef {
 	return LIBRARY_FILTER_FIELDS.find((field) => field.key === key) ?? LIBRARY_FILTER_FIELDS[0]!;
 }
 
-export function getVisibleLibraryFilterFields(activeType?: string | null): LibraryFilterFieldDef[] {
-	const isEmailSection = activeType === 'emails';
-	return LIBRARY_FILTER_FIELDS.filter((field) => !field.scope || isEmailSection);
+export function getVisibleLibraryFilterFields(
+	_activeType?: string | null
+): LibraryFilterFieldDef[] {
+	void _activeType;
+	return LIBRARY_FILTER_FIELDS;
 }

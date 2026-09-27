@@ -147,7 +147,6 @@ async fn build_context(
     ))
     .with_recovery_settings(&config.auto_heal)
     .with_feed_poll_schedule(schedulers::feed_poll_schedule(config))
-    .with_email_ingest_provider_option(providers::build_email_ingest_provider(config))
     .with_integration_repositories(
         repos.integration_oauth_token.clone(),
         repos.integration_connection.clone(),

@@ -11,14 +11,12 @@ pub mod login;
 pub mod oauth;
 pub mod oauth_flow;
 pub mod onboarding;
-pub mod password_reset;
 pub mod profile;
 pub mod refresh_token;
 pub mod register;
 pub mod service;
 pub mod session;
 mod validation;
-pub mod verification;
 pub mod webhook_secret;
 pub mod webhooks;
 
@@ -36,11 +34,6 @@ pub use asset_cookie::{
 };
 pub use authorization_code::AuthorizationCodeService;
 pub use credentials::{CipherError, CredentialCipher};
-pub use crypto::{
-    generate_api_token, generate_authorization_code, generate_email_token,
-    generate_password_reset_token, generate_refresh_token, generate_session_token,
-    generate_verification_token, hash_password, hash_token, verify_password,
-};
 pub use error::AuthError;
 pub use integration_oauth::{
     CompletedIntegrationFlow, IntegrationOAuthError, IntegrationOAuthFlowStore,

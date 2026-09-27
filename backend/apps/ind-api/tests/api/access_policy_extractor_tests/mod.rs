@@ -95,10 +95,7 @@ impl ExtractorFixture {
     async fn new() -> Self {
         let app = spawn_app().await;
         let verified = app.create_web_session().await;
-        let unverified = UserFactory::new()
-            .with_email_verified(false)
-            .insert(app.pool())
-            .await;
+        let unverified = UserFactory::new().insert(app.pool()).await;
         let router = extractor_router(app.state());
         Self {
             app,

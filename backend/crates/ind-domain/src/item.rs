@@ -20,21 +20,18 @@ impl ImportSource {
 pub enum ItemType {
     Article,
     Book,
-    Email,
     Pdf,
     Video,
     Podcast,
 }
 
 impl ItemType {
-    pub const NAMES: &'static [&'static str] =
-        &["article", "book", "email", "pdf", "video", "podcast"];
+    pub const NAMES: &'static [&'static str] = &["article", "book", "pdf", "video", "podcast"];
 
     pub fn as_str(self) -> &'static str {
         match self {
             Self::Article => "article",
             Self::Book => "book",
-            Self::Email => "email",
             Self::Pdf => "pdf",
             Self::Video => "video",
             Self::Podcast => "podcast",
@@ -55,7 +52,6 @@ impl FromStr for ItemType {
         match value {
             "article" => Ok(Self::Article),
             "book" => Ok(Self::Book),
-            "email" => Ok(Self::Email),
             "pdf" => Ok(Self::Pdf),
             "video" => Ok(Self::Video),
             "podcast" => Ok(Self::Podcast),
@@ -111,7 +107,7 @@ pub enum ContentSource {
     Extension,
     ShareSheet,
     Feed,
-    Email,
+
     Api,
     Cli,
     Import,
@@ -123,7 +119,6 @@ impl ContentSource {
         "extension",
         "share_sheet",
         "feed",
-        "email",
         "api",
         "cli",
         "import",
@@ -135,7 +130,7 @@ impl ContentSource {
             Self::Extension => "extension",
             Self::ShareSheet => "share_sheet",
             Self::Feed => "feed",
-            Self::Email => "email",
+
             Self::Api => "api",
             Self::Cli => "cli",
             Self::Import => "import",
@@ -158,7 +153,7 @@ impl FromStr for ContentSource {
             "extension" => Ok(Self::Extension),
             "share_sheet" => Ok(Self::ShareSheet),
             "feed" => Ok(Self::Feed),
-            "email" => Ok(Self::Email),
+
             "api" => Ok(Self::Api),
             "cli" => Ok(Self::Cli),
             "import" => Ok(Self::Import),

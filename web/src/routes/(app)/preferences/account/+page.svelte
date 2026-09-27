@@ -10,11 +10,10 @@
 		formatMemberSince,
 		getAccountAvatarInitial,
 		getAccountUsername,
-		isDeleteEmailConfirmed
+		isDeleteUsernameConfirmed
 	} from './account-model';
 	import AccountHero from './components/AccountHero.svelte';
 	import IdentitySection from './components/IdentitySection.svelte';
-	import EmailVerificationSection from './components/EmailVerificationSection.svelte';
 	import SecuritySection from './components/SecuritySection.svelte';
 	import DataExportSection from './components/DataExportSection.svelte';
 	import DeleteAccountDialog from './components/DeleteAccountDialog.svelte';
@@ -47,7 +46,7 @@
 	);
 
 	let showDeleteModal = $state(false);
-	let deleteConfirmEmail = $state('');
+	let deleteConfirmUsername = $state('');
 	let deleting = $state(false);
 	let deleteError = $state('');
 
@@ -73,15 +72,17 @@
 		}
 	});
 
-	const username = $derived(getAccountUsername(auth.user?.email));
+	const username = $derived(getAccountUsername(auth.user?.username));
 	const avatarInitial = $derived(
 		getAccountAvatarInitial({
 			displayName: auth.user?.display_name,
-			email: auth.user?.email
+			username: auth.user?.username
 		})
 	);
 	const memberSince = $derived(formatMemberSince(auth.user?.created_at));
-	const deleteEmailMatches = $derived(isDeleteEmailConfirmed(deleteConfirmEmail, auth.user?.email));
+	const deleteUsernameMatches = $derived(
+		isDeleteUsernameConfirmed(deleteConfirmUsername, auth.user?.username)
+	);
 
 	function handleFileChange(e: Event) {
 		const target = e.target as HTMLInputElement;
@@ -189,18 +190,18 @@
 
 	function closeDeleteModal() {
 		showDeleteModal = false;
-		deleteConfirmEmail = '';
+		deleteConfirmUsername = '';
 		deleteError = '';
 	}
 
 	async function handleDeleteAccount() {
-		if (!deleteEmailMatches) {
-			deleteError = $t('account_email_mismatch');
+		if (!deleteUsernameMatches) {
+			deleteError = $t('account_username_mismatch');
 			return;
 		}
 		deleting = true;
 		deleteError = '';
-		const result = await auth.deleteAccount(deleteConfirmEmail);
+		const result = await auth.deleteAccount(deleteConfirmUsername);
 		if (result.success) {
 			window.location.href = '/login';
 		} else {
@@ -217,7 +218,6 @@
 		displayName={auth.user?.display_name}
 		{username}
 		{memberSince}
-		emailVerified={auth.user?.email_verified}
 		onFileChange={handleFileChange}
 	/>
 
@@ -226,11 +226,6 @@
 			{displayName}
 			{username}
 			onDisplayNameChange={(value) => (displayName = value)}
-		/>
-
-		<EmailVerificationSection
-			email={auth.user?.email ?? ''}
-			emailVerified={auth.user?.email_verified}
 		/>
 
 		<SecuritySection
@@ -286,13 +281,13 @@
 
 {#if showDeleteModal}
 	<DeleteAccountDialog
-		email={auth.user?.email ?? ''}
-		confirmEmail={deleteConfirmEmail}
-		{deleteEmailMatches}
+		username={auth.user?.username ?? ''}
+		confirmUsername={deleteConfirmUsername}
+		{deleteUsernameMatches}
 		{deleting}
 		error={deleteError}
 		onClose={closeDeleteModal}
-		onConfirmEmailChange={(value) => (deleteConfirmEmail = value)}
+		onConfirmUsernameChange={(value) => (deleteConfirmUsername = value)}
 		onDelete={handleDeleteAccount}
 	/>
 {/if}

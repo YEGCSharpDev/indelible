@@ -10,7 +10,6 @@ use crate::state::AppState;
 #[derive(Clone, Copy)]
 struct JwtAccessPolicy {
     allowed_clients: &'static [ClientType],
-    require_verified_email: bool,
     denial_message: &'static str,
 }
 
@@ -24,37 +23,31 @@ const ORDINARY_CLIENTS: &[ClientType] = &[
 
 const USER_ACCESS_POLICY: JwtAccessPolicy = JwtAccessPolicy {
     allowed_clients: ORDINARY_CLIENTS,
-    require_verified_email: false,
     denial_message: "account session required",
 };
 
 const VERIFIED_USER_ACCESS_POLICY: JwtAccessPolicy = JwtAccessPolicy {
     allowed_clients: ORDINARY_CLIENTS,
-    require_verified_email: true,
     denial_message: "user access JWT required",
 };
 
 const WEB_ACCESS_POLICY: JwtAccessPolicy = JwtAccessPolicy {
     allowed_clients: &[ClientType::Web],
-    require_verified_email: false,
     denial_message: "web access required",
 };
 
 const VERIFIED_WEB_ACCESS_POLICY: JwtAccessPolicy = JwtAccessPolicy {
     allowed_clients: &[ClientType::Web],
-    require_verified_email: true,
     denial_message: "web access required",
 };
 
 const EXTENSION_ACCESS_POLICY: JwtAccessPolicy = JwtAccessPolicy {
     allowed_clients: &[ClientType::Extension],
-    require_verified_email: false,
     denial_message: "extension access required",
 };
 
 const MOBILE_ACCESS_POLICY: JwtAccessPolicy = JwtAccessPolicy {
     allowed_clients: &[ClientType::Ios, ClientType::Android],
-    require_verified_email: false,
     denial_message: "mobile access required",
 };
 
@@ -69,12 +62,6 @@ fn authorize_jwt_access(principal: &Principal, policy: JwtAccessPolicy) -> Resul
     if !policy.allowed_clients.contains(client_type) {
         return Err(ApiError::Forbidden {
             message: policy.denial_message.to_string(),
-        });
-    }
-
-    if policy.require_verified_email && !principal.user.email_verified {
-        return Err(ApiError::Forbidden {
-            message: "email verification required".to_string(),
         });
     }
 

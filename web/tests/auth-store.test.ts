@@ -7,10 +7,9 @@ vi.mock('$lib/api', () => createApiModuleMock());
 
 const mockLoginData = {
 	id: 'usr_01924b6e-5c3a-7d4f-8e6b-a1b2c3d4e5f6',
-	email: 'test@example.com',
+	username: 'testuser',
 	display_name: 'Test User',
 	avatar_url: null,
-	email_verified: true,
 	onboarding_completed: true,
 	access_token: 'test-access-token',
 	expires_at: 9999999999
@@ -18,10 +17,9 @@ const mockLoginData = {
 
 const mockProfile = {
 	id: 'usr_01924b6e-5c3a-7d4f-8e6b-a1b2c3d4e5f6',
-	email: 'test@example.com',
+	username: 'testuser',
 	display_name: 'Test User',
 	avatar_url: null,
-	email_verified: true,
 	onboarding_completed: true
 };
 
@@ -75,7 +73,7 @@ describe('auth store', () => {
 		flushSync();
 
 		expect(auth.isAuthenticated).toBe(true);
-		expect(auth.user?.email).toBe('test@example.com');
+		expect(auth.user?.username).toBe('testuser');
 		expect(auth.user?.display_name).toBe('Test User');
 		expect(auth.loading).toBe(false);
 	});
@@ -90,12 +88,12 @@ describe('auth store', () => {
 		} as never);
 
 		const auth = getAuth();
-		const result = await auth.login('test@example.com', 'password123');
+		const result = await auth.login('testuser', 'password123');
 		flushSync();
 
 		expect(result.success).toBe(true);
 		expect(auth.isAuthenticated).toBe(true);
-		expect(auth.user?.email).toBe('test@example.com');
+		expect(auth.user?.username).toBe('testuser');
 	});
 
 	it('replaces invalid-credential details with user-facing login copy', async () => {
@@ -108,7 +106,7 @@ describe('auth store', () => {
 		} as never);
 
 		const auth = getAuth();
-		const result = await auth.login('test@example.com', 'wrong');
+		const result = await auth.login('testuser', 'wrong');
 		flushSync();
 
 		expect(result.success).toBe(false);
@@ -126,7 +124,7 @@ describe('auth store', () => {
 		} as never);
 
 		const auth = getAuth();
-		const result = await auth.login('test@example.com', 'password123');
+		const result = await auth.login('testuser', 'password123');
 		flushSync();
 
 		expect(result.success).toBe(false);
@@ -146,7 +144,7 @@ describe('auth store', () => {
 		} as never);
 
 		const auth = getAuth();
-		const result = await auth.login('test@example.com', 'password123');
+		const result = await auth.login('testuser', 'password123');
 		flushSync();
 
 		expect(result).toEqual({ success: false, rateLimited: true, retryAfter: 45 });
@@ -156,7 +154,7 @@ describe('auth store', () => {
 	it('handles register success', async () => {
 		const { getAuth, mockPOST } = await load();
 
-		const newUser = { ...mockLoginData, email_verified: false };
+		const newUser = { ...mockLoginData };
 		mockPOST.mockResolvedValueOnce({
 			data: newUser,
 			error: undefined,
@@ -164,7 +162,7 @@ describe('auth store', () => {
 		} as never);
 
 		const auth = getAuth();
-		const result = await auth.register('new@example.com', 'password123', 'New User');
+		const result = await auth.register('newuser', 'password123', 'New User');
 		flushSync();
 
 		expect(result.success).toBe(true);
@@ -176,16 +174,16 @@ describe('auth store', () => {
 
 		mockPOST.mockResolvedValueOnce({
 			data: undefined,
-			error: { detail: 'Email already registered' },
+			error: { detail: 'Username already taken' },
 			response: new Response(null, { status: 409 })
 		} as never);
 
 		const auth = getAuth();
-		const result = await auth.register('taken@example.com', 'password123', 'Taken');
+		const result = await auth.register('takenuser', 'password123', 'Taken');
 		flushSync();
 
 		expect(result.success).toBe(false);
-		expect(auth.error).toBe('Email already registered');
+		expect(auth.error).toBe('Username already taken');
 	});
 
 	it('clears user on logout', async () => {
@@ -198,7 +196,7 @@ describe('auth store', () => {
 		} as never);
 
 		const auth = getAuth();
-		await auth.login('test@example.com', 'password123');
+		await auth.login('testuser', 'password123');
 		expect(auth.isAuthenticated).toBe(true);
 
 		mockPOST.mockResolvedValueOnce({
@@ -214,49 +212,17 @@ describe('auth store', () => {
 		expect(auth.user).toBeNull();
 	});
 
-	it('needsVerification is true when user exists with unverified email', async () => {
+	it('needsOnboarding is true when onboarding not completed', async () => {
 		const { getAuth, mockPOST } = await load();
 
 		mockPOST.mockResolvedValueOnce({
-			data: { ...mockLoginData, email_verified: false },
+			data: { ...mockLoginData, onboarding_completed: false },
 			error: undefined,
 			response: new Response(null, { status: 200 })
 		} as never);
 
 		const auth = getAuth();
-		await auth.login('test@example.com', 'password123');
-		flushSync();
-
-		expect(auth.needsVerification).toBe(true);
-	});
-
-	it('needsVerification is false when user has verified email', async () => {
-		const { getAuth, mockPOST } = await load();
-
-		mockPOST.mockResolvedValueOnce({
-			data: mockLoginData,
-			error: undefined,
-			response: new Response(null, { status: 200 })
-		} as never);
-
-		const auth = getAuth();
-		await auth.login('test@example.com', 'password123');
-		flushSync();
-
-		expect(auth.needsVerification).toBe(false);
-	});
-
-	it('needsOnboarding is true when verified but onboarding not completed', async () => {
-		const { getAuth, mockPOST } = await load();
-
-		mockPOST.mockResolvedValueOnce({
-			data: { ...mockLoginData, email_verified: true, onboarding_completed: false },
-			error: undefined,
-			response: new Response(null, { status: 200 })
-		} as never);
-
-		const auth = getAuth();
-		await auth.login('test@example.com', 'password123');
+		await auth.login('testuser', 'password123');
 		flushSync();
 
 		expect(auth.needsOnboarding).toBe(true);
@@ -272,7 +238,7 @@ describe('auth store', () => {
 		} as never);
 
 		const auth = getAuth();
-		await auth.login('test@example.com', 'password123');
+		await auth.login('testuser', 'password123');
 		flushSync();
 
 		expect(auth.needsOnboarding).toBe(false);
@@ -288,7 +254,7 @@ describe('auth store', () => {
 		} as never);
 
 		const auth = getAuth();
-		await auth.login('test@example.com', 'password123');
+		await auth.login('testuser', 'password123');
 
 		mockPOST.mockResolvedValueOnce({
 			data: { access_token: 'new-token', expires_at: 9999999999 },
@@ -306,7 +272,7 @@ describe('auth store', () => {
 
 		expect(refreshed).toBe(true);
 		expect(auth.isAuthenticated).toBe(true);
-		expect(auth.user?.email).toBe('test@example.com');
+		expect(auth.user?.username).toBe('testuser');
 		expect(auth.user?.display_name).toBe('Updated User');
 		expect(auth.needsOnboarding).toBe(false);
 	});
@@ -321,7 +287,7 @@ describe('auth store', () => {
 		} as never);
 
 		const auth = getAuth();
-		await auth.login('test@example.com', 'password123');
+		await auth.login('testuser', 'password123');
 
 		mockPOST.mockResolvedValueOnce({
 			data: { access_token: 'new-token', expires_at: 9999999999 },
@@ -362,7 +328,7 @@ describe('auth store', () => {
 		mockPOST.mockRejectedValueOnce(new Error('Network error'));
 
 		const auth = getAuth();
-		const result = await auth.login('test@example.com', 'password123');
+		const result = await auth.login('testuser', 'password123');
 		flushSync();
 
 		expect(result.success).toBe(false);

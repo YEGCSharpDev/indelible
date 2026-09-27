@@ -34,7 +34,7 @@ async fn require_user_access_jwt_uses_the_ordinary_client_policy() {
 }
 
 #[tokio::test]
-async fn require_verified_user_access_jwt_checks_eligibility_before_verification() {
+async fn require_verified_user_access_jwt_checks_eligibility() {
     let fixture = ExtractorFixture::new().await;
     for client_type in [
         ClientType::Web,
@@ -50,12 +50,6 @@ async fn require_verified_user_access_jwt_checks_eligibility_before_verification
         );
     }
 
-    let unverified = fixture.jwt(&fixture.unverified, ClientType::Cli);
-    assert_problem(
-        fixture.request("/jwt/verified-user", &unverified).await,
-        "forbidden: email verification required",
-    )
-    .await;
     let extension = fixture.jwt(&fixture.unverified, ClientType::Extension);
     assert_problem(
         fixture.request("/jwt/verified-user", &extension).await,
@@ -82,12 +76,6 @@ async fn require_verified_web_access_jwt_uses_the_verified_web_policy() {
             .status(),
         StatusCode::OK
     );
-    let unverified_web = fixture.jwt(&fixture.unverified, ClientType::Web);
-    assert_problem(
-        fixture.request("/jwt/verified-web", &unverified_web).await,
-        "forbidden: email verification required",
-    )
-    .await;
     let mobile = fixture.jwt(&fixture.unverified, ClientType::Ios);
     assert_problem(
         fixture.request("/jwt/verified-web", &mobile).await,

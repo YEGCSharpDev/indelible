@@ -1,14 +1,10 @@
 use chrono::{Duration, Utc};
 pub use ind_application::ports::{RegisterRequest, RegisterResponse};
 use ind_domain::{
-    ClientType, EmailVerificationToken, RefreshToken, RefreshTokenId, User, UserId, UserStatus,
-    validate_password,
+    ClientType, RefreshToken, RefreshTokenId, User, UserId, UserStatus, validate_password,
 };
 
-use crate::crypto::{
-    generate_email_token, generate_refresh_token, generate_verification_token, hash_password,
-    hash_token,
-};
+use crate::crypto::{generate_refresh_token, hash_password, hash_token};
 use crate::error::AuthError;
 use crate::jwt;
 use crate::service::AuthService;
@@ -24,7 +20,7 @@ impl AuthService {
         ip: Option<String>,
         user_agent: Option<String>,
     ) -> Result<RegisterResponse, AuthError> {
-        let email = User::normalize_email(&req.email);
+        let username = req.username.clone();
 
         if validate_password(&req.password).is_err() {
             return Err(AuthError::PasswordTooWeak);
@@ -34,7 +30,7 @@ impl AuthService {
             return Err(AuthError::SignupsDisabled);
         }
 
-        if self.user_repo.find_by_email(&email).await?.is_some() {
+        if self.user_repo.find_by_username(&username).await?.is_some() {
             return Err(AuthError::EmailAlreadyExists);
         }
 
@@ -44,25 +40,17 @@ impl AuthService {
             .map_err(|_| AuthError::HashError("hashing task failed".into()))??;
         let now = Utc::now();
 
-        let email_token = generate_email_token();
-
         let user = User {
             id: UserId::new(),
-            email,
+            username,
             password_hash: Some(password_hash),
             display_name: req.display_name,
             avatar_url: None,
             locale: None,
             timezone: "UTC".to_string(),
             theme: Default::default(),
-            // There is no outbound mail transport, so the verification token
-            // below is never delivered and an unverified account could never
-            // become verified. Blocking on it would strand every self-hoster.
-            // Revisit when an SMTP transport exists.
-            email_verified: true,
             onboarding_completed: false,
             onboarding_step: 0,
-            email_token,
             status: UserStatus::Active,
             created_at: now,
             updated_at: now,
@@ -76,19 +64,6 @@ impl AuthService {
                 .await?
                 .ok_or(AuthError::SignupsDisabled)?
         };
-
-        let raw_verification_token = generate_verification_token();
-        let verification_token_hash = hash_token(&raw_verification_token);
-        let verification_token = EmailVerificationToken {
-            id: uuid::Uuid::now_v7(),
-            user_id: user.id,
-            token_hash: verification_token_hash,
-            expires_at: now + Duration::hours(24),
-            created_at: now,
-        };
-        self.email_verification_repo
-            .create(verification_token)
-            .await?;
 
         let family_id = uuid::Uuid::now_v7();
         let raw_refresh = generate_refresh_token();
@@ -120,7 +95,6 @@ impl AuthService {
             expires_at,
             raw_refresh_token: raw_refresh,
             refresh_token,
-            verification_token_sent: true,
         })
     }
 }

@@ -38,15 +38,6 @@
 			</span>
 		</button>
 		<div class="popover-divider" role="separator"></div>
-		<button type="button" class="popover-item" role="menuitem" onclick={() => modal.open('email')}>
-			<span class="popover-label">
-				<svg viewBox="0 0 24 24" aria-hidden="true">
-					<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-					<polyline points="22,6 12,13 2,6" />
-				</svg>
-				{$t('library_email_forwarding')}
-			</span>
-		</button>
 		<button type="button" class="popover-item" role="menuitem" onclick={() => modal.open('rss')}>
 			<span class="popover-label">
 				<svg viewBox="0 0 24 24" aria-hidden="true">

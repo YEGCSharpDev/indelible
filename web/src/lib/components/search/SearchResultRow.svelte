@@ -68,7 +68,6 @@
 		const keys: Record<string, MessageKey> = {
 			article: 'library_filter_value_article',
 			book: 'library_filter_value_book',
-			email: 'library_filter_value_email',
 			pdf: 'library_filter_value_pdf',
 			video: 'library_filter_value_video'
 		};

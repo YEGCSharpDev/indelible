@@ -19,7 +19,7 @@ pub struct AvatarUploadSchema {
 pub struct ProfileResponse {
     pub id: String,
     pub object: &'static str,
-    pub email: String,
+    pub username: String,
     pub display_name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub avatar_url: Option<String>,
@@ -27,14 +27,8 @@ pub struct ProfileResponse {
     pub locale: Option<String>,
     pub timezone: String,
     pub theme: String,
-    pub email_verified: bool,
     pub onboarding_completed: bool,
     pub has_password: bool,
-    // Always serialized: clients read null as "email capture is not
-    // configured on this instance" — omitting the keys would be
-    // indistinguishable from a profile that has not loaded yet.
-    pub ingest_email: Option<String>,
-    pub ingest_library_email: Option<String>,
     #[schema(value_type = String, format = DateTime)]
     pub created_at: DateTime<Utc>,
     #[schema(value_type = String, format = DateTime)]
@@ -65,14 +59,6 @@ pub struct ChangePasswordRequest {
     pub current_password: String,
     #[validate(custom(function = "crate::validation::password_length"))]
     pub new_password: String,
-}
-
-#[derive(Debug, Deserialize, ToSchema, validator::Validate)]
-pub struct ChangeEmailRequest {
-    #[validate(custom(function = "crate::validation::trimmed_email"))]
-    pub new_email: String,
-    #[validate(length(min = 1, message = "must not be empty"))]
-    pub password: String,
 }
 
 #[derive(Debug, Deserialize, ToSchema, validator::Validate)]
@@ -118,39 +104,18 @@ where
 }
 
 impl ProfileResponse {
-    pub fn from_user_profile(
-        profile: UserProfile,
-        theme: String,
-        email_feed_domain: Option<&str>,
-        email_library_domain: Option<&str>,
-    ) -> Self {
-        let ingest_email = ind_integrations::email::format_ingest_address(
-            &profile.email_token,
-            ind_domain::EmailDestination::Feed,
-            email_feed_domain,
-            email_library_domain,
-        );
-        let ingest_library_email = ind_integrations::email::format_ingest_address(
-            &profile.email_token,
-            ind_domain::EmailDestination::Library,
-            email_feed_domain,
-            email_library_domain,
-        );
-
+    pub fn from_user_profile(profile: UserProfile, theme: String) -> Self {
         Self {
             id: profile.id.to_string(),
             object: "user",
-            email: profile.email,
+            username: profile.username,
             display_name: profile.display_name,
             avatar_url: profile.avatar_url,
             locale: profile.locale,
             timezone: profile.timezone,
             theme,
-            email_verified: profile.email_verified,
             onboarding_completed: profile.onboarding_completed,
             has_password: profile.has_password,
-            ingest_email,
-            ingest_library_email,
             created_at: profile.created_at,
             updated_at: profile.updated_at,
         }

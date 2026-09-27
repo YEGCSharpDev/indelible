@@ -162,12 +162,6 @@ pub(crate) fn authorize_permission_access<P: AccessPolicy>(
         ApiCredential::UserAccessJwt { .. } | ApiCredential::PersonalAccessToken { .. } => {}
     }
 
-    if !principal.user.email_verified {
-        return Err(ApiError::Forbidden {
-            message: "email verification required".to_string(),
-        });
-    }
-
     Ok(())
 }
 

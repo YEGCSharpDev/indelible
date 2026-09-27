@@ -125,10 +125,10 @@ impl OAuthService {
         reject_if_email_unverified(&user_info)?;
 
         if let Some(ref email) = user_info.email {
-            let normalized = User::normalize_email(email);
+            let normalized = email.trim().to_lowercase();
             if let Some(existing_user) = self
                 .user_repo
-                .find_by_email(&normalized)
+                .find_by_username(&normalized)
                 .await
                 .map_err(OAuthError::from)?
             {
@@ -176,7 +176,7 @@ impl OAuthService {
         let email = user_info
             .email
             .as_deref()
-            .map(User::normalize_email)
+            .map(|e| e.trim().to_lowercase())
             .unwrap_or_else(|| {
                 format!(
                     "{}+{}@oauth.indelible.app",
@@ -189,23 +189,19 @@ impl OAuthService {
                 )
             });
 
-        let email_token = crate::crypto::generate_email_token();
-
         let new_user = User {
             id: user_id,
-            email,
+            username: email.clone(),
             password_hash: None,
             display_name: user_info.display_name.unwrap_or_else(|| "New User".into()),
             avatar_url: user_info.avatar_url,
             locale: None,
             timezone: "UTC".into(),
             theme: ind_domain::Theme::default(),
-            email_verified: user_info
-                .email_verified
-                .unwrap_or_else(|| user_info.email.is_some()),
+
             onboarding_completed: false,
             onboarding_step: 0,
-            email_token,
+
             status: ind_domain::UserStatus::Active,
             created_at: Utc::now(),
             updated_at: Utc::now(),
@@ -216,7 +212,7 @@ impl OAuthService {
             user_id,
             provider: user_info.provider,
             provider_user_id: user_info.provider_user_id,
-            provider_email: user_info.email.as_deref().map(User::normalize_email),
+            provider_email: user_info.email.clone(),
             access_token_enc: None,
             refresh_token_enc: None,
             created_at: Utc::now(),
@@ -277,7 +273,7 @@ impl OAuthService {
                 user_id,
                 provider: info.provider,
                 provider_user_id: info.provider_user_id,
-                provider_email: info.email.as_deref().map(User::normalize_email),
+                provider_email: info.email.clone(),
                 access_token_enc: None,
                 refresh_token_enc: None,
                 created_at: Utc::now(),

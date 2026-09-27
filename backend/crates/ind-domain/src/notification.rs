@@ -11,6 +11,5 @@ pub struct NotificationPreferences {
     pub weekly_digest_enabled: bool,
     pub new_highlights_sync: bool,
     pub feed_updates: bool,
-    pub marketing_emails: bool,
     pub updated_at: DateTime<Utc>,
 }

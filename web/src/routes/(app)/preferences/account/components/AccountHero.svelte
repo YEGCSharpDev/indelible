@@ -8,19 +8,11 @@
 		displayName: string | null | undefined;
 		username: string;
 		memberSince: string;
-		emailVerified: boolean | null | undefined;
 		onFileChange: (event: Event) => void;
 	}
 
-	let {
-		avatarPreview,
-		avatarInitial,
-		displayName,
-		username,
-		memberSince,
-		emailVerified,
-		onFileChange
-	}: Props = $props();
+	let { avatarPreview, avatarInitial, displayName, username, memberSince, onFileChange }: Props =
+		$props();
 
 	let fileInput: HTMLInputElement | undefined = $state();
 </script>
@@ -74,12 +66,6 @@
 						<path d="M12 7v5l3 2" />
 					</svg>
 					{$t('account_member_since', { values: { date: memberSince } })}
-				</span>
-			{/if}
-			{#if emailVerified}
-				<span class="hero-pill verified">
-					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10" /></svg>
-					{$t('account_verified')}
 				</span>
 			{/if}
 		</div>

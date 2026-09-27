@@ -25,7 +25,6 @@
 	import { isPollingStatus, isTerminalImportStatus } from '$lib/integrations/status';
 	import { parseIntegrationCallback, type IntegrationCallback } from '$lib/integrations/callback';
 	import { findProvider } from '$lib/integrations/providers';
-	import { getAuth } from '$lib/stores/auth.svelte';
 	import { t } from '$lib/i18n';
 	import { createPoll, type PollHandle } from '$lib/utils/polling';
 	import ConnectionsSection from './components/ConnectionsSection.svelte';
@@ -44,14 +43,9 @@
 		type SyncState
 	} from './integrations-hub-model';
 
-	const auth = getAuth();
-	const inboxAddress = $derived(auth.user?.ingest_library_email ?? '');
-	const feedAddress = $derived(auth.user?.ingest_email ?? '');
 	const readwiseUploadLimit = $derived(formatUploadLimit(findProvider('readwise')?.maxBytes, $t));
 	const CSV_HEADER_PROBE_BYTES = 4096;
 
-	let copiedInbox = $state(false);
-	let copiedFeed = $state(false);
 	let connections = $state<IntegrationConnectionDto[]>([]);
 	let connectionsLoading = $state(true);
 	let connectionsError = $state<string | null>(null);
@@ -191,26 +185,9 @@
 
 	function disconnectProviderName(connection: IntegrationConnectionDto): string {
 		const map: Record<string, string> = {
-			email_ingest: 'Email Forwarding',
 			miniflux: 'Miniflux'
 		};
 		return map[connection.provider] ?? connection.provider;
-	}
-
-	async function copyAddress(address: string, which: 'inbox' | 'feed') {
-		if (!address) return;
-		try {
-			await navigator.clipboard.writeText(address);
-			if (which === 'inbox') {
-				copiedInbox = true;
-				setTimeout(() => (copiedInbox = false), 2000);
-			} else {
-				copiedFeed = true;
-				setTimeout(() => (copiedFeed = false), 2000);
-			}
-		} catch {
-			// Clipboard is optional in non-browser test environments.
-		}
 	}
 
 	function pollFetcher(jobId: string): () => Promise<{
@@ -370,23 +347,17 @@
 		{ringDash}
 		sevenDayItems={sevenDayItemCount}
 		sevenDayDelta={sevenDayDeltaValue}
-		onCopyInbox={() => copyAddress(inboxAddress, 'inbox')}
 	/>
 
 	<div class="body-area">
 		<ConnectionsSection
 			{connectionsLoading}
 			{connectionsError}
-			{inboxAddress}
-			{feedAddress}
-			{copiedInbox}
-			{copiedFeed}
 			{extStore}
 			{minifluxConnection}
 			{minifluxStatus}
 			{syncStateByConnection}
 			{syncErrorByConnection}
-			onCopyAddress={copyAddress}
 			onOpenMiniflux={openMinifluxDetail}
 			onSync={handleSync}
 			onDisconnect={openDisconnectDialog}

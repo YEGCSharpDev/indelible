@@ -4,21 +4,19 @@ import {
 	formatMemberSince,
 	getAccountAvatarInitial,
 	getAccountUsername,
-	isDeleteEmailConfirmed
+	isDeleteUsernameConfirmed
 } from '../../src/routes/(app)/preferences/account/account-model';
 
 describe('account settings model', () => {
-	it('derives the public username from the account email', () => {
-		expect(getAccountUsername('sam@example.com')).toBe('@sam');
+	it('derives the public username handle', () => {
+		expect(getAccountUsername('sam')).toBe('@sam');
 		expect(getAccountUsername(null)).toBe('');
 	});
 
-	it('uses display name before email for the avatar initial', () => {
-		expect(getAccountAvatarInitial({ displayName: 'Mila Stone', email: 'mila@example.com' })).toBe(
-			'M'
-		);
-		expect(getAccountAvatarInitial({ displayName: '', email: 'reader@example.com' })).toBe('R');
-		expect(getAccountAvatarInitial({ displayName: '', email: null })).toBe('U');
+	it('uses display name before username for the avatar initial', () => {
+		expect(getAccountAvatarInitial({ displayName: 'Mila Stone', username: 'mila' })).toBe('M');
+		expect(getAccountAvatarInitial({ displayName: '', username: 'reader' })).toBe('R');
+		expect(getAccountAvatarInitial({ displayName: '', username: null })).toBe('U');
 	});
 
 	it('formats member-since labels defensively', () => {
@@ -43,9 +41,9 @@ describe('account settings model', () => {
 		);
 	});
 
-	it('requires an exact email confirmation ignoring case and surrounding whitespace', () => {
-		expect(isDeleteEmailConfirmed(' USER@example.com ', 'user@example.com')).toBe(true);
-		expect(isDeleteEmailConfirmed('', 'user@example.com')).toBe(false);
-		expect(isDeleteEmailConfirmed('other@example.com', 'user@example.com')).toBe(false);
+	it('requires an exact username confirmation ignoring case and surrounding whitespace', () => {
+		expect(isDeleteUsernameConfirmed(' TESTUSER ', 'testuser')).toBe(true);
+		expect(isDeleteUsernameConfirmed('', 'testuser')).toBe(false);
+		expect(isDeleteUsernameConfirmed('other', 'testuser')).toBe(false);
 	});
 });

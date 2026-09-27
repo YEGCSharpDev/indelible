@@ -39,7 +39,6 @@
 	const typeTitleKeys: Record<string, MessageKey> = {
 		articles: 'library_nav_articles',
 		books: 'library_nav_books',
-		emails: 'library_nav_emails',
 		pdfs: 'library_nav_pdfs',
 		videos: 'library_nav_videos'
 	};

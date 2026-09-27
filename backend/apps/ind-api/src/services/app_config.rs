@@ -24,8 +24,6 @@ pub(super) fn build_app_config(
         max_import_upload_bytes: config.storage.max_import_upload_bytes as usize,
         asset_serving_mode: config.storage.asset_serving_mode,
         asset_cookie_secret: decode_asset_cookie_secret(config)?,
-        email_feed_domain: config.email_ingest.feed_domain.clone(),
-        email_library_domain: config.email_ingest.library_domain.clone(),
         allow_private_webhook_targets: config.webhook_egress_policy().allow_private_targets,
         allow_signups: config.auth.allow_signups,
         // Read-ahead knobs (docs/document-feed-library-architecture.md defaults). Env-overridable;

@@ -243,6 +243,5 @@ pub fn build_worker_context(app: &TestApp) -> ind_worker::context::WorkerContext
     )
     .expect("worker services build")
     .with_worker_id("test-worker")
-    .without_email_services()
     .build()
 }

@@ -57,7 +57,6 @@ describe('getProtectedRouteRedirect', () => {
 			getProtectedRouteRedirect({
 				pathname: '/dashboard',
 				isAuthenticated: false,
-				needsVerification: false,
 				needsOnboarding: false,
 				setupRequired: true
 			})
@@ -82,19 +81,7 @@ describe('getPublicRouteRedirect', () => {
 			getPublicRouteRedirect({
 				pathname: '/login',
 				isAuthenticated: false,
-				needsOnboarding: false,
-				needsVerification: false
-			})
-		).toBeNull();
-	});
-
-	it('allows authenticated users who need verification to stay on /verify-email', () => {
-		expect(
-			getPublicRouteRedirect({
-				pathname: '/verify-email',
-				isAuthenticated: true,
-				needsOnboarding: false,
-				needsVerification: true
+				needsOnboarding: false
 			})
 		).toBeNull();
 	});
@@ -104,8 +91,7 @@ describe('getPublicRouteRedirect', () => {
 			getPublicRouteRedirect({
 				pathname: '/login',
 				isAuthenticated: true,
-				needsOnboarding: true,
-				needsVerification: false
+				needsOnboarding: true
 			})
 		).toBe('/onboarding/welcome');
 	});
@@ -115,8 +101,7 @@ describe('getPublicRouteRedirect', () => {
 			getPublicRouteRedirect({
 				pathname: '/login',
 				isAuthenticated: true,
-				needsOnboarding: false,
-				needsVerification: false
+				needsOnboarding: false
 			})
 		).toBe('/');
 	});
@@ -127,7 +112,6 @@ describe('getPublicRouteRedirect', () => {
 				pathname: '/login',
 				isAuthenticated: false,
 				needsOnboarding: false,
-				needsVerification: false,
 				setupRequired: true
 			})
 		).toBe('/register');
@@ -139,19 +123,6 @@ describe('getPublicRouteRedirect', () => {
 				pathname: '/register',
 				isAuthenticated: false,
 				needsOnboarding: false,
-				needsVerification: false,
-				setupRequired: true
-			})
-		).toBeNull();
-	});
-
-	it('does not let stale setup status redirect authenticated users away from verification', () => {
-		expect(
-			getPublicRouteRedirect({
-				pathname: '/verify-email',
-				isAuthenticated: true,
-				needsOnboarding: false,
-				needsVerification: true,
 				setupRequired: true
 			})
 		).toBeNull();

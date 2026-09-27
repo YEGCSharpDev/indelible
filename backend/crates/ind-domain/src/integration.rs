@@ -8,7 +8,6 @@ use crate::{HighlightId, ImportJobId, IntegrationConnectionId, LibraryEntryId, U
 pub enum IntegrationProvider {
     Logseq,
     BrowserExtension,
-    EmailIngest,
     Miniflux,
     Custom,
 }

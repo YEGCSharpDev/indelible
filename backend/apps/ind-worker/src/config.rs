@@ -39,13 +39,6 @@ pub struct WorkerAuthSettings {
     pub credential_key: Option<SecretString>,
 }
 
-#[derive(Clone, Debug, Deserialize, Default)]
-pub struct EmailIngestWorkerSettings {
-    pub provider: Option<String>,
-    pub webhook_secret: Option<SecretString>,
-    pub resend_api_key: Option<SecretString>,
-}
-
 #[derive(Clone, Debug, Deserialize)]
 pub struct WorkerServerSettings {
     pub environment: String,
@@ -359,12 +352,6 @@ impl WorkerConfig {
                 "feed_retention_cleanup.compact_orphaned_source_entries",
                 parse_bool(env, "FEED_RETENTION_COMPACT_ORPHANED_SOURCE_ENTRIES"),
             )?
-            .set_override_option("email_ingest.provider", env.get("EMAIL_INGEST_PROVIDER"))?
-            .set_override_option(
-                "email_ingest.webhook_secret",
-                env.get("EMAIL_INGEST_WEBHOOK_SECRET"),
-            )?
-            .set_override_option("email_ingest.resend_api_key", env.get("RESEND_API_KEY"))?
             .set_override_option(
                 "egress.allow_private_targets",
                 parse_bool(env, "EGRESS_ALLOW_PRIVATE_TARGETS"),

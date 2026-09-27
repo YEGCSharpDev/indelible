@@ -197,7 +197,6 @@ fn forbidden_responses_describe_permissions_or_verified_jwt_access() {
     let spec = serde_json::to_value(ApiDoc::openapi()).expect("serialize OpenAPI");
 
     for (method, path) in [
-        ("post", "/api/v1/me/email"),
         ("get", "/api/v1/onboarding"),
         ("post", "/api/v1/onboarding/steps/{step}/complete"),
         ("post", "/api/v1/onboarding/skip"),

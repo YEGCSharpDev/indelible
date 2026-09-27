@@ -131,12 +131,6 @@ impl RetentionCleanupRepository for PgRetentionCleanupRepository {
               )
               AND NOT EXISTS (
                   SELECT 1
-                  FROM mila_sessions ms
-                  WHERE ms.document_id = d.id
-                    AND ms.user_id = d.user_id
-              )
-              AND NOT EXISTS (
-                  SELECT 1
                   FROM feed_deliveries fd
                   WHERE fd.document_id = d.id
                     AND fd.user_id = d.user_id

@@ -262,7 +262,7 @@ async fn disconnect_of_non_oauth_provider_is_unchanged() {
     let h = harness(
         &db,
         RecordingAdapter::succeeding(),
-        IntegrationProvider::EmailIngest,
+        IntegrationProvider::BrowserExtension,
         false,
         true,
     )

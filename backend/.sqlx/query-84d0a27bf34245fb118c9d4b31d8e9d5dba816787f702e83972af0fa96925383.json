@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n                id,\n                user_id,\n                display_name,\n                description,\n                provider,\n                provider_voice_id,\n                provider_model,\n                design_prompt,\n                style_prompt,\n                pace,\n                energy,\n                warmth,\n                formality,\n                pronunciation_prefs,\n                status,\n                is_builtin,\n                prompt_hash,\n                created_at,\n                updated_at\n            FROM tts_voice_personas\n            WHERE id = $1 AND (user_id = $2 OR (is_builtin = true AND user_id IS NULL))\n            ",
+  "query": "INSERT INTO documents (id, user_id, document_type, content_hash, original_url, title, author, excerpt, published_at, language, domain, lead_image_url, thumbnail_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) ON CONFLICT (user_id, content_hash) WHERE canonical_url IS NULL AND content_hash IS NOT NULL DO NOTHING RETURNING id, user_id, document_type, canonical_url, original_url, content_hash, title, author, excerpt, published_at, language, domain, lead_image_url, thumbnail_url, word_count, reading_time_minutes, created_at, updated_at",
   "describe": {
     "columns": [
       {
@@ -15,86 +15,81 @@
       },
       {
         "ordinal": 2,
-        "name": "display_name",
+        "name": "document_type",
         "type_info": "Text"
       },
       {
         "ordinal": 3,
-        "name": "description",
+        "name": "canonical_url",
         "type_info": "Text"
       },
       {
         "ordinal": 4,
-        "name": "provider",
+        "name": "original_url",
         "type_info": "Text"
       },
       {
         "ordinal": 5,
-        "name": "provider_voice_id",
+        "name": "content_hash",
         "type_info": "Text"
       },
       {
         "ordinal": 6,
-        "name": "provider_model",
+        "name": "title",
         "type_info": "Text"
       },
       {
         "ordinal": 7,
-        "name": "design_prompt",
+        "name": "author",
         "type_info": "Text"
       },
       {
         "ordinal": 8,
-        "name": "style_prompt",
+        "name": "excerpt",
         "type_info": "Text"
       },
       {
         "ordinal": 9,
-        "name": "pace",
-        "type_info": "Text"
+        "name": "published_at",
+        "type_info": "Timestamptz"
       },
       {
         "ordinal": 10,
-        "name": "energy",
+        "name": "language",
         "type_info": "Text"
       },
       {
         "ordinal": 11,
-        "name": "warmth",
+        "name": "domain",
         "type_info": "Text"
       },
       {
         "ordinal": 12,
-        "name": "formality",
+        "name": "lead_image_url",
         "type_info": "Text"
       },
       {
         "ordinal": 13,
-        "name": "pronunciation_prefs",
-        "type_info": "Jsonb"
+        "name": "thumbnail_url",
+        "type_info": "Text"
       },
       {
         "ordinal": 14,
-        "name": "status",
-        "type_info": "Text"
+        "name": "word_count",
+        "type_info": "Int4"
       },
       {
         "ordinal": 15,
-        "name": "is_builtin",
-        "type_info": "Bool"
+        "name": "reading_time_minutes",
+        "type_info": "Int4"
       },
       {
         "ordinal": 16,
-        "name": "prompt_hash",
-        "type_info": "Text"
-      },
-      {
-        "ordinal": 17,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 18,
+        "ordinal": 17,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
@@ -102,30 +97,40 @@
     "parameters": {
       "Left": [
         "Uuid",
-        "Uuid"
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
       ]
     },
     "nullable": [
       false,
-      true,
       false,
-      true,
       false,
-      true,
-      true,
-      true,
-      true,
-      true,
       true,
       true,
       true,
       false,
-      false,
-      false,
-      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       false,
       false
     ]
   },
-  "hash": "2fba9aec60c8e204954d813ff57bbb9234b955cd8701c7ee887411b4682533c5"
+  "hash": "84d0a27bf34245fb118c9d4b31d8e9d5dba816787f702e83972af0fa96925383"
 }

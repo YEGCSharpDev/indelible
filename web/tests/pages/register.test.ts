@@ -81,7 +81,7 @@ describe('Register page', () => {
 		await renderRegisterPageWithForm();
 
 		expect(screen.getByLabelText('Display name')).toBeTruthy();
-		expect(screen.getByLabelText('Email')).toBeTruthy();
+		expect(screen.getByLabelText('Username')).toBeTruthy();
 		expect(screen.getByLabelText('Password')).toBeTruthy();
 	});
 
@@ -105,7 +105,7 @@ describe('Register page', () => {
 		await fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
 		expect(screen.getByText('Display name is required')).toBeTruthy();
-		expect(screen.getByText('Email is required')).toBeTruthy();
+		expect(screen.getByText('Username is required')).toBeTruthy();
 		expect(screen.getByText('Password is required')).toBeTruthy();
 		expect(mockRegister).not.toHaveBeenCalled();
 	});
@@ -116,8 +116,8 @@ describe('Register page', () => {
 		await fireEvent.input(screen.getByLabelText('Display name'), {
 			target: { value: 'Test' }
 		});
-		await fireEvent.input(screen.getByLabelText('Email'), {
-			target: { value: 'test@example.com' }
+		await fireEvent.input(screen.getByLabelText('Username'), {
+			target: { value: 'testuser' }
 		});
 		await fireEvent.input(screen.getByLabelText('Password'), {
 			target: { value: 'short' }
@@ -129,25 +129,6 @@ describe('Register page', () => {
 		expect(mockRegister).not.toHaveBeenCalled();
 	});
 
-	it('validates email format', async () => {
-		await renderRegisterPageWithForm();
-
-		await fireEvent.input(screen.getByLabelText('Display name'), {
-			target: { value: 'Test' }
-		});
-		await fireEvent.input(screen.getByLabelText('Email'), {
-			target: { value: 'notanemail' }
-		});
-		await fireEvent.input(screen.getByLabelText('Password'), {
-			target: { value: 'password123' }
-		});
-
-		await fireEvent.click(screen.getByRole('button', { name: /create account/i }));
-
-		expect(screen.getByText('Please enter a valid email address')).toBeTruthy();
-		expect(mockRegister).not.toHaveBeenCalled();
-	});
-
 	it('calls auth.register on valid submit', async () => {
 		mockRegister.mockResolvedValue({ success: true });
 		await renderRegisterPageWithForm();
@@ -155,8 +136,8 @@ describe('Register page', () => {
 		await fireEvent.input(screen.getByLabelText('Display name'), {
 			target: { value: 'Test User' }
 		});
-		await fireEvent.input(screen.getByLabelText('Email'), {
-			target: { value: 'test@example.com' }
+		await fireEvent.input(screen.getByLabelText('Username'), {
+			target: { value: 'testuser' }
 		});
 		await fireEvent.input(screen.getByLabelText('Password'), {
 			target: { value: 'password123' }
@@ -165,46 +146,19 @@ describe('Register page', () => {
 		await fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
 		await waitFor(() => {
-			expect(mockRegister).toHaveBeenCalledWith('test@example.com', 'password123', 'Test User');
+			expect(mockRegister).toHaveBeenCalledWith('testuser', 'password123', 'Test User');
 		});
 	});
 
-	it('redirects to verify-email when needsVerification', async () => {
-		mockRegister.mockImplementation(async () => {
-			mockNeedsVerification = true;
-			return { success: true };
-		});
+	it('redirects to onboarding on successful registration', async () => {
+		mockRegister.mockResolvedValue({ success: true });
 		await renderRegisterPageWithForm();
 
 		await fireEvent.input(screen.getByLabelText('Display name'), {
 			target: { value: 'Test' }
 		});
-		await fireEvent.input(screen.getByLabelText('Email'), {
-			target: { value: 'test@example.com' }
-		});
-		await fireEvent.input(screen.getByLabelText('Password'), {
-			target: { value: 'password123' }
-		});
-
-		await fireEvent.click(screen.getByRole('button', { name: /create account/i }));
-
-		await waitFor(() => {
-			expect(mockGoto).toHaveBeenCalledWith('/verify-email');
-		});
-	});
-
-	it('redirects to onboarding when no verification needed', async () => {
-		mockRegister.mockImplementation(async () => {
-			mockNeedsVerification = false;
-			return { success: true };
-		});
-		await renderRegisterPageWithForm();
-
-		await fireEvent.input(screen.getByLabelText('Display name'), {
-			target: { value: 'Test' }
-		});
-		await fireEvent.input(screen.getByLabelText('Email'), {
-			target: { value: 'test@example.com' }
+		await fireEvent.input(screen.getByLabelText('Username'), {
+			target: { value: 'testuser' }
 		});
 		await fireEvent.input(screen.getByLabelText('Password'), {
 			target: { value: 'password123' }
@@ -217,16 +171,16 @@ describe('Register page', () => {
 		});
 	});
 
-	it('shows server error for duplicate email', async () => {
+	it('shows server error for duplicate username', async () => {
 		mockRegister.mockResolvedValue({ success: false });
-		mockAuthError = 'An account with this email already exists';
+		mockAuthError = 'An account with this username already exists';
 		await renderRegisterPageWithForm();
 
 		await fireEvent.input(screen.getByLabelText('Display name'), {
 			target: { value: 'Test' }
 		});
-		await fireEvent.input(screen.getByLabelText('Email'), {
-			target: { value: 'taken@example.com' }
+		await fireEvent.input(screen.getByLabelText('Username'), {
+			target: { value: 'takenuser' }
 		});
 		await fireEvent.input(screen.getByLabelText('Password'), {
 			target: { value: 'password123' }
@@ -289,8 +243,8 @@ describe('Register page', () => {
 		await fireEvent.input(screen.getByLabelText('Display name'), {
 			target: { value: longName }
 		});
-		await fireEvent.input(screen.getByLabelText('Email'), {
-			target: { value: 'test@example.com' }
+		await fireEvent.input(screen.getByLabelText('Username'), {
+			target: { value: 'testuser' }
 		});
 		await fireEvent.input(screen.getByLabelText('Password'), {
 			target: { value: 'password123' }

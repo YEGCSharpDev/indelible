@@ -4,13 +4,12 @@ use ind_application::FeedPreparationConfig;
 use ind_application::asset_serving::AssetServingMode;
 use ind_application::ports::{
     AccountOperations, ApiTokenOperations, ArticleTocOperations, AuthOperations,
-    CollectionOperations, DocumentReaderOperations, EmailAliasOperations, EmailIngestOperations,
-    EmailSenderOperations, EntityOperations, ExtensionAuthOperations, ExtensionSaveOperations,
-    FeedDeliveryOperations, FeedOperations, FeedPreparationOperations, HighlightOperations,
-    HomeOperations, ImportOperations, IntegrationOperations, LibraryOperations,
-    LibraryUploadOperations, OAuthOperations, OnboardingOperations, SearchOperations,
-    SettingsOperations, SmartListOperations, TagOperations, TokenValidator, UserLookup,
-    WebhookOperations,
+    CollectionOperations, DocumentReaderOperations, EntityOperations, ExtensionAuthOperations,
+    ExtensionSaveOperations, FeedDeliveryOperations, FeedOperations, FeedPreparationOperations,
+    HighlightOperations, HomeOperations, ImportOperations, IntegrationOperations,
+    LibraryOperations, LibraryUploadOperations, OAuthOperations, OnboardingOperations,
+    SearchOperations, SettingsOperations, SmartListOperations, TagOperations, TokenValidator,
+    UserLookup, WebhookOperations,
 };
 use ind_application::repos::event::EventRepository;
 use ind_application::repos::oauth_flow::OAuthFlowRepository;
@@ -60,10 +59,6 @@ pub struct AppState {
     pub home_ops: Option<Arc<dyn HomeOperations>>,
     pub search_ops: Option<Arc<dyn SearchOperations>>,
     pub entity_ops: Option<Arc<dyn EntityOperations>>,
-    pub email_ingest_ops: Option<Arc<dyn EmailIngestOperations>>,
-    pub email_ingest_provider: Option<Arc<dyn ind_integrations::email::InboundEmailProvider>>,
-    pub email_sender_ops: Option<Arc<dyn EmailSenderOperations>>,
-    pub email_alias_ops: Option<Arc<dyn EmailAliasOperations>>,
     pub collection_ops: Option<Arc<dyn CollectionOperations>>,
     pub tag_ops: Option<Arc<dyn TagOperations>>,
     pub smart_list_ops: Option<Arc<dyn SmartListOperations>>,
@@ -94,8 +89,6 @@ pub struct AppConfig {
     pub max_import_upload_bytes: usize,
     pub asset_serving_mode: AssetServingMode,
     pub asset_cookie_secret: Option<Vec<u8>>,
-    pub email_feed_domain: Option<String>,
-    pub email_library_domain: Option<String>,
     pub allow_private_webhook_targets: bool,
     pub allow_signups: bool,
     pub feed_prefetch: FeedPreparationConfig,
@@ -125,8 +118,6 @@ impl Default for AppConfig {
             max_import_upload_bytes: 200 * 1024 * 1024,
             asset_serving_mode: AssetServingMode::Passthrough,
             asset_cookie_secret: None,
-            email_feed_domain: None,
-            email_library_domain: None,
             allow_private_webhook_targets: false,
             allow_signups: true,
             feed_prefetch: FeedPreparationConfig {

@@ -70,13 +70,6 @@ pub enum ReaderLineHeight {
     Relaxed,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum ReaderOpenMode {
-    Reader,
-    Original,
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AppearanceSettings {
     pub accent_color: AccentColor,
@@ -139,7 +132,6 @@ pub struct ReaderSettings {
     pub font_family: ReaderFontFamily,
     pub font_size: ReaderFontSize,
     pub line_height: ReaderLineHeight,
-    pub email_open_mode: ReaderOpenMode,
 }
 
 impl Default for ReaderSettings {
@@ -148,7 +140,6 @@ impl Default for ReaderSettings {
             font_family: ReaderFontFamily::Serif,
             font_size: ReaderFontSize::Medium,
             line_height: ReaderLineHeight::Relaxed,
-            email_open_mode: ReaderOpenMode::Reader,
         }
     }
 }

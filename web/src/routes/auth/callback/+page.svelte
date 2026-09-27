@@ -24,8 +24,6 @@
 
 			if (auth.needsOnboarding) {
 				goto(resolve('/onboarding/welcome'), { replaceState: true });
-			} else if (auth.needsVerification) {
-				goto(resolve('/verify-email'), { replaceState: true });
 			} else {
 				goto(resolve('/'), { replaceState: true });
 			}

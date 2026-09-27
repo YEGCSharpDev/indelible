@@ -264,7 +264,6 @@ async fn materialize_strips_nul_from_title_instead_of_failing() {
                     domain: None,
                     lead_image_url: None,
                     thumbnail_url: None,
-                    sender_id: None,
                 },
                 origin: MaterializeOrigin {
                     origin_type: DocumentOriginType::ManualUpload,

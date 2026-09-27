@@ -98,12 +98,6 @@ describe('Add Content page (step 3)', () => {
 		expect(screen.getByText('Save your first article')).toBeTruthy();
 	});
 
-	it('renders both email forwarding options', () => {
-		render(AddContentPage);
-		expect(screen.getByText('Feed email')).toBeTruthy();
-		expect(screen.getByText('Library email')).toBeTruthy();
-	});
-
 	it('renders Skip button', () => {
 		render(AddContentPage);
 		expect(screen.getByText('Skip')).toBeTruthy();

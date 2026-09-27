@@ -43,12 +43,6 @@ pub const ALLOWED_FILTER_FIELDS: &[&str] = &[
     "triage_state",
     "is_favorite",
     "domain",
-    "subject",
-    "sender",
-    "sender_domain",
-    "list_id",
-    "has_unsubscribe",
-    "sender_blocked",
     "saved_at",
     "published_at",
 ];
@@ -93,23 +87,6 @@ fn validate_filter_condition_semantics(
             Ok(())
         }
         "is_favorite" => {
-            if !matches!(op, FilterOp::Eq) {
-                return Err(format!("{field} only supports eq"));
-            }
-            if value.is_boolean() {
-                Ok(())
-            } else {
-                Err(format!("{field} value must be boolean, got: {value}"))
-            }
-        }
-        "subject" | "sender" | "sender_domain" | "list_id" => match op {
-            FilterOp::Eq | FilterOp::Neq | FilterOp::Contains => {
-                ensure_string_value(field, value).map(|_| ())
-            }
-            FilterOp::In => ensure_string_array(field, value),
-            _ => Err(format!("{field} only supports eq, neq, contains, in")),
-        },
-        "has_unsubscribe" | "sender_blocked" => {
             if !matches!(op, FilterOp::Eq) {
                 return Err(format!("{field} only supports eq"));
             }
@@ -186,22 +163,6 @@ mod tests {
     #[test]
     fn filter_semantics_accept_and_reject_table() {
         for (node, valid) in [
-            (
-                condition("sender", FilterOp::Contains, serde_json::json!("example")),
-                true,
-            ),
-            (
-                condition("sender", FilterOp::Gt, serde_json::json!("example")),
-                false,
-            ),
-            (
-                condition("sender_blocked", FilterOp::Eq, serde_json::json!(true)),
-                true,
-            ),
-            (
-                condition("sender_blocked", FilterOp::Eq, serde_json::json!("yes")),
-                false,
-            ),
             (
                 condition(
                     "saved_at",

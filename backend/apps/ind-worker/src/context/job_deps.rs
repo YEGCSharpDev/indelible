@@ -8,9 +8,6 @@ use ind_application::repos::document::DocumentRepository;
 use ind_application::repos::document_asset::DocumentAssetRepository;
 use ind_application::repos::document_lifecycle::DocumentLifecycle;
 use ind_application::repos::document_reprocess::DocumentReprocessRepository;
-use ind_application::repos::email_ingest::EmailIngestLogRepository;
-use ind_application::repos::email_sender::EmailSenderRepository;
-use ind_application::repos::email_unsubscribe_target::EmailUnsubscribeTargetRepository;
 use ind_application::repos::feed::FeedRepository;
 use ind_application::repos::feed_delivery::FeedDeliveryRepository;
 use ind_application::repos::highlight::HighlightRepository;
@@ -21,17 +18,14 @@ use ind_application::repos::maintenance::MaintenanceTaskRepository;
 use ind_application::repos::outbox::JobOutboxRepository;
 use ind_application::repos::search_reindex::SearchReindexRepository;
 use ind_application::repos::tag::TagRepository;
-use ind_application::repos::user::UserRepository;
 use ind_application::repos::user_document_state::UserDocumentStateRepository;
 use ind_application::repos::user_preferences::UserPreferencesRepository;
 use ind_application::repos::webhook::WebhookRepository;
 use ind_application::storage::ObjectStorage;
-use ind_integrations::email::InboundEmailProvider;
 use ind_search::SearchIndexer;
 use sqlx::PgPool;
 
 use super::WorkerContext;
-use crate::jobs::email_unsubscribe::OneClickPolicy;
 
 #[derive(Clone)]
 pub struct AiSearchJobDeps {
@@ -51,22 +45,6 @@ pub struct CaptureJobDeps {
     pub egress_policy: ind_egress::EgressPolicy,
     pub youtube_player_base_url: Option<String>,
     pub feed: FeedJobDeps,
-}
-
-#[derive(Clone)]
-pub struct EmailJobDeps {
-    pub feed_repo: Arc<dyn FeedRepository>,
-    pub feed_delivery_repo: Arc<dyn FeedDeliveryRepository>,
-    pub object_storage: Option<Arc<dyn ObjectStorage>>,
-    pub tag_repo: Arc<dyn TagRepository>,
-    pub email_ingest_provider: Option<Arc<dyn InboundEmailProvider>>,
-    pub email_ingest_log_repo: Option<Arc<dyn EmailIngestLogRepository>>,
-    pub email_sender_repo: Option<Arc<dyn EmailSenderRepository>>,
-    pub email_unsubscribe_target_repo: Option<Arc<dyn EmailUnsubscribeTargetRepository>>,
-    pub email_unsubscribe_url_policy: OneClickPolicy,
-    pub user_repo: Option<Arc<dyn UserRepository>>,
-    pub egress_policy: ind_egress::EgressPolicy,
-    pub lifecycle: Arc<dyn DocumentLifecycle>,
 }
 
 #[derive(Clone)]
@@ -179,23 +157,6 @@ impl WorkerContext {
             egress_policy: self.egress_policy.clone(),
             youtube_player_base_url: self.youtube_player_base_url.clone(),
             feed: self.feed_jobs(),
-        }
-    }
-
-    pub fn email_jobs(&self) -> EmailJobDeps {
-        EmailJobDeps {
-            feed_repo: self.feed_repo.clone(),
-            feed_delivery_repo: self.feed_delivery_repo.clone(),
-            object_storage: self.object_storage.clone(),
-            tag_repo: self.tag_repo.clone(),
-            email_ingest_provider: self.email_ingest_provider.clone(),
-            email_ingest_log_repo: self.email_ingest_log_repo.clone(),
-            email_sender_repo: self.email_sender_repo.clone(),
-            email_unsubscribe_target_repo: self.email_unsubscribe_target_repo.clone(),
-            email_unsubscribe_url_policy: self.email_unsubscribe_url_policy,
-            user_repo: self.user_repo.clone(),
-            egress_policy: self.egress_policy.clone(),
-            lifecycle: self.lifecycle.clone(),
         }
     }
 

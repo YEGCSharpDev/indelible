@@ -1,6 +1,6 @@
 use chrono::{Duration, Utc};
 pub use ind_application::ports::{LoginRequest, LoginResponse};
-use ind_domain::{ClientType, RefreshToken, User, UserStatus};
+use ind_domain::{ClientType, RefreshToken, UserStatus};
 
 use crate::crypto::{DUMMY_HASH, generate_refresh_token, hash_token, verify_password};
 use crate::error::AuthError;
@@ -18,9 +18,9 @@ impl AuthService {
         ip: Option<String>,
         user_agent: Option<String>,
     ) -> Result<LoginResponse, AuthError> {
-        let email = User::normalize_email(&req.email);
+        let username = req.username.clone();
 
-        let maybe_user = self.user_repo.find_by_email(&email).await?;
+        let maybe_user = self.user_repo.find_by_username(&username).await?;
 
         let user = match maybe_user {
             Some(user) => user,

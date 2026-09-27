@@ -11,16 +11,14 @@ use crate::validation;
 fn build_profile(user: &User) -> UserProfile {
     UserProfile {
         id: user.id,
-        email: user.email.clone(),
+        username: user.username.clone(),
         display_name: user.display_name.clone(),
         avatar_url: user.avatar_url.clone(),
         locale: user.locale.clone(),
         timezone: user.timezone.clone(),
         theme: user.theme,
-        email_verified: user.email_verified,
         onboarding_completed: user.onboarding_completed,
         has_password: user.password_hash.is_some(),
-        email_token: user.email_token.clone(),
         created_at: user.created_at,
         updated_at: user.updated_at,
     }
@@ -159,7 +157,7 @@ impl AuthService {
             .await?
             .ok_or(AuthError::AccountNotFound)?;
 
-        if req.confirmation != user.email {
+        if req.confirmation != user.username {
             return Err(AuthError::ConfirmationRequired);
         }
 

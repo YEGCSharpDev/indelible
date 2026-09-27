@@ -5,8 +5,8 @@ use utoipa::ToSchema;
 
 #[derive(Debug, Deserialize, ToSchema, validator::Validate)]
 pub struct RegisterRequest {
-    #[validate(custom(function = "crate::validation::trimmed_email"))]
-    pub email: String,
+    #[validate(custom(function = "crate::validation::trimmed_non_blank"))]
+    pub username: String,
     #[validate(length(min = 1, message = "must not be empty"))]
     pub password: String,
     #[validate(custom(function = "crate::validation::trimmed_non_blank"))]
@@ -16,39 +16,18 @@ pub struct RegisterRequest {
 
 #[derive(Debug, Deserialize, ToSchema, validator::Validate)]
 pub struct LoginRequest {
-    #[validate(custom(function = "crate::validation::trimmed_email"))]
-    pub email: String,
+    #[validate(custom(function = "crate::validation::trimmed_non_blank"))]
+    pub username: String,
     #[validate(length(min = 1, message = "must not be empty"))]
     pub password: String,
-}
-
-#[derive(Debug, Deserialize, ToSchema, validator::Validate)]
-pub struct ForgotPasswordRequest {
-    #[validate(custom(function = "crate::validation::trimmed_email"))]
-    pub email: String,
-}
-
-#[derive(Debug, Deserialize, ToSchema, validator::Validate)]
-pub struct ResetPasswordRequest {
-    #[validate(custom(function = "crate::validation::trimmed_non_blank"))]
-    pub token: String,
-    #[validate(length(min = 1, message = "must not be empty"))]
-    pub new_password: String,
-}
-
-#[derive(Debug, Deserialize, ToSchema, validator::Validate)]
-pub struct VerifyEmailRequest {
-    #[validate(custom(function = "crate::validation::trimmed_non_blank"))]
-    pub token: String,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct AuthResponse {
     pub id: String,
     pub object: &'static str,
-    pub email: String,
+    pub username: String,
     pub display_name: String,
-    pub email_verified: bool,
     pub onboarding_completed: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub access_token: Option<String>,
@@ -68,27 +47,12 @@ impl AuthResponse {
         Self {
             id: user.id.to_string(),
             object: "user",
-            email: user.email.clone(),
+            username: user.username.clone(),
             display_name: user.display_name.clone(),
-            email_verified: user.email_verified,
             onboarding_completed: user.onboarding_completed,
             access_token: Some(access_token),
             expires_at: Some(expires_at),
             refresh_token: refresh_token_for_body,
-        }
-    }
-
-    pub fn from_user(user: &User) -> Self {
-        Self {
-            id: user.id.to_string(),
-            object: "user",
-            email: user.email.clone(),
-            display_name: user.display_name.clone(),
-            email_verified: user.email_verified,
-            onboarding_completed: user.onboarding_completed,
-            access_token: None,
-            expires_at: None,
-            refresh_token: None,
         }
     }
 }

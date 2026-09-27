@@ -17,7 +17,6 @@ async fn recovery_context(db: &TestDb) -> ind_worker::context::RecoveryJobDeps {
     )
     .expect("worker services build")
     .with_worker_id("auto-heal-journey")
-    .without_email_services()
     .build()
     .recovery_jobs()
 }

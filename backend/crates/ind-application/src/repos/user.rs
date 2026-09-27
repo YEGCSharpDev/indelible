@@ -8,8 +8,7 @@ pub trait UserRepository: Send + Sync + Any {
     fn as_any(&self) -> &dyn Any;
 
     async fn find_by_id(&self, id: UserId) -> Result<Option<User>, AppError>;
-    async fn find_by_email(&self, email: &str) -> Result<Option<User>, AppError>;
-    async fn find_by_email_token(&self, token: &str) -> Result<Option<User>, AppError>;
+    async fn find_by_username(&self, username: &str) -> Result<Option<User>, AppError>;
     async fn create(&self, user: User) -> Result<User, AppError>;
 
     async fn has_any_users(&self) -> Result<bool, AppError>;
@@ -49,19 +48,6 @@ pub trait UserRepository: Send + Sync + Any {
         &self,
         id: UserId,
         password_hash: String,
-    ) -> Result<User, AppError>;
-
-    async fn update_email_verified(
-        &self,
-        id: UserId,
-        email_verified: bool,
-    ) -> Result<User, AppError>;
-
-    async fn update_email_and_verification(
-        &self,
-        id: UserId,
-        email: String,
-        email_verified: bool,
     ) -> Result<User, AppError>;
 
     async fn soft_delete(&self, id: UserId) -> Result<(), AppError>;

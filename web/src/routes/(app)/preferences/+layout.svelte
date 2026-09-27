@@ -25,7 +25,6 @@
 		'reading-appearance': 'settings_reading_appearance',
 		integrations: 'settings_integrations',
 		'feed-management': 'settings_feed_management',
-		email: 'settings_email',
 		archival: 'settings_archival',
 		ai: 'settings_ai',
 		developer: 'settings_developer',

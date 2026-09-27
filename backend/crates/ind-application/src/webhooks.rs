@@ -30,7 +30,6 @@ pub const WEBHOOK_EVENT_TYPES: &[&str] = &[
     "integration.sync_completed",
     "integration.sync_failed",
     "account.created",
-    "account.email_verified",
     "account.deleted",
     "review.completed",
     "review.streak",

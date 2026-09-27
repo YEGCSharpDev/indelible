@@ -250,16 +250,14 @@ pub trait OAuthOperations: Send + Sync {
 #[derive(Debug, Clone)]
 pub struct UserProfile {
     pub id: UserId,
-    pub email: String,
+    pub username: String,
     pub display_name: String,
     pub avatar_url: Option<String>,
     pub locale: Option<String>,
     pub timezone: String,
     pub theme: Theme,
-    pub email_verified: bool,
     pub onboarding_completed: bool,
     pub has_password: bool,
-    pub email_token: String,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
 }
@@ -296,13 +294,6 @@ pub trait AccountOperations: Send + Sync {
         req: ChangePasswordRequest,
     ) -> BoxFuture<'_, Result<(), AuthError>>;
 
-    fn change_email(
-        &self,
-        user_id: UserId,
-        new_email: String,
-        password: String,
-    ) -> BoxFuture<'_, Result<(), AuthError>>;
-
     fn delete_account(
         &self,
         user_id: UserId,
@@ -311,7 +302,7 @@ pub trait AccountOperations: Send + Sync {
 }
 
 pub struct RegisterRequest {
-    pub email: String,
+    pub username: String,
     pub password: String,
     pub display_name: String,
 }
@@ -323,11 +314,10 @@ pub struct RegisterResponse {
     pub expires_at: i64,
     pub raw_refresh_token: String,
     pub refresh_token: RefreshToken,
-    pub verification_token_sent: bool,
 }
 
 pub struct LoginRequest {
-    pub email: String,
+    pub username: String,
     pub password: String,
 }
 
@@ -390,21 +380,6 @@ pub trait AuthOperations: Send + Sync {
         &self,
         user_id: UserId,
     ) -> BoxFuture<'_, Result<Vec<RefreshToken>, AuthError>>;
-
-    fn forgot_password(&self, email: &str) -> BoxFuture<'_, Result<Option<String>, AuthError>>;
-
-    fn reset_password(
-        &self,
-        raw_token: &str,
-        new_password: &str,
-    ) -> BoxFuture<'_, Result<User, AuthError>>;
-
-    fn verify_email(&self, raw_token: &str) -> BoxFuture<'_, Result<User, AuthError>>;
-
-    fn resend_verification(
-        &self,
-        user_id: &UserId,
-    ) -> BoxFuture<'_, Result<Option<String>, AuthError>>;
 
     fn create_tokens_for_user(
         &self,

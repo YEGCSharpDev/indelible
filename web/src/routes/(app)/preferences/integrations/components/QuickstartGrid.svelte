@@ -1,11 +1,5 @@
 <script lang="ts">
 	import { t } from '$lib/i18n';
-
-	interface Props {
-		onCopyInbox: () => void;
-	}
-
-	let { onCopyInbox }: Props = $props();
 </script>
 
 <div class="quickstart-stack">
@@ -32,21 +26,6 @@
 			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
 		</div>
 	</a>
-	<button type="button" class="quickstart-card" onclick={onCopyInbox}>
-		<div class="mark email">
-			<svg viewBox="0 0 24 24" aria-hidden="true">
-				<rect x="2" y="4" width="20" height="16" rx="2" />
-				<path d="M22 4L12 13 2 4" />
-			</svg>
-		</div>
-		<div class="meta">
-			<div class="title">{$t('integrations_hub_setup_email')}</div>
-			<div class="sub">{$t('integrations_hub_setup_email_hint')}</div>
-		</div>
-		<div class="arrow">
-			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
-		</div>
-	</button>
 </div>
 
 <style>
@@ -102,10 +81,6 @@
 		stroke-width: 1.7;
 		stroke-linecap: round;
 		stroke-linejoin: round;
-	}
-
-	.mark.email {
-		background: var(--success);
 	}
 
 	.meta {

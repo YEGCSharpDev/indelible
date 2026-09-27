@@ -18,7 +18,6 @@ pub fn document_type_for(item_type: ItemType) -> DocumentType {
     match item_type {
         ItemType::Article => DocumentType::Article,
         ItemType::Book => DocumentType::Book,
-        ItemType::Email => DocumentType::Email,
         ItemType::Pdf => DocumentType::Pdf,
         ItemType::Video => DocumentType::Video,
         ItemType::Podcast => DocumentType::Podcast,
@@ -82,7 +81,6 @@ pub fn feed_entry_identity(user_id: UserId, entry: &FeedSourceEntry) -> Material
                 domain: None,
                 lead_image_url: entry.lead_image_url.clone(),
                 thumbnail_url: entry.lead_image_url.clone(),
-                sender_id: None,
             },
             origin,
         },

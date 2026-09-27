@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n                EXISTS(\n                    SELECT 1 FROM library_entries le\n                    WHERE le.user_id = $1 AND le.document_id = $2 AND le.deleted_at IS NULL\n                ) AS \"is_saved!\",\n                (\n                    SELECT le.source FROM library_entries le\n                    WHERE le.user_id = $1 AND le.document_id = $2 AND le.deleted_at IS NULL\n                    LIMIT 1\n                ) AS \"library_source?\",\n                EXISTS(\n                    SELECT 1 FROM highlights h\n                    WHERE h.user_id = $1 AND h.document_id = $2\n                ) AS \"has_highlights!\",\n                EXISTS(\n                    SELECT 1 FROM item_notes n\n                    WHERE n.user_id = $1 AND n.document_id = $2\n                ) AS \"has_note!\"\n               FROM documents d\n               WHERE d.id = $2 AND d.user_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "is_saved!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 1,
+        "name": "library_source?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "has_highlights!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "has_note!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "31e3f5450b580809c0ed8b7f6434461a153624a12e494b94f15b3d5d70d19dc0"
+}

@@ -4,10 +4,9 @@ import { createApiModuleMock } from './helpers/api-module-mock';
 
 const mockUser = {
 	id: 'usr_01924b6e-5c3a-7d4f-8e6b-a1b2c3d4e5f6',
-	email: 'test@example.com',
+	username: 'testuser',
 	display_name: 'Test User',
 	avatar_url: null,
-	email_verified: true,
 	onboarding_completed: true,
 	has_password: true,
 	theme: 'system' as const
@@ -48,7 +47,7 @@ async function initAuthenticatedUser() {
 	} as never);
 
 	const auth = getAuth();
-	await auth.login('test@example.com', 'password123');
+	await auth.login('testuser', 'password123');
 	flushSync();
 	return auth;
 }
@@ -177,59 +176,6 @@ describe('profile operations', () => {
 		});
 	});
 
-	describe('changeEmail', () => {
-		it('calls POST /api/v1/me/email with new email and password', async () => {
-			const auth = await initAuthenticatedUser();
-
-			mockPOST.mockResolvedValue({
-				data: { message: 'verification email sent to new address' },
-				error: undefined,
-				response: new Response(null, { status: 200 })
-			} as never);
-
-			const result = await auth.changeEmail('new@example.com', 'my-password');
-
-			expect(result.success).toBe(true);
-			expect(auth.user).toBeNull();
-			expect(mockPOST).toHaveBeenCalledWith('/api/v1/me/email', {
-				body: {
-					new_email: 'new@example.com',
-					password: 'my-password'
-				}
-			});
-		});
-
-		it('returns error when password is invalid', async () => {
-			const auth = await initAuthenticatedUser();
-
-			mockPOST.mockResolvedValue({
-				data: undefined,
-				error: { error: 'Invalid password' },
-				response: new Response(null, { status: 401 })
-			} as never);
-
-			const result = await auth.changeEmail('new@example.com', 'wrong');
-
-			expect(result.success).toBe(false);
-			expect(result.error).toBe('Invalid password');
-		});
-
-		it('returns error when email is already in use', async () => {
-			const auth = await initAuthenticatedUser();
-
-			mockPOST.mockResolvedValue({
-				data: undefined,
-				error: { error: 'Email already in use' },
-				response: new Response(null, { status: 409 })
-			} as never);
-
-			const result = await auth.changeEmail('taken@example.com', 'password');
-
-			expect(result.success).toBe(false);
-			expect(result.error).toBe('Email already in use');
-		});
-	});
-
 	describe('deleteAccount', () => {
 		it('calls DELETE /api/v1/me with confirmation', async () => {
 			const auth = await initAuthenticatedUser();
@@ -240,12 +186,12 @@ describe('profile operations', () => {
 				response: new Response(null, { status: 204 })
 			} as never);
 
-			const result = await auth.deleteAccount('my-password');
+			const result = await auth.deleteAccount('testuser');
 			flushSync();
 
 			expect(result.success).toBe(true);
 			expect(mockDELETE).toHaveBeenCalledWith('/api/v1/me', {
-				body: { confirmation: 'my-password' }
+				body: { confirmation: 'testuser' }
 			});
 			expect(auth.user).toBeNull();
 		});

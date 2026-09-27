@@ -23,7 +23,6 @@ struct NotificationPreferencesRow {
     weekly_digest_enabled: bool,
     new_highlights_sync: bool,
     feed_updates: bool,
-    marketing_emails: bool,
     updated_at: DateTime<Utc>,
 }
 
@@ -36,7 +35,6 @@ impl From<NotificationPreferencesRow> for NotificationPreferences {
             weekly_digest_enabled: row.weekly_digest_enabled,
             new_highlights_sync: row.new_highlights_sync,
             feed_updates: row.feed_updates,
-            marketing_emails: row.marketing_emails,
             updated_at: row.updated_at,
         }
     }
@@ -56,14 +54,13 @@ impl NotificationPreferencesRepository for PgNotificationPreferencesRepository {
         &self,
         user_id: UserId,
     ) -> Result<Option<NotificationPreferences>, AppError> {
-        let row = sqlx::query_as!(
-            NotificationPreferencesRow,
+        let row = sqlx::query_as::<_, NotificationPreferencesRow>(
             "SELECT user_id, daily_review_reminder_enabled, daily_review_reminder_time, \
-             weekly_digest_enabled, new_highlights_sync, feed_updates, marketing_emails, \
+             weekly_digest_enabled, new_highlights_sync, feed_updates, \
              updated_at \
              FROM notification_preferences WHERE user_id = $1",
-            user_id.into_uuid(),
         )
+        .bind(user_id.into_uuid())
         .fetch_optional(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
@@ -75,31 +72,28 @@ impl NotificationPreferencesRepository for PgNotificationPreferencesRepository {
         &self,
         preferences: &NotificationPreferences,
     ) -> Result<NotificationPreferences, AppError> {
-        let row = sqlx::query_as!(
-            NotificationPreferencesRow,
+        let row = sqlx::query_as::<_, NotificationPreferencesRow>(
             "INSERT INTO notification_preferences \
              (user_id, daily_review_reminder_enabled, daily_review_reminder_time, \
-              weekly_digest_enabled, new_highlights_sync, feed_updates, marketing_emails, updated_at) \
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) \
+              weekly_digest_enabled, new_highlights_sync, feed_updates, updated_at) \
+             VALUES ($1, $2, $3, $4, $5, $6, $7) \
              ON CONFLICT (user_id) DO UPDATE SET \
                daily_review_reminder_enabled = EXCLUDED.daily_review_reminder_enabled, \
                daily_review_reminder_time = EXCLUDED.daily_review_reminder_time, \
                weekly_digest_enabled = EXCLUDED.weekly_digest_enabled, \
                new_highlights_sync = EXCLUDED.new_highlights_sync, \
                feed_updates = EXCLUDED.feed_updates, \
-               marketing_emails = EXCLUDED.marketing_emails, \
                updated_at = EXCLUDED.updated_at \
              RETURNING user_id, daily_review_reminder_enabled, daily_review_reminder_time, \
-             weekly_digest_enabled, new_highlights_sync, feed_updates, marketing_emails, updated_at",
-            preferences.user_id.into_uuid(),
-            preferences.daily_review_reminder_enabled,
-            &preferences.daily_review_reminder_time,
-            preferences.weekly_digest_enabled,
-            preferences.new_highlights_sync,
-            preferences.feed_updates,
-            preferences.marketing_emails,
-            preferences.updated_at,
+             weekly_digest_enabled, new_highlights_sync, feed_updates, updated_at",
         )
+        .bind(preferences.user_id.into_uuid())
+        .bind(preferences.daily_review_reminder_enabled)
+        .bind(&preferences.daily_review_reminder_time)
+        .bind(preferences.weekly_digest_enabled)
+        .bind(preferences.new_highlights_sync)
+        .bind(preferences.feed_updates)
+        .bind(preferences.updated_at)
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;

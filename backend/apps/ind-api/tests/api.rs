@@ -2,7 +2,6 @@
 
 mod api {
     mod access_policy_extractor_tests;
-    mod account_email_capture_tests;
     mod account_locale_tests;
     mod api_credential_boundary_tests;
     mod api_permission_enforcement_tests;
@@ -10,7 +9,6 @@ mod api {
     mod article_toc_journey_tests;
     mod asset_cookie_verification_tests;
     mod asset_serving_mode_tests;
-    mod auth_recovery_journey_tests;
     mod auth_tests;
     mod common;
     mod disconnect_revocation_tests;
@@ -21,7 +19,6 @@ mod api {
     mod feed_subscription_journey_tests;
     mod highlight_text_quote_tests;
     mod integration_availability_tests;
-    mod integration_journey_tests;
     mod integration_route_permission_tests;
     mod jwt_only_route_permission_tests;
     mod knowledge_settings_journey_tests;

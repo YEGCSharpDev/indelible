@@ -1,9 +1,8 @@
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::{
-    ArchiveAssetKind, CollectionId, DocumentId, EmailSenderId, FeedDeliveryId, FeedSourceEntryId,
-    FeedSourceId, ImportJobId, IntegrationConnectionId, JobOutboxId, UserId,
+    ArchiveAssetKind, CollectionId, DocumentId, FeedDeliveryId, FeedSourceEntryId, FeedSourceId,
+    ImportJobId, IntegrationConnectionId, JobOutboxId, UserId,
 };
 
 /// Readable-content preparation for a feed-discovered document. Carries the document
@@ -106,22 +105,6 @@ pub struct FeedAutosaveJob {
     pub user_id: UserId,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub collection_id: Option<CollectionId>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EmailIngestJob {
-    pub provider: String,
-    pub provider_email_id: String,
-    pub raw_payload: Vec<u8>,
-    pub user_id: UserId,
-    pub destination: String,
-    pub ingest_log_id: Option<Uuid>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EmailUnsubscribeJob {
-    pub user_id: UserId,
-    pub sender_id: EmailSenderId,
 }
 
 /// Removes a purged account's object-storage keys. Enqueued inside the account

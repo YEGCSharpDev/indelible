@@ -1,16 +1,13 @@
 #![allow(clippy::unwrap_used)]
 
 use ind_application::repos::document::DocumentRepository;
-use ind_application::repos::email_sender::EmailSenderRepository;
 use ind_application::repos::feed::FeedRepository;
 use ind_application::repos::search::{SearchFtsQuery, SearchRepository};
 use ind_domain::{
-    CanonicalAddress, FeedSourceEntry, FeedSourceEntryId, ItemType, SearchDocument,
-    SearchDocumentId, SearchDocumentKind, SearchDocumentSource, UserId,
+    FeedSourceEntry, FeedSourceEntryId, ItemType, SearchDocument, SearchDocumentId,
+    SearchDocumentKind, SearchDocumentSource, UserId,
 };
-use ind_persistence::repos::{
-    PgDocumentRepository, PgEmailSenderRepository, PgFeedRepository, PgSearchRepository,
-};
+use ind_persistence::repos::{PgDocumentRepository, PgFeedRepository, PgSearchRepository};
 use ind_test_support::{
     DocumentFactory, FeedDeliveryFactory, FeedSourceFactory, FeedSubscriptionFactory,
     LibraryEntryFactory, TestDb, UserFactory,
@@ -121,27 +118,6 @@ async fn cursor_pagination_does_not_repeat_boundary_when_scores_decay() {
     second_query.cursor_result_id = Some(document.id.into_uuid());
     second_query.cursor_section_key = Some(String::new());
     assert!(repo.search_fts(&second_query).await.unwrap().is_empty());
-
-    let sender = PgEmailSenderRepository::new(pool.clone())
-        .upsert_for_user(
-            user.id,
-            &CanonicalAddress::new("newsletter@acme.com"),
-            None,
-            Some("Acme Newsletter"),
-        )
-        .await
-        .unwrap();
-    sqlx::query("UPDATE documents SET sender_id = $1 WHERE id = $2")
-        .bind(sender.id.into_uuid())
-        .bind(document.id.into_uuid())
-        .execute(&pool)
-        .await
-        .unwrap();
-    let mut sender_query = query(user.id, "boundarytoken");
-    sender_query.sender_values = vec!["  NEWSLETTER@ACME.COM ".into()];
-    let matches = repo.search_fts(&sender_query).await.unwrap();
-    assert_eq!(matches.len(), 1);
-    assert_eq!(matches[0].document_id, Some(document.id));
 }
 
 #[tokio::test]

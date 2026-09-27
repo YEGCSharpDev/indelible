@@ -85,13 +85,12 @@ async fn resolve_asset_cookie_user(
     let user_id = verify_asset_cookie(&cookie_value, secret)?;
 
     match user_lookup.get_user_by_id(user_id).await {
-        Ok(Some(user)) if user.status == UserStatus::Active && user.email_verified => Some(user_id),
+        Ok(Some(user)) if user.status == UserStatus::Active => Some(user_id),
         Ok(Some(user)) => {
             tracing::debug!(
                 user_id = %user_id,
                 status = ?user.status,
-                email_verified = user.email_verified,
-                "asset cookie user is not active or email-verified; falling back to bearer auth"
+                "asset cookie user is not active; falling back to bearer auth"
             );
             None
         }

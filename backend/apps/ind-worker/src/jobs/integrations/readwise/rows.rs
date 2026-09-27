@@ -157,7 +157,6 @@ pub(super) async fn process_csv_row(
                 domain: None,
                 lead_image_url: None,
                 thumbnail_url: None,
-                sender_id: None,
             };
             (
                 MaterializeIdentity::Origin {
@@ -289,7 +288,6 @@ pub(super) async fn process_zip_only_entry(
         domain: None,
         lead_image_url: None,
         thumbnail_url: None,
-        sender_id: None,
     };
 
     let outcome = ctx

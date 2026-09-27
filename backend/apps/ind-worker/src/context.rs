@@ -30,23 +30,16 @@ use ind_application::repos::user_preferences::UserPreferencesRepository;
 use ind_application::repos::webhook::WebhookRepository;
 use sqlx::PgPool;
 
-use ind_application::repos::email_ingest::EmailIngestLogRepository;
-use ind_application::repos::email_sender::EmailSenderRepository;
-use ind_application::repos::email_unsubscribe_target::EmailUnsubscribeTargetRepository;
-
 use ind_application::storage::ObjectStorage;
 use ind_ingest::AssetBackedPreparedContentProvider;
-use ind_integrations::email::InboundEmailProvider;
 use ind_persistence::repos::{
     PgApalisJobRepository, PgBackgroundJobRecoveryRepository, PgCollectionRepository,
     PgDeadLetterRepository, PgDocumentAssetRepository, PgDocumentLifecycle, PgDocumentRepository,
-    PgDocumentReprocessRepository, PgEmailIngestLogRepository, PgEmailSenderRepository,
-    PgEmailUnsubscribeTargetRepository, PgEventRepository, PgFeedDeliveryRepository,
-    PgFeedRepository, PgHighlightRepository, PgImportJobRepository,
-    PgIntegrationConnectionRepository, PgIntegrationOAuthTokenRepository,
-    PgIntegrityStatsRepository, PgJobOutboxRepository, PgLibraryRepository,
-    PgMaintenanceTaskRepository, PgRetentionCleanupRepository, PgSearchReindexRepository,
-    PgSearchRepository, PgTagRepository, PgUserDocumentStateRepository,
+    PgDocumentReprocessRepository, PgEventRepository, PgFeedDeliveryRepository, PgFeedRepository,
+    PgHighlightRepository, PgImportJobRepository, PgIntegrationConnectionRepository,
+    PgIntegrationOAuthTokenRepository, PgIntegrityStatsRepository, PgJobOutboxRepository,
+    PgLibraryRepository, PgMaintenanceTaskRepository, PgRetentionCleanupRepository,
+    PgSearchReindexRepository, PgSearchRepository, PgTagRepository, PgUserDocumentStateRepository,
     PgUserPreferencesRepository, PgUserRepository, PgWebhookRepository,
 };
 use ind_search::SearchIndexer;
@@ -57,8 +50,8 @@ use crate::config::AutoHealSettings;
 mod job_deps;
 
 pub use job_deps::{
-    AiSearchJobDeps, CaptureJobDeps, EmailJobDeps, FeedJobDeps, IndexQueueContext,
-    IntegrationJobDeps, RecoveryJobDeps, WebhookJobDeps,
+    AiSearchJobDeps, CaptureJobDeps, FeedJobDeps, IndexQueueContext, IntegrationJobDeps,
+    RecoveryJobDeps, WebhookJobDeps,
 };
 
 pub struct WorkerContext {
@@ -105,11 +98,6 @@ pub struct WorkerContext {
     pub job_recovery_max_attempts: i32,
     pub job_recovery_batch_size: i64,
     pub feed_poll_schedule: FeedPollScheduleConfig,
-    pub email_ingest_provider: Option<Arc<dyn InboundEmailProvider>>,
-    pub email_ingest_log_repo: Option<Arc<dyn EmailIngestLogRepository>>,
-    pub email_sender_repo: Option<Arc<dyn EmailSenderRepository>>,
-    pub email_unsubscribe_target_repo: Option<Arc<dyn EmailUnsubscribeTargetRepository>>,
-    pub email_unsubscribe_url_policy: crate::jobs::email_unsubscribe::OneClickPolicy,
     pub user_repo: Option<Arc<dyn ind_application::repos::user::UserRepository>>,
     pub import_job_repo: Arc<dyn ImportJobRepository>,
     pub tag_repo: Arc<dyn TagRepository>,
@@ -208,16 +196,6 @@ impl WorkerServicesBuilder {
                     min_public_poll_interval_minutes: 15,
                 }
                 .normalized(),
-                email_ingest_provider: None,
-                email_ingest_log_repo: Some(Arc::new(PgEmailIngestLogRepository::new(
-                    pool.clone(),
-                ))),
-                email_sender_repo: Some(Arc::new(PgEmailSenderRepository::new(pool.clone()))),
-                email_unsubscribe_target_repo: Some(Arc::new(
-                    PgEmailUnsubscribeTargetRepository::new(pool.clone()),
-                )),
-                email_unsubscribe_url_policy:
-                    crate::jobs::email_unsubscribe::OneClickPolicy::strict(),
                 user_repo: Some(Arc::new(PgUserRepository::new(pool.clone()))),
                 import_job_repo: Arc::new(PgImportJobRepository::new(pool.clone())),
                 tag_repo: Arc::new(PgTagRepository::new(pool.clone())),
@@ -276,14 +254,6 @@ impl WorkerServicesBuilder {
         self
     }
 
-    pub fn with_email_ingest_provider_option(
-        mut self,
-        provider: Option<Arc<dyn InboundEmailProvider>>,
-    ) -> Self {
-        self.context.email_ingest_provider = provider;
-        self
-    }
-
     pub fn with_integration_repositories(
         mut self,
         oauth_tokens: Arc<dyn IntegrationOAuthTokenRepository>,
@@ -303,41 +273,6 @@ impl WorkerServicesBuilder {
 
     pub fn without_object_storage(mut self) -> Self {
         self.context.object_storage = None;
-        self
-    }
-
-    pub fn with_email_ingest_provider(mut self, provider: Arc<dyn InboundEmailProvider>) -> Self {
-        self.context.email_ingest_provider = Some(provider);
-        self
-    }
-
-    pub fn without_email_services(mut self) -> Self {
-        self.context.email_ingest_provider = None;
-        self.context.email_ingest_log_repo = None;
-        self.context.email_sender_repo = None;
-        self.context.email_unsubscribe_target_repo = None;
-        self.context.user_repo = None;
-        self
-    }
-
-    pub fn with_email_sender_repo(mut self, repo: Arc<dyn EmailSenderRepository>) -> Self {
-        self.context.email_sender_repo = Some(repo);
-        self
-    }
-
-    pub fn with_email_unsubscribe_target_repo(
-        mut self,
-        repo: Arc<dyn EmailUnsubscribeTargetRepository>,
-    ) -> Self {
-        self.context.email_unsubscribe_target_repo = Some(repo);
-        self
-    }
-
-    pub fn with_email_unsubscribe_url_policy(
-        mut self,
-        policy: crate::jobs::email_unsubscribe::OneClickPolicy,
-    ) -> Self {
-        self.context.email_unsubscribe_url_policy = policy;
         self
     }
 

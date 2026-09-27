@@ -3,23 +3,17 @@
 	import IntegrationConnectionCard from '$lib/components/integrations/IntegrationConnectionCard.svelte';
 	import SettingsGroup from '$lib/components/settings/SettingsGroup.svelte';
 	import type { HubConnectionStatus, StoreLink, SyncState } from '../integrations-hub-model';
-	import EmailForwardingCard from './EmailForwardingCard.svelte';
 	import { t } from '$lib/i18n';
 	import { relativeTime } from '$lib/utils/relative-time';
 
 	interface Props {
 		connectionsLoading: boolean;
 		connectionsError: string | null;
-		inboxAddress: string;
-		feedAddress: string;
-		copiedInbox: boolean;
-		copiedFeed: boolean;
 		extStore: StoreLink;
 		minifluxConnection: IntegrationConnectionDto | undefined;
 		minifluxStatus: HubConnectionStatus;
 		syncStateByConnection: Record<string, SyncState>;
 		syncErrorByConnection: Record<string, string>;
-		onCopyAddress: (address: string, which: 'inbox' | 'feed') => void;
 		onOpenMiniflux: () => void;
 		onSync: (connectionId: string) => void;
 		onDisconnect: (connection: IntegrationConnectionDto) => void;
@@ -28,16 +22,11 @@
 	let {
 		connectionsLoading,
 		connectionsError,
-		inboxAddress,
-		feedAddress,
-		copiedInbox,
-		copiedFeed,
 		extStore,
 		minifluxConnection,
 		minifluxStatus,
 		syncStateByConnection,
 		syncErrorByConnection,
-		onCopyAddress,
 		onOpenMiniflux,
 		onSync,
 		onDisconnect
@@ -54,14 +43,6 @@
 		<p class="zone-meta error" role="alert">{connectionsError}</p>
 	{:else}
 		<div class="connections-stack">
-			<EmailForwardingCard
-				{inboxAddress}
-				{feedAddress}
-				{copiedInbox}
-				{copiedFeed}
-				onCopy={onCopyAddress}
-			/>
-
 			<div class="connections-grid">
 				<IntegrationConnectionCard
 					title={$t('integrations_hub_browser_extension')}

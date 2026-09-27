@@ -1,12 +1,9 @@
 <script lang="ts">
 	import { subscribe } from '$lib/api';
 	import type { FeedSubscriptionResponse, OpmlImportResponse } from '$lib/api';
-	import { getAuth } from '$lib/stores/auth.svelte';
 	import { uploadOpml } from '$lib/api/feeds';
 	import { t } from '$lib/i18n';
 	import { resolve } from '$app/paths';
-
-	const auth = getAuth();
 
 	let feedUrl = $state('');
 	let subscribing = $state(false);
@@ -21,10 +18,6 @@
 	let opmlResult = $state<OpmlImportResponse | null>(null);
 	let isDragOver = $state(false);
 	let opmlInputEl = $state<HTMLInputElement | undefined>(undefined);
-
-	let copied = $state(false);
-
-	const newsletterEmail = $derived(auth.user?.ingest_email ?? null);
 
 	function isValidUrl(input: string): boolean {
 		try {
@@ -119,19 +112,6 @@
 		const file = input.files?.[0];
 		if (file) handleOpmlUpload(file);
 		input.value = '';
-	}
-
-	async function copyEmail() {
-		if (!newsletterEmail) return;
-		try {
-			await navigator.clipboard.writeText(newsletterEmail);
-			copied = true;
-			setTimeout(() => {
-				copied = false;
-			}, 2000);
-		} catch {
-			// clipboard API unavailable — silently ignore
-		}
 	}
 
 	function extractDomain(url: string): string {
@@ -286,37 +266,6 @@
 				{/if}
 			</div>
 		{/if}
-	</div>
-
-	<div class="section-divider"></div>
-
-	<div class="settings-section">
-		<h2 class="section-heading">{$t('prefs_add_feed_newsletter_title')}</h2>
-		<p class="section-desc">{$t('prefs_add_feed_newsletter_description')}</p>
-
-		<div class="email-display-row">
-			<code class="email-address">{newsletterEmail ?? '...'}</code>
-			<button
-				type="button"
-				class="copy-btn"
-				disabled={!newsletterEmail}
-				onclick={copyEmail}
-				aria-label={$t('prefs_add_feed_copy_email')}
-			>
-				{#if copied}
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<polyline points="20 6 9 17 4 12" />
-					</svg>
-					{$t('common_copied')}
-				{:else}
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-						<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-					</svg>
-					{$t('common_copy')}
-				{/if}
-			</button>
-		</div>
 	</div>
 </div>
 
@@ -625,81 +574,6 @@
 	.opml-errors li {
 		line-height: 1.5;
 		color: var(--text-secondary);
-	}
-
-	/* Newsletter email */
-	.email-display-row {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-	}
-
-	.email-address {
-		flex: 1;
-		padding: 9px 12px;
-		border-radius: 8px;
-		background: var(--bg-secondary);
-		box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
-		font-family: var(--font-mono, 'SF Mono', 'Menlo', monospace);
-		font-size: 13px;
-		color: var(--text-primary);
-		letter-spacing: 0;
-		user-select: all;
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	:global([data-theme='dark']) .email-address {
-		box-shadow: inset 0 0 0 0.5px var(--border-primary);
-	}
-
-	.copy-btn {
-		display: inline-flex;
-		align-items: center;
-		gap: 5px;
-		padding: 8px 14px;
-		border-radius: 8px;
-		border: 1px solid rgba(0, 0, 0, 0.08);
-		background: #ffffff;
-		box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.04);
-		font-family: var(--font-sans);
-		font-size: 13px;
-		font-weight: 500;
-		color: var(--text-primary);
-		cursor: pointer;
-		flex-shrink: 0;
-		height: 34px;
-		transition:
-			background 120ms ease,
-			border-color 120ms ease;
-		letter-spacing: -0.01em;
-	}
-
-	:global([data-theme='dark']) .copy-btn {
-		background: var(--bg-tertiary);
-		border-color: var(--border-primary);
-		box-shadow: none;
-	}
-
-	.copy-btn:hover:not(:disabled) {
-		background: var(--fill-hover);
-	}
-
-	.copy-btn:disabled {
-		opacity: 0.45;
-		cursor: not-allowed;
-	}
-
-	.copy-btn svg {
-		width: 14px;
-		height: 14px;
-		stroke: currentColor;
-		fill: none;
-		stroke-width: 1.75;
-		stroke-linecap: round;
-		stroke-linejoin: round;
 	}
 
 	@media (max-width: 599px) {

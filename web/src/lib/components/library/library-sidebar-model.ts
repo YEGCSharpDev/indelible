@@ -4,7 +4,6 @@ export type SidebarIcon =
 	| 'home'
 	| 'articles'
 	| 'books'
-	| 'emails'
 	| 'pdfs'
 	| 'videos'
 	| 'podcasts'

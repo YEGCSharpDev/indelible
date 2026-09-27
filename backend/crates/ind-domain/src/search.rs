@@ -222,7 +222,6 @@ pub struct SearchHit {
     pub updated_at: DateTime<Utc>,
     pub section: Option<SearchSectionRef>,
     pub entity_chips: Vec<SearchEntityChip>,
-    pub sender_id: Option<crate::EmailSenderId>,
 }
 
 impl SearchHit {

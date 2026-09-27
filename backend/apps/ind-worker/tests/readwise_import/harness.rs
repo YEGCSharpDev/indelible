@@ -22,7 +22,6 @@ impl ReadwiseScenario {
         let db = TestDb::new().await;
         let ctx = common::build_worker_ctx(&db).await.integration_jobs();
         let user_id = UserFactory::new()
-            .with_email_verified(true)
             .insert(db.pool())
             .await
             .id;

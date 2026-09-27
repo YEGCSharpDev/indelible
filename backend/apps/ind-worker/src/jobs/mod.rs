@@ -2,8 +2,6 @@ pub mod account_storage_purge;
 pub mod article_toc;
 pub mod attach_provided_content;
 pub mod backfill;
-pub mod email_ingest;
-pub mod email_unsubscribe;
 pub mod feed;
 pub mod integrations;
 pub mod reading_metrics;

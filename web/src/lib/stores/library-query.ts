@@ -25,7 +25,6 @@ export type SortOrder =
 export const SLUG_TO_API_TYPE: Record<string, string> = {
 	articles: 'article',
 	books: 'book',
-	emails: 'email',
 	pdfs: 'pdf',
 	videos: 'video',
 	podcasts: 'podcast'

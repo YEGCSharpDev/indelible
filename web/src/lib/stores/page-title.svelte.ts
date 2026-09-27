@@ -10,7 +10,6 @@ const ROUTE_TITLE_RULES: Rule[] = [
 	{ pattern: /^\/reader(?:\/|$)/, key: 'reader_view_reader' },
 	{ pattern: /^\/library\/articles(?:\/|$)/, key: 'library_nav_articles' },
 	{ pattern: /^\/library\/books(?:\/|$)/, key: 'library_nav_books' },
-	{ pattern: /^\/library\/emails(?:\/|$)/, key: 'library_nav_emails' },
 	{ pattern: /^\/library\/pdfs(?:\/|$)/, key: 'library_nav_pdfs' },
 	{ pattern: /^\/library\/videos(?:\/|$)/, key: 'library_nav_videos' },
 	{ pattern: /^\/library(?:\/|$)/, key: 'common_library' },
@@ -35,7 +34,6 @@ const ROUTE_TITLE_RULES: Rule[] = [
 	{ pattern: /^\/preferences\/ai(?:\/|$)/, key: 'settings_ai' },
 	{ pattern: /^\/preferences\/archival(?:\/|$)/, key: 'settings_archival' },
 	{ pattern: /^\/preferences\/developer(?:\/|$)/, key: 'settings_developer' },
-	{ pattern: /^\/preferences\/email(?:\/|$)/, key: 'settings_email' },
 	{
 		pattern: /^\/preferences\/feed-management(?:\/|$)/,
 		key: 'settings_feed_management'
@@ -49,9 +47,6 @@ const ROUTE_TITLE_RULES: Rule[] = [
 	{ pattern: /^\/preferences(?:\/|$)/, key: 'settings_preferences' },
 	{ pattern: /^\/login(?:\/|$)/, key: 'auth_sign_in_title' },
 	{ pattern: /^\/register(?:\/|$)/, key: 'auth_create_account_title' },
-	{ pattern: /^\/forgot-password(?:\/|$)/, key: 'auth_reset_password_title' },
-	{ pattern: /^\/reset-password(?:\/|$)/, key: 'auth_set_new_password_title' },
-	{ pattern: /^\/verify-email(?:\/|$)/, key: 'auth_verify_email_title' },
 	{ pattern: /^\/auth\/callback(?:\/|$)/, key: 'auth_callback_page_title' },
 	{ pattern: /^\/extension\/auth(?:\/|$)/, key: 'extension_auth_page_title' }
 ];
