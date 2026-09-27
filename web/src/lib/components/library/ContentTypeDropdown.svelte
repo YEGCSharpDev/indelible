@@ -13,12 +13,7 @@
 	let wrapperEl = $state<HTMLDivElement | undefined>(undefined);
 
 	type LibraryRoute =
-		| '/library'
-		| '/library/articles'
-		| '/library/books'
-		| '/library/pdfs'
-		| '/library/videos'
-		| '/library/podcasts';
+		'/library' | '/library/articles' | '/library/books' | '/library/pdfs' | '/library/podcasts';
 
 	type ContentOption = {
 		labelKey: MessageKey;
@@ -30,8 +25,7 @@
 		{ labelKey: 'common_all', type: undefined, href: '/library' },
 		{ labelKey: 'library_nav_articles', type: 'articles', href: '/library/articles' },
 		{ labelKey: 'library_nav_books', type: 'books', href: '/library/books' },
-		{ labelKey: 'library_nav_pdfs', type: 'pdfs', href: '/library/pdfs' },
-		{ labelKey: 'library_nav_videos', type: 'videos', href: '/library/videos' }
+		{ labelKey: 'library_nav_pdfs', type: 'pdfs', href: '/library/pdfs' }
 	];
 
 	const currentLabel = $derived(

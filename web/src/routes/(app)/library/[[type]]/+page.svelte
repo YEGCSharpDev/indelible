@@ -39,8 +39,7 @@
 	const typeTitleKeys: Record<string, MessageKey> = {
 		articles: 'library_nav_articles',
 		books: 'library_nav_books',
-		pdfs: 'library_nav_pdfs',
-		videos: 'library_nav_videos'
+		pdfs: 'library_nav_pdfs'
 	};
 	const activeTypeTitle = $derived(
 		lib.activeType ? $t(typeTitleKeys[lib.activeType] ?? 'common_library') : $t('common_library')

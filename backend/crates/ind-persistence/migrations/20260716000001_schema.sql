@@ -312,14 +312,6 @@ CREATE TABLE public.document_playback_states (
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
-CREATE TABLE public.document_video_metadata (
-    document_id uuid NOT NULL,
-    duration_seconds integer,
-    channel_name text,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
 CREATE TABLE public.documents (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
@@ -339,7 +331,7 @@ CREATE TABLE public.documents (
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     word_count integer,
     reading_time_minutes integer,
-    CONSTRAINT ck_documents_type CHECK ((document_type = ANY (ARRAY['article'::text, 'book'::text, 'pdf'::text, 'video'::text, 'podcast'::text])))
+    CONSTRAINT ck_documents_type CHECK ((document_type = ANY (ARRAY['article'::text, 'book'::text, 'pdf'::text, 'podcast'::text])))
 );
 
 CREATE TABLE public.domain_events (

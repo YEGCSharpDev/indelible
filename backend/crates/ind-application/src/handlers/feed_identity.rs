@@ -19,7 +19,6 @@ pub fn document_type_for(item_type: ItemType) -> DocumentType {
         ItemType::Article => DocumentType::Article,
         ItemType::Book => DocumentType::Book,
         ItemType::Pdf => DocumentType::Pdf,
-        ItemType::Video => DocumentType::Video,
         ItemType::Podcast => DocumentType::Podcast,
     }
 }

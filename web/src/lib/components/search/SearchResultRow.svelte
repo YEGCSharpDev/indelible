@@ -29,7 +29,6 @@
 
 	function thumbGradient(type: string, url?: string | null): string {
 		const domain = url ? getDomain(url) : '';
-		if (type === 'video') return 'red-gradient';
 		if (type === 'podcast') return 'purple-gradient';
 		if (type === 'email') return 'orange-gradient';
 		if (type === 'pdf') return 'teal-gradient';
@@ -40,7 +39,6 @@
 	}
 
 	function thumbEmoji(type: string): string {
-		if (type === 'video') return '\u{1F3AC}';
 		if (type === 'podcast') return '\u{1F3A7}';
 		if (type === 'email') return '\u{2709}\u{FE0F}';
 		if (type === 'pdf') return '\u{1F4C4}';
@@ -68,8 +66,7 @@
 		const keys: Record<string, MessageKey> = {
 			article: 'library_filter_value_article',
 			book: 'library_filter_value_book',
-			pdf: 'library_filter_value_pdf',
-			video: 'library_filter_value_video'
+			pdf: 'library_filter_value_pdf'
 		};
 		const key = keys[type.toLowerCase()];
 		return key ? $t(key) : type;
@@ -481,14 +478,6 @@
 	:global([data-theme='dark']) .type-badge.pdf {
 		background: rgba(255, 69, 58, 0.15);
 		color: #ff453a;
-	}
-	.type-badge.video {
-		background: rgba(255, 149, 0, 0.08);
-		color: #ff9500;
-	}
-	:global([data-theme='dark']) .type-badge.video {
-		background: rgba(255, 159, 10, 0.15);
-		color: #ff9f0a;
 	}
 	.type-badge.email {
 		background: rgba(255, 149, 0, 0.08);

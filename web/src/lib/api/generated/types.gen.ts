@@ -873,7 +873,7 @@ export type LibraryEntryTagsResponse = {
 export type LibraryItemTypeCountResponse = {
 	count: number;
 	/**
-	 * One of: article, book, email, pdf, video, podcast.
+	 * One of: article, book, pdf, podcast.
 	 */
 	item_type: string;
 };
@@ -1427,7 +1427,7 @@ export type SaveFromDeliveryBody = {
  */
 export type SaveUrlBody = {
 	/**
-	 * One of: article, book, email, pdf, video, podcast. Inferred from the URL when
+	 * One of: article, book, pdf, podcast. Inferred from the URL when
 	 * omitted.
 	 */
 	item_type?: string | null;

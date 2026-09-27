@@ -40,7 +40,6 @@
 		computeAvailableReaderTabs,
 		isBookReaderItem,
 		isReaderContentReady,
-		isTranscriptUnavailableVideo,
 		isSavedToLibrary,
 		readerFailurePresentation,
 		shouldReprocessReaderPreparation
@@ -123,10 +122,6 @@
 	const isBookItem = $derived(isBookReaderItem(item));
 	const readableReady = $derived(isReaderContentReady(item, assets));
 	const readerFailure = $derived(readerFailurePresentation($t, assets));
-	const transcriptUnavailable = $derived(isTranscriptUnavailableVideo(item, assets));
-	$effect(() => {
-		if (transcriptUnavailable) ttsOpen = false;
-	});
 	const savedToLibrary = $derived(isSavedToLibrary(item));
 	const availableTabs = $derived(computeAvailableReaderTabs(assets));
 	const resolvedActiveTab = $derived(
@@ -575,7 +570,6 @@
 				readerRetryOutcome={readerRetry.outcome}
 				readerRetryLabel={readerRetry.label}
 				readerRetryDisabled={readerRetry.disabled}
-				{transcriptUnavailable}
 				{assetUrls}
 				{readerHtmlContent}
 				{highlights}

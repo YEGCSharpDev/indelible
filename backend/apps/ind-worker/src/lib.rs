@@ -18,7 +18,6 @@ pub mod jobs {
     pub mod search;
     pub mod trash_cleanup;
     pub mod webhooks;
-    pub mod youtube;
 }
 
 pub mod recovery_handler;

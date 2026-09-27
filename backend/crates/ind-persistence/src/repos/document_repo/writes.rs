@@ -1,4 +1,4 @@
-use ind_application::repos::document::{DocumentRenderedMetadata, DocumentYoutubeEnrichment};
+use ind_application::repos::document::DocumentRenderedMetadata;
 use ind_application::{AppError, normalize_language_tag, text::strip_nul};
 use ind_domain::{
     Document, DocumentId, DocumentOriginType, DomainError, NewOriginDocument, NewUrlDocument,
@@ -168,70 +168,6 @@ impl PgDocumentRepository {
                 }));
             }
         }
-        Ok(())
-    }
-
-    pub(super) async fn apply_youtube_enrichment_impl(
-        &self,
-        user_id: UserId,
-        document_id: DocumentId,
-        enrichment: DocumentYoutubeEnrichment,
-    ) -> Result<(), AppError> {
-        let title = enrichment.title.as_deref().map(strip_nul);
-        let excerpt = enrichment.excerpt.as_deref().map(strip_nul);
-        let mut tx = self.pool.begin().await.map_err(map_document_error)?;
-
-        let result = sqlx::query!(
-            r#"UPDATE documents
-               SET document_type = 'video',
-                   title = COALESCE($3, title),
-                   excerpt = COALESCE($4, excerpt),
-                   lead_image_url = COALESCE($5, lead_image_url),
-                   updated_at = now()
-               WHERE id = $1 AND user_id = $2"#,
-            document_id.into_uuid(),
-            user_id.into_uuid(),
-            title,
-            excerpt,
-            enrichment.lead_image_url,
-        )
-        .execute(&mut *tx)
-        .await
-        .map_err(map_document_error)?;
-        if result.rows_affected() == 0 {
-            return Err(AppError::Domain(DomainError::NotFound {
-                entity: "Document",
-                id: document_id.to_string(),
-            }));
-        }
-
-        // Persist the video sidecar in the SAME transaction, and only after the document update
-        // succeeded (TASK-240). Skip the row entirely when both fields are absent to keep it sparse.
-        if enrichment.duration_seconds.is_some() || enrichment.youtube_channel_name.is_some() {
-            sqlx::query!(
-                r#"INSERT INTO document_video_metadata
-                       (document_id, duration_seconds, channel_name, created_at, updated_at)
-                   VALUES ($1, $2, $3, now(), now())
-                   ON CONFLICT (document_id) DO UPDATE
-                   SET duration_seconds = COALESCE(
-                           EXCLUDED.duration_seconds,
-                           document_video_metadata.duration_seconds
-                       ),
-                       channel_name = COALESCE(
-                           EXCLUDED.channel_name,
-                           document_video_metadata.channel_name
-                       ),
-                       updated_at = now()"#,
-                document_id.into_uuid(),
-                enrichment.duration_seconds,
-                enrichment.youtube_channel_name,
-            )
-            .execute(&mut *tx)
-            .await
-            .map_err(map_document_error)?;
-        }
-
-        tx.commit().await.map_err(map_document_error)?;
         Ok(())
     }
 }

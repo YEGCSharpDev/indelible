@@ -9,7 +9,6 @@
 		| '/library/articles'
 		| '/library/books'
 		| '/library/pdfs'
-		| '/library/videos'
 		| '/library/podcasts'
 		| '/tags'
 		| '/feed';
@@ -38,7 +37,6 @@
 		},
 		{ href: '/library/books', labelKey: 'library_nav_books', icon: 'books', countKey: 'book' },
 		{ href: '/library/pdfs', labelKey: 'library_nav_pdfs', icon: 'pdfs', countKey: 'pdf' },
-		{ href: '/library/videos', labelKey: 'library_nav_videos', icon: 'videos', countKey: 'video' },
 		{ href: '/tags', labelKey: 'common_tags', icon: 'tags' },
 		{ href: '/feed', labelKey: 'common_feed', icon: 'feed' }
 	];

@@ -47,7 +47,7 @@ describe('buildLibraryItemsQueryBody', () => {
 
 	it('does not duplicate explicit item type or triage state conditions', () => {
 		const draftConditions: FilterCondition[] = [
-			{ id: '1', field: 'item_type', op: 'eq', value: 'video' },
+			{ id: '1', field: 'item_type', op: 'eq', value: 'book' },
 			{ id: '2', field: 'triage_state', op: 'eq', value: 'archive' }
 		];
 
@@ -64,7 +64,7 @@ describe('buildLibraryItemsQueryBody', () => {
 		expect(body.filter_expression).toEqual({
 			type: 'and',
 			conditions: [
-				{ type: 'condition', field: 'item_type', op: 'eq', value: 'video' },
+				{ type: 'condition', field: 'item_type', op: 'eq', value: 'book' },
 				{ type: 'condition', field: 'triage_state', op: 'eq', value: 'archive' }
 			]
 		});

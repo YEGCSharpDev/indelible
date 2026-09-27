@@ -30,13 +30,6 @@ pub struct GenericJobEnvelope {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct YoutubeIngestDocumentJob {
-    pub document_id: DocumentId,
-    pub user_id: UserId,
-    pub url: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReprocessDocumentJob {
     pub document_id: DocumentId,
     pub user_id: UserId,

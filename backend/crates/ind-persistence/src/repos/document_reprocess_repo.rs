@@ -41,7 +41,6 @@ impl DocumentReprocessRepository for PgDocumentReprocessRepository {
         let exact_processing_keys = [
             dedupe_key.clone(),
             format!("{}:{}", job_types::FEED_PREPARE_DOCUMENT, job.document_id),
-            format!("{}:{}", job_types::DOCUMENT_YOUTUBE_INGEST, job.document_id),
         ];
         let attach_processing_pattern = format!(
             "{}:{}:%",

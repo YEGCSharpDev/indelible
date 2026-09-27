@@ -81,7 +81,7 @@ pub(crate) fn validate_highlight_locators_for_document(
         let compatible = match document_type {
             DocumentType::Pdf => matches!(locator, HighlightLocator::Pdf { .. }),
             DocumentType::Book => matches!(locator, HighlightLocator::Epub { .. }),
-            DocumentType::Article | DocumentType::Video | DocumentType::Podcast => {
+            DocumentType::Article | DocumentType::Podcast => {
                 matches!(locator, HighlightLocator::Html { .. })
             }
         };

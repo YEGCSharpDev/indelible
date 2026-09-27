@@ -283,16 +283,8 @@ id = "readwise-opml-routing"
 risk = "import-routing"
 owner_layer = "worker-integration"
 path = "apps/ind-worker/tests/readwise_import/scenarios.rs"
-test = "opml_and_youtube_inputs_route_to_their_authoritative_pipelines"
+test = "opml_inputs_route_to_their_authoritative_pipelines"
 rationale = "OPML imports create feed subscriptions without materializing library documents."
-
-[[invariants]]
-id = "readwise-youtube-routing"
-risk = "import-routing"
-owner_layer = "worker-integration"
-path = "apps/ind-worker/tests/readwise_import/scenarios.rs"
-test = "opml_and_youtube_inputs_route_to_their_authoritative_pipelines"
-rationale = "A YouTube URL must override an archived watch-page snapshot and enqueue the video pipeline exactly once."
 
 [[invariants]]
 id = "api-token-owner-scope"

@@ -18,11 +18,12 @@ describe('getVisibleLibraryFilterFields', () => {
 		);
 	});
 
-	it('does not offer podcasts or emails as a launch content-type filter', () => {
+	it('does not offer podcasts, emails, or videos as a launch content-type filter', () => {
 		const options = getLibraryFilterFieldDef('item_type').options ?? [];
 		const values = options.map((option) => option.value);
 
 		expect(values).not.toContain('podcast');
 		expect(values).not.toContain('email');
+		expect(values).not.toContain('video');
 	});
 });

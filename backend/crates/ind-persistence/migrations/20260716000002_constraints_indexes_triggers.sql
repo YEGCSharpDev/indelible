@@ -49,9 +49,6 @@ ALTER TABLE ONLY public.dead_letter_jobs
 ALTER TABLE ONLY public.document_origins
     ADD CONSTRAINT pk_document_origins PRIMARY KEY (user_id, origin_type, origin_id);
 
-ALTER TABLE ONLY public.document_video_metadata
-    ADD CONSTRAINT pk_document_video_metadata PRIMARY KEY (document_id);
-
 ALTER TABLE ONLY public.documents
     ADD CONSTRAINT pk_documents PRIMARY KEY (id);
 
@@ -560,9 +557,6 @@ ALTER TABLE ONLY public.document_origins
 
 ALTER TABLE ONLY public.document_playback_states
     ADD CONSTRAINT fk_document_playback_states_document FOREIGN KEY (document_id, user_id) REFERENCES public.documents(id, user_id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.document_video_metadata
-    ADD CONSTRAINT fk_document_video_metadata_document FOREIGN KEY (document_id) REFERENCES public.documents(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.documents
     ADD CONSTRAINT fk_documents_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;

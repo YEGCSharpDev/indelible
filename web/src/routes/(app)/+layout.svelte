@@ -5,7 +5,6 @@
 	import SaveUrlModal from '$lib/components/library/SaveUrlModal.svelte';
 	import UploadFileModal from '$lib/components/library/UploadFileModal.svelte';
 	import AddRssFeedModal from '$lib/components/library/AddRssFeedModal.svelte';
-	import YouTubeModal from '$lib/components/library/YouTubeModal.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import ShortcutHost from '$lib/components/shortcuts/ShortcutHost.svelte';
@@ -63,6 +62,5 @@
 	{#if modal.active === 'url'}<SaveUrlModal />{/if}
 	{#if modal.active === 'upload'}<UploadFileModal />{/if}
 	{#if modal.active === 'rss'}<AddRssFeedModal />{/if}
-	{#if modal.active === 'youtube'}<YouTubeModal />{/if}
 	{#if helpOpen}<ShortcutHelpOverlay onClose={() => (helpOpen = false)} />{/if}
 {/if}

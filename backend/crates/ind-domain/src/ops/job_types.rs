@@ -1,4 +1,3 @@
-pub const DOCUMENT_YOUTUBE_INGEST: &str = "document.youtube_ingest";
 pub const DOCUMENT_ATTACH_PROVIDED_CONTENT: &str = "document.attach_provided_content";
 pub const DOCUMENT_REPROCESS: &str = "document.reprocess";
 pub const DOCUMENT_TOC_ENSURE: &str = "document.toc.ensure";

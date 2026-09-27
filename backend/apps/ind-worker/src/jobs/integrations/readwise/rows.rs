@@ -1,14 +1,11 @@
 use std::collections::HashMap;
 
-use chrono::Utc;
 use ind_application::AppError;
 use ind_application::handlers::feed_identity::document_type_for;
 use ind_application::repos::document_lifecycle::{
-    MaterializeIdentity, MaterializeOrigin, MaterializeSideEffects, SaveContext, SaveSideEffectsFn,
-    SaveToLibraryOutcome, SaveToLibraryRequest,
+    MaterializeIdentity, MaterializeOrigin, SaveToLibraryOutcome, SaveToLibraryRequest,
 };
 use ind_application::repos::event::MutationSideEffects;
-use ind_application::repos::lifecycle_outbox::youtube_ingest_document_outbox;
 use ind_domain::{
     CanonicalizationConfig, ContentSource, DocumentId, DocumentOriginType, NewOriginDocument,
     NewUrlDocument, TagSource, TriageState, UserId, canonicalize_url, deterministic_origin_id,
@@ -82,14 +79,9 @@ pub(super) async fn process_csv_row(
     // entry's saved_at is set by `save_to_library` at import time.
     let _ = parse_readwise_date(&row.saved_date);
 
-    // YouTube HTML snapshots are useless (just the watch page), so those route through normal URL
-    // preparation rather than attaching the snapshot.
-    let is_youtube = url
-        .as_deref()
-        .is_some_and(ind_application::dispatch::is_youtube_url);
-    let attach_entry = if is_youtube { None } else { zip_entry };
+    let attach_entry = zip_entry;
     // TASK-241: per-row provenance recorded on import_job_items. zip_path is the snapshot the
-    // document content came from (none for YouTube, whose readable asset is the transcript);
+    // document content came from;
     // tag_parse_errors preserves malformed-tag diagnostics instead of silently dropping them.
     let diagnostics = RowDiagnostics {
         zip_path: attach_entry.map(|entry| entry.path.clone()),
@@ -130,16 +122,14 @@ pub(super) async fn process_csv_row(
                 lead_image_url: None,
                 thumbnail_url: None,
             };
-            // A provided snapshot is attached as the readable asset (no render); a YouTube URL is
-            // ingested by `document.youtube_ingest` (transcript-enriched), so it must not trigger
-            // the generic readable-render prepare pipeline either. Otherwise the content-gated AI
-            // pipeline prepares readable content from the URL.
+            // A provided snapshot is attached as the readable asset (no render);
+            // otherwise the content-gated AI pipeline prepares readable content from the URL.
             (
                 MaterializeIdentity::Url {
                     document,
                     origin: Some(readwise_origin),
                 },
-                attach_entry.is_none() && !is_youtube,
+                attach_entry.is_none(),
             )
         }
         None => {
@@ -168,33 +158,6 @@ pub(super) async fn process_csv_row(
         }
     };
 
-    let side_effects: Option<SaveSideEffectsFn> = if is_youtube {
-        url.clone().map(|youtube_url| {
-            let origin_document_for_enqueue = preexisting_origin_document_id;
-            Box::new(move |ctx: &SaveContext<'_>| {
-                let should_enqueue = !ctx.already_active
-                    || origin_document_for_enqueue.is_some_and(|id| id == ctx.document.id);
-                let outbox = should_enqueue
-                    .then(|| {
-                        youtube_ingest_document_outbox(
-                            ctx.document.id,
-                            user_id,
-                            youtube_url.clone(),
-                            Utc::now(),
-                        )
-                    })
-                    .into_iter()
-                    .collect();
-                MaterializeSideEffects {
-                    events: Vec::new(),
-                    outbox,
-                }
-            }) as SaveSideEffectsFn
-        })
-    } else {
-        None
-    };
-
     let outcome = ctx
         .lifecycle
         .save_to_library(SaveToLibraryRequest {
@@ -204,7 +167,7 @@ pub(super) async fn process_csv_row(
             hide_deliveries: false,
             enqueue_engaged_ai,
             restore_policy: Default::default(),
-            side_effects,
+            side_effects: None,
         })
         .await
         .map_err(ProcessRowResult::Failed)?;

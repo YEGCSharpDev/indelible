@@ -28,7 +28,7 @@ fn parser_table_covers_text_filters_negation_and_malformed_fallback() {
 fn fts_routing_preserves_email_entity_and_source_filters() {
     let parsed = parse_query(
         "tag:Research -tag:Old collection:Inbox -collection:Archive \
-         type:Article -type:Video author:Jane -author:John url:example.com -url:evil \
+         type:Article -type:Book author:Jane -author:John url:example.com -url:evil \
          entity:\"Elon Musk\" -entity:OpenAI sender:NEWS@Example.COM \
          -sender:other@example.com sender_domain:Example.COM -list:other \
          subject:Brief has:unsubscribe -is:blocked is:feed before:2026-07-01 \
@@ -43,7 +43,7 @@ fn fts_routing_preserves_email_entity_and_source_filters() {
     assert_eq!(query.collection_values, ["inbox"]);
     assert_eq!(query.negated_collection_values, ["archive"]);
     assert_eq!(query.type_values, ["article"]);
-    assert_eq!(query.negated_type_values, ["video"]);
+    assert_eq!(query.negated_type_values, ["book"]);
     assert_eq!(query.author_values, ["jane"]);
     assert_eq!(query.negated_author_values, ["john"]);
     assert_eq!(query.url_values, ["example.com"]);

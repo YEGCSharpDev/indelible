@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 use ind_domain::{
     ArchiveAssetKind, AttachProvidedContentJob, DocumentId, EmbedDocumentJob,
     ExtractEntitiesDocumentJob, PrepareDocumentJob, SearchReindexDocumentJob,
-    SuggestTagsDocumentJob, SummarizeDocumentJob, UserId, YoutubeIngestDocumentJob, job_types,
+    SuggestTagsDocumentJob, SummarizeDocumentJob, UserId, job_types,
 };
 
 /// Payload for a single job-outbox entry committed atomically with a lifecycle mutation.
@@ -193,37 +193,6 @@ pub fn feed_prepare_document_outbox(
         dedupe_key: Some(format!(
             "{}:{document_id}",
             job_types::FEED_PREPARE_DOCUMENT
-        )),
-        available_at,
-    }
-}
-
-/// Document-keyed YouTube transcript ingest (TASK-240). Enqueued atomically with the save that
-/// routes a YouTube URL away from the generic readable render (extension reader/full-archive save
-/// side-effect) and by the worker prepare choke point / Readwise import. All producers share the
-/// dedupe key so overlapping routes collapse to one ingest.
-pub fn youtube_ingest_document_outbox(
-    document_id: DocumentId,
-    user_id: UserId,
-    url: String,
-    available_at: DateTime<Utc>,
-) -> OutboxEntry {
-    #[expect(
-        clippy::expect_used,
-        reason = "serializing a plain owned struct with no map keys or non-string keys into serde_json::Value cannot fail"
-    )]
-    let payload = serde_json::to_value(YoutubeIngestDocumentJob {
-        document_id,
-        user_id,
-        url,
-    })
-    .expect("YoutubeIngestDocumentJob serializes");
-    OutboxEntry {
-        job_type: job_types::DOCUMENT_YOUTUBE_INGEST.into(),
-        payload,
-        dedupe_key: Some(format!(
-            "{}:{document_id}",
-            job_types::DOCUMENT_YOUTUBE_INGEST
         )),
         available_at,
     }

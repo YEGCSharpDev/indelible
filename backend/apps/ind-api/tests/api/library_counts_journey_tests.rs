@@ -53,7 +53,7 @@ async fn library_counts_bucket_read_state_and_item_types_per_scope() {
     let (finished_entry, finished_doc) =
         save(&client, "https://example.com/counts/finished", "article").await;
     let (_, started_doc) = save(&client, "https://example.com/counts/started", "article").await;
-    save(&client, "https://example.com/counts/untouched", "video").await;
+    save(&client, "https://example.com/counts/untouched", "book").await;
 
     record_progress(&client, &finished_doc, 100.0).await;
     record_progress(&client, &started_doc, 40.0).await;
@@ -64,7 +64,7 @@ async fn library_counts_bucket_read_state_and_item_types_per_scope() {
     assert_eq!(counts["reading"], 1);
     assert_eq!(counts["unread"], 1);
     assert_eq!(item_type_count(&counts, "article"), 2);
-    assert_eq!(item_type_count(&counts, "video"), 1);
+    assert_eq!(item_type_count(&counts, "book"), 1);
     assert_eq!(item_type_count(&counts, "pdf"), 0);
 
     assert_status(

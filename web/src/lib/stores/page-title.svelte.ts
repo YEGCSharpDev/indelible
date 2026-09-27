@@ -11,7 +11,6 @@ const ROUTE_TITLE_RULES: Rule[] = [
 	{ pattern: /^\/library\/articles(?:\/|$)/, key: 'library_nav_articles' },
 	{ pattern: /^\/library\/books(?:\/|$)/, key: 'library_nav_books' },
 	{ pattern: /^\/library\/pdfs(?:\/|$)/, key: 'library_nav_pdfs' },
-	{ pattern: /^\/library\/videos(?:\/|$)/, key: 'library_nav_videos' },
 	{ pattern: /^\/library(?:\/|$)/, key: 'common_library' },
 	{ pattern: /^\/feed(?:\/|$)/, key: 'common_feed' },
 	{ pattern: /^\/search(?:\/|$)/, key: 'common_search' },

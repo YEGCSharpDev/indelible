@@ -43,7 +43,6 @@ pub struct CaptureJobDeps {
     pub object_storage: Option<Arc<dyn ObjectStorage>>,
     pub outbox_repo: Arc<dyn JobOutboxRepository>,
     pub egress_policy: ind_egress::EgressPolicy,
-    pub youtube_player_base_url: Option<String>,
     pub feed: FeedJobDeps,
 }
 
@@ -155,7 +154,6 @@ impl WorkerContext {
             object_storage: self.object_storage.clone(),
             outbox_repo: self.outbox_repo.clone(),
             egress_policy: self.egress_policy.clone(),
-            youtube_player_base_url: self.youtube_player_base_url.clone(),
             feed: self.feed_jobs(),
         }
     }

@@ -383,11 +383,7 @@ impl PgSearchRepository {
                             )
                         ) * 0.15
                     ) AS final_score,
-                    CASE fs.feed_type
-                        WHEN 'youtube' THEN 'video'
-                        WHEN 'podcast' THEN 'article'
-                        ELSE 'article'
-                    END AS item_type,
+                    'article' AS item_type,
                     fse.url AS url,
                     fd.delivered_at AS saved_at,
                     fd.updated_at,
@@ -416,19 +412,11 @@ impl PgSearchRepository {
                   AND cardinality($14::text[]) >= 0
                   AND (
                         cardinality($7::text[]) = 0
-                        OR CASE fs.feed_type
-                            WHEN 'youtube' THEN 'video'
-                            WHEN 'podcast' THEN 'article'
-                            ELSE 'article'
-                        END = ANY($7::text[])
+                        OR 'article' = ANY($7::text[])
                   )
                   AND (
                         cardinality($8::text[]) = 0
-                        OR CASE fs.feed_type
-                            WHEN 'youtube' THEN 'video'
-                            WHEN 'podcast' THEN 'article'
-                            ELSE 'article'
-                        END <> ALL($8::text[])
+                        OR 'article' <> ALL($8::text[])
                   )
                   AND (
                         cardinality($9::text[]) = 0

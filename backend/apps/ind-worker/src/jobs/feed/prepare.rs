@@ -55,21 +55,6 @@ pub async fn handle_prepare_document(
         return Ok(());
     }
 
-    // A YouTube URL must be transcript-ingested, not archived as its watch page. Route it to
-    // document.youtube_ingest instead of the generic render. This is the single choke point every
-    // feed delivery / read-ahead / extension quick_save prepare passes through; the dedupe key
-    // collapses overlapping enqueues.
-    if ind_application::dispatch::is_youtube_url(&job.url) {
-        crate::jobs::youtube::enqueue_youtube_ingest_document(
-            ctx,
-            job.user_id,
-            job.document_id,
-            &job.url,
-        )
-        .await?;
-        return Ok(());
-    }
-
     // The renderer namespaces storage by the subject UUID; the document id is that subject for
     // document-keyed preparation (collision-safe: net-new documents have fresh ids).
     let result = match ctx
