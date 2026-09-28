@@ -348,7 +348,6 @@
 						bind:value={formName}
 						placeholder={$t('tag_name_placeholder')}
 						required
-						autofocus
 					/>
 				</label>
 				<div class="field">

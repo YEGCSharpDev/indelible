@@ -31,8 +31,6 @@ fun NavGraphBuilder.profileRoutes(
     feedManagementViewModel: FeedManagementViewModel,
     accountViewModel: AccountViewModel,
     accountRepository: AccountRepository,
-    ingestEmail: String?,
-    ingestLibraryEmail: String?,
     appLanguageSettings: AppLanguageSettings?,
 ) {
     composable(MainRoutes.PROFILE_EDIT) {
@@ -50,8 +48,6 @@ fun NavGraphBuilder.profileRoutes(
     }
     composable(MainRoutes.PROFILE_INTEGRATIONS) {
         IntegrationsScreen(
-            ingestEmail = ingestEmail,
-            ingestLibraryEmail = ingestLibraryEmail,
             onNavigateBack = { navController.popBackStack() },
             onNavigateToAddLibrary = { navController.navigate(MainRoutes.PROFILE_ADD_LIBRARY) },
             onNavigateToAddFeed = { navController.navigate(MainRoutes.PROFILE_ADD_FEED) },
@@ -61,14 +57,12 @@ fun NavGraphBuilder.profileRoutes(
     composable(MainRoutes.PROFILE_ADD_LIBRARY) {
         AddLibraryScreen(
             viewModel = addLibraryViewModel,
-            ingestLibraryEmail = ingestLibraryEmail,
             onNavigateBack = { navController.popBackStack() },
         )
     }
     composable(MainRoutes.PROFILE_ADD_FEED) {
         AddFeedScreen(
             viewModel = addFeedViewModel,
-            ingestEmail = ingestEmail,
             onNavigateBack = { navController.popBackStack() },
         )
     }

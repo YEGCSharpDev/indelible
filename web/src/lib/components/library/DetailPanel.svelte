@@ -13,8 +13,12 @@
 	}
 
 	let { item, collectionId = null, collectionName = null }: Props = $props();
-	void collectionId;
-	void collectionName;
+	$effect(() => {
+		void collectionId;
+	});
+	$effect(() => {
+		void collectionName;
+	});
 
 	const displayItem = $derived(item);
 

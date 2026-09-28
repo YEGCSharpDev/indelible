@@ -22,7 +22,6 @@
 		onLoadMore: () => void | Promise<void>;
 		onSelect: (id: string | null) => void;
 		onOpen: (result: SearchResultResponse) => void | Promise<void>;
-		onSenderClick: (canonicalAddr: string) => void;
 		onDetail?: (id: string) => void;
 	}
 
@@ -41,7 +40,6 @@
 		onLoadMore,
 		onSelect,
 		onOpen,
-		onSenderClick,
 		onDetail
 	}: Props = $props();
 </script>
@@ -66,7 +64,6 @@
 		{onLoadMore}
 		{onSelect}
 		{onOpen}
-		{onSenderClick}
 		{onDetail}
 	/>
 </div>

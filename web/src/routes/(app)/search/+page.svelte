@@ -113,13 +113,6 @@
 		inputEl?.focus();
 	}
 
-	function handleSenderClick(canonicalAddr: string) {
-		const q = `sender:${canonicalAddr}`;
-		search.query = q;
-		updateUrl(q);
-		search.submitSearch(q);
-	}
-
 	function handleSuggestionSelect(suggestion: SearchSuggestionResponse) {
 		search.applySuggestion(suggestion);
 		const q = buildQuery(search.query);
@@ -253,7 +246,6 @@
 				onLoadMore={() => search.loadMore()}
 				onSelect={(id) => search.setSelectedId(id)}
 				onOpen={openSearchResult}
-				onSenderClick={handleSenderClick}
 				onDetail={vp.isMobile ? openResultDetail : undefined}
 			/>
 		{:else}

@@ -108,6 +108,7 @@
 
 	let progressSaver = $state<ReturnType<typeof createProgressSaver> | null>(null);
 	let currentCharOffset = $state(0);
+	// svelte-ignore state_referenced_locally
 	let progress = $state(item.progress_percent ?? 0);
 	let backHref = $state<string | null>(null);
 

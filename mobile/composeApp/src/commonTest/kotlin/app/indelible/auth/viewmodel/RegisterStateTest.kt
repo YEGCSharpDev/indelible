@@ -72,7 +72,7 @@ class RegisterStateTest {
         val state = RegisterState()
         val validated = state.validate()
         assertNotNull(validated.displayNameError)
-        assertNotNull(validated.emailError)
+        assertNotNull(validated.usernameError)
         assertNotNull(validated.passwordError)
         assertNotNull(validated.confirmPasswordError)
     }
@@ -82,13 +82,13 @@ class RegisterStateTest {
         val state =
             RegisterState(
                 displayName = "Test User",
-                email = "user@example.com",
+                username = "user@example.com",
                 password = "password123",
                 confirmPassword = "password123",
             )
         val validated = state.validate()
         assertNull(validated.displayNameError)
-        assertNull(validated.emailError)
+        assertNull(validated.usernameError)
         assertNull(validated.passwordError)
         assertNull(validated.confirmPasswordError)
     }
@@ -98,7 +98,7 @@ class RegisterStateTest {
         val state =
             RegisterState(
                 displayName = "Test User",
-                email = "user@example.com",
+                username = "user@example.com",
                 password = "password123",
                 confirmPassword = "password123",
             )
@@ -110,7 +110,7 @@ class RegisterStateTest {
         val state =
             RegisterState(
                 displayName = "",
-                email = "user@example.com",
+                username = "user@example.com",
                 password = "password123",
                 confirmPassword = "password123",
             )
@@ -122,7 +122,7 @@ class RegisterStateTest {
         val state =
             RegisterState(
                 displayName = "Test User",
-                email = "user@example.com",
+                username = "user@example.com",
                 password = "password123",
                 confirmPassword = "different",
             )
@@ -134,7 +134,7 @@ class RegisterStateTest {
         val state =
             RegisterState(
                 displayName = "Test User",
-                email = "user@example.com",
+                username = "user@example.com",
                 password = "password123",
                 confirmPassword = "password123",
                 serverError = UiMessage(Res.string.auth_password_required),
@@ -148,7 +148,7 @@ class RegisterStateTest {
         val state =
             RegisterState(
                 displayName = "  ",
-                email = "user@example.com",
+                username = "user@example.com",
                 password = "password123",
                 confirmPassword = "password123",
             )

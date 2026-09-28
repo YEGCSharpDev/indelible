@@ -17,7 +17,6 @@ import app.indelible.ui.components.IndelibleTextField
 import app.indelible.ui.theme.IndelibleSpacing
 import indelible.composeapp.generated.resources.Res
 import indelible.composeapp.generated.resources.common_continue
-import indelible.composeapp.generated.resources.onboarding_add_content_email_tip
 import indelible.composeapp.generated.resources.onboarding_add_content_share_tip
 import indelible.composeapp.generated.resources.onboarding_add_content_subtitle
 import indelible.composeapp.generated.resources.onboarding_add_content_title
@@ -63,23 +62,7 @@ fun AddContentStep(
             )
         }
 
-        Spacer(modifier = Modifier.height(IndelibleSpacing.step16))
-
-        Card(
-            colors =
-                CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                ),
-            shape = MaterialTheme.shapes.medium,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(
-                text = stringResource(Res.string.onboarding_add_content_email_tip),
-                style = MaterialTheme.typography.bodyMedium, // subheadline: 13sp/400
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(IndelibleSpacing.step16),
-            )
-        }
+        
 
         Spacer(modifier = Modifier.height(IndelibleSpacing.step32))
 

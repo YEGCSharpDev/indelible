@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/svelte';
 import SearchResultRow from '$lib/components/search/SearchResultRow.svelte';
 import type { SearchResultResponse } from '$lib/api/generated/types.gen';
 
@@ -17,87 +17,17 @@ function baseResult(overrides: Partial<SearchResultResponse> = {}): SearchResult
 	};
 }
 
-describe('SearchResultRow sender chip', () => {
-	it('does not render a sender chip when the result has no sender', () => {
+describe('SearchResultRow', () => {
+	it('renders correctly', () => {
 		render(SearchResultRow, {
 			props: {
 				result: baseResult(),
 				selected: false,
 				onSelect: () => {},
-				onOpen: () => {},
-				onSenderClick: () => {}
+				onOpen: () => {}
 			}
 		});
-		expect(screen.queryByTestId('search-sender-chip')).toBeNull();
-	});
-
-	it('renders the sender display_name when present', () => {
-		render(SearchResultRow, {
-			props: {
-				result: baseResult({
-					sender_id: 'snd_abc',
-					sender: {
-						id: 'snd_abc',
-						canonical_addr: 'news@example.com',
-						display_name: 'Example Daily',
-						blocked: false
-					}
-				}),
-				selected: false,
-				onSelect: () => {},
-				onOpen: () => {},
-				onSenderClick: () => {}
-			}
-		});
-		const chip = screen.getByTestId('search-sender-chip');
-		expect(chip.textContent).toContain('Example Daily');
-	});
-
-	it('falls back to canonical_addr when display_name is missing', () => {
-		render(SearchResultRow, {
-			props: {
-				result: baseResult({
-					sender_id: 'snd_xyz',
-					sender: {
-						id: 'snd_xyz',
-						canonical_addr: 'news@example.com',
-						blocked: false
-					}
-				}),
-				selected: false,
-				onSelect: () => {},
-				onOpen: () => {},
-				onSenderClick: () => {}
-			}
-		});
-		const chip = screen.getByTestId('search-sender-chip');
-		expect(chip.textContent).toContain('news@example.com');
-	});
-
-	it('invokes onSenderClick with canonical_addr and stops propagation to row open', async () => {
-		const onOpen = vi.fn();
-		const onSenderClick = vi.fn();
-		render(SearchResultRow, {
-			props: {
-				result: baseResult({
-					sender_id: 'snd_abc',
-					sender: {
-						id: 'snd_abc',
-						canonical_addr: 'news@example.com',
-						display_name: 'Example Daily',
-						blocked: false
-					}
-				}),
-				selected: false,
-				onSelect: () => {},
-				onOpen,
-				onSenderClick
-			}
-		});
-		const chip = screen.getByTestId('search-sender-chip');
-		await fireEvent.click(chip);
-		expect(onSenderClick).toHaveBeenCalledTimes(1);
-		expect(onSenderClick).toHaveBeenCalledWith('news@example.com');
-		expect(onOpen).not.toHaveBeenCalled();
+		const title = screen.getByText('Test Newsletter');
+		expect(title).toBeDefined();
 	});
 });

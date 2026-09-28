@@ -124,7 +124,6 @@ private fun contentTypeBg(contentType: String): Color {
         "book" -> success.copy(alpha = 0.12f)
         "pdf" -> error.copy(alpha = 0.12f)
         "video" -> warning.copy(alpha = 0.12f)
-        "email" -> warning.copy(alpha = 0.10f)
         "podcast" -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
@@ -136,7 +135,6 @@ private fun contentTypeEmoji(contentType: String): String =
         "book" -> "\uD83D\uDCD6"
         "pdf" -> "\uD83D\uDCC4"
         "video" -> "\uD83C\uDFAC"
-        "email" -> "\u2709\uFE0F"
         "podcast" -> "\uD83C\uDFA7"
         else -> "\uD83D\uDCF0"
     }

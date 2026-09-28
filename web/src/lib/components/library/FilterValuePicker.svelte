@@ -105,7 +105,6 @@
 							class="value-text-input"
 							placeholder={$t('library_filter_search_tags')}
 							value={typeof condition.value === 'string' ? condition.value : ''}
-							autofocus
 							oninput={(event) => {
 								const value = (event.target as HTMLInputElement).value;
 								onValueChange(value);
@@ -156,7 +155,6 @@
 							class="value-text-input"
 							placeholder={$t('library_filter_search_collections')}
 							value={typeof condition.value === 'string' ? condition.value : ''}
-							autofocus
 							oninput={(event) => onValueChange((event.target as HTMLInputElement).value)}
 						/>
 						{#if typeof condition.value === 'string' && condition.value}
@@ -200,7 +198,6 @@
 							class="value-text-input"
 							placeholder={$t('library_filter_enter_value')}
 							value={typeof condition.value === 'string' ? condition.value : ''}
-							autofocus
 							oninput={(event) => onValueChange((event.target as HTMLInputElement).value)}
 							onkeydown={(event) => {
 								if (event.key === 'Enter') onClose();
@@ -227,7 +224,6 @@
 							class="value-text-input"
 							placeholder="0"
 							value={typeof condition.value === 'number' ? condition.value : 0}
-							autofocus
 							oninput={(event) => {
 								onValueChange(parseInt((event.target as HTMLInputElement).value) || 0);
 							}}

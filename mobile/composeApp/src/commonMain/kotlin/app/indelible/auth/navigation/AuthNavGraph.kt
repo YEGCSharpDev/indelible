@@ -10,11 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import app.indelible.auth.server.ServerUrlForm
 import app.indelible.auth.ui.ConnectServerScreen
-import app.indelible.auth.ui.ForgotPasswordScreen
 import app.indelible.auth.ui.LoginScreen
 import app.indelible.auth.ui.RegisterScreen
-import app.indelible.auth.ui.VerifyEmailScreen
-import app.indelible.auth.viewmodel.AuthState
 import app.indelible.auth.viewmodel.AuthViewModel
 import app.indelible.auth.viewmodel.ConnectServerViewModel
 import app.indelible.auth.viewmodel.ServerSetupState
@@ -24,10 +21,6 @@ object AuthRoutes {
     const val CONNECT_SERVER = "connect_server"
     const val LOGIN = "login"
     const val REGISTER = "register"
-    const val FORGOT_PASSWORD = "forgot_password"
-    const val VERIFY_EMAIL = "verify_email/{email}"
-
-    fun verifyEmail(email: String): String = "verify_email/$email"
 }
 
 @Composable
@@ -42,7 +35,6 @@ fun AuthNavigation(
     }
 
     val navController = rememberNavController()
-    val authState by viewModel.authState.collectAsState()
     val setupRequired by viewModel.setupRequired.collectAsState()
     // Resolved once when setup leaves Unknown; later transitions navigate explicitly.
     val startDestination =
@@ -51,21 +43,6 @@ fun AuthNavigation(
         }
     val serverHost =
         (serverSetup as? ServerSetupState.Configured)?.let { ServerUrlForm.displayHost(it.serverUrl) }
-
-    val verificationEmail =
-        when (val state = authState) {
-            is AuthState.NeedsVerification -> state.user.email
-            else -> null
-        }
-
-    LaunchedEffect(authState) {
-        if (authState is AuthState.NeedsVerification) {
-            val email = (authState as AuthState.NeedsVerification).user.email
-            navController.navigate(AuthRoutes.verifyEmail(email)) {
-                launchSingleTop = true
-            }
-        }
-    }
 
     LaunchedEffect(setupRequired) {
         if (setupRequired) {
@@ -98,10 +75,6 @@ fun AuthNavigation(
                     viewModel.resetRegisterState()
                     navController.navigate(AuthRoutes.REGISTER)
                 },
-                onNavigateToForgotPassword = {
-                    viewModel.resetForgotPasswordState()
-                    navController.navigate(AuthRoutes.FORGOT_PASSWORD)
-                },
                 serverHost = serverHost,
                 onChangeServer = {
                     navController.navigate(AuthRoutes.CONNECT_SERVER) {
@@ -117,21 +90,6 @@ fun AuthNavigation(
                     viewModel.resetLoginState()
                     navController.popBackStack(AuthRoutes.LOGIN, inclusive = false)
                 },
-            )
-        }
-        composable(AuthRoutes.FORGOT_PASSWORD) {
-            ForgotPasswordScreen(
-                viewModel = viewModel,
-                onNavigateToLogin = {
-                    viewModel.resetLoginState()
-                    navController.popBackStack(AuthRoutes.LOGIN, inclusive = false)
-                },
-            )
-        }
-        composable(AuthRoutes.VERIFY_EMAIL) {
-            VerifyEmailScreen(
-                viewModel = viewModel,
-                email = verificationEmail ?: "",
             )
         }
     }

@@ -10,11 +10,10 @@
 		selected: boolean;
 		onSelect: () => void;
 		onOpen: () => void;
-		onSenderClick?: (canonicalAddr: string) => void;
 		onDetail?: () => void;
 	}
 
-	let { result, selected, onSelect, onOpen, onSenderClick, onDetail }: Props = $props();
+	let { result, selected, onSelect, onOpen, onDetail }: Props = $props();
 
 	let hovered = $state(false);
 
@@ -87,9 +86,6 @@
 			? $t('search_result_chapter', { values: { title: result.section.title } })
 			: null
 	);
-	const senderLabel = $derived(
-		false ? (false.display_name ?? false.canonical_addr) : null
-	);
 </script>
 
 <div
@@ -141,40 +137,6 @@
 			{/if}
 			{#if sectionLabel}
 				<span class="result-meta">{sectionLabel}</span>
-			{/if}
-			{#if false && senderLabel}
-				<button
-					type="button"
-					class="sender-chip"
-					data-testid="search-sender-chip"
-					title={$t('search_filter_by_sender', {
-						values: { sender: false.canonical_addr }
-					})}
-					onclick={(e) => {
-						e.stopPropagation();
-						onSenderClick?.(false!.canonical_addr);
-					}}
-					onkeydown={(e) => {
-						if (e.key === 'Enter' || e.key === ' ') {
-							e.stopPropagation();
-						}
-					}}
-				>
-					<svg
-						class="sender-chip-icon"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="1.8"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						aria-hidden="true"
-					>
-						<rect x="3" y="5" width="18" height="14" rx="2" />
-						<path d="m3 7 9 6 9-6" />
-					</svg>
-					<span class="sender-chip-label">{senderLabel}</span>
-				</button>
 			{/if}
 			<span class="result-meta result-timestamp-inline">{timestamp}</span>
 		</div>
@@ -347,6 +309,7 @@
 		line-height: 1.45;
 		color: var(--text-secondary);
 		display: -webkit-box;
+		line-clamp: 2;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;

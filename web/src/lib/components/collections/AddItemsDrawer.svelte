@@ -36,10 +36,11 @@
 	let loadingItems = $state(true);
 	let searchQuery = $state('');
 	let activeTypeFilter = $state<ItemType | null>(null);
+	// svelte-ignore state_referenced_locally
 	let selectedIds = $state<Set<string>>(new Set(currentItemIds));
 	let saving = $state(false);
 
-	const originalIds = new Set(currentItemIds);
+	let originalIds = $derived(new Set(currentItemIds));
 
 	const filteredItems = $derived.by(() => {
 		let result = allItems;
@@ -143,6 +144,7 @@
 
 <div
 	class="drawer-overlay"
+	tabindex="-1"
 	onkeydown={handleKeydown}
 	role="dialog"
 	aria-modal="true"
@@ -186,7 +188,6 @@
 					class="search-input"
 					placeholder={$t('collection_search_library')}
 					bind:value={searchQuery}
-					autofocus
 				/>
 			</div>
 		</div>
@@ -633,12 +634,12 @@
 		opacity: 0.9;
 	}
 
-	.btn-secondary {
+	:global(.btn-secondary) {
 		background: var(--fill-secondary);
 		color: var(--text-primary);
 	}
 
-	.btn-secondary:hover {
+	:global(.btn-secondary:hover) {
 		background: var(--fill-hover);
 	}
 </style>

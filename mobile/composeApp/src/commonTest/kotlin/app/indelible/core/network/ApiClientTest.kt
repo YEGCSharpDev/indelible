@@ -350,7 +350,6 @@ class ApiClientTest {
                             authResponseJson(
                                 accessToken = "reg-token",
                                 refreshToken = "reg-refresh",
-                                emailVerified = false,
                                 onboardingCompleted = false,
                             ),
                         status = HttpStatusCode.OK,
@@ -365,26 +364,6 @@ class ApiClientTest {
             val response = result.getOrThrow()
             assertEquals("reg-token", response.accessToken)
             assertEquals("reg-refresh", response.refreshToken)
-            assertFalse(response.emailVerified)
-        }
-
-    @Test
-    fun forgotPasswordSucceeds() =
-        runTest {
-            val tokenStorage = InMemoryTokenStorage()
-            val engine =
-                MockEngine {
-                    respond(
-                        content = """{"message":"Reset link sent"}""",
-                        status = HttpStatusCode.OK,
-                        headers = jsonHeaders,
-                    )
-                }
-
-            val apiClient = ApiClient(tokenStorage, engine = engine)
-            val result = apiClient.forgotPassword("user@example.com")
-
-            assertTrue(result.isSuccess)
         }
 
     @Test
@@ -458,16 +437,15 @@ class ApiClientTest {
     private fun authResponseJson(
         accessToken: String,
         refreshToken: String,
-        emailVerified: Boolean = true,
+        username: String = "testuser",
         onboardingCompleted: Boolean = true,
         expiresAt: Long = FAR_FUTURE_EXPIRY,
     ) = """
         {
             "id": "usr_01ABCDEF",
             "object": "user",
-            "email": "user@example.com",
+            "username": "$username",
             "display_name": "Test",
-            "email_verified": $emailVerified,
             "onboarding_completed": $onboardingCompleted,
             "access_token": "$accessToken",
             "refresh_token": "$refreshToken",
@@ -492,9 +470,8 @@ class ApiClientTest {
         {
             "id": "usr_01ABCDEF",
             "object": "user",
-            "email": "user@example.com",
+            "username": "testuser",
             "display_name": "Test",
-            "email_verified": true,
             "onboarding_completed": true,
             "has_password": true,
             "locale": "en",

@@ -24,8 +24,7 @@ import app.indelible.core.i18n.resolve
 import app.indelible.ui.theme.IndelibleSpacing
 import indelible.composeapp.generated.resources.Res
 import indelible.composeapp.generated.resources.auth_change_server
-import indelible.composeapp.generated.resources.auth_email_label
-import indelible.composeapp.generated.resources.auth_forgot_password
+import indelible.composeapp.generated.resources.auth_username_label
 import indelible.composeapp.generated.resources.auth_password_label
 import indelible.composeapp.generated.resources.auth_sign_in
 import indelible.composeapp.generated.resources.auth_sign_in_prompt
@@ -37,7 +36,6 @@ import org.jetbrains.compose.resources.stringResource
 fun LoginScreen(
     viewModel: AuthViewModel,
     onNavigateToRegister: () -> Unit,
-    onNavigateToForgotPassword: () -> Unit,
     serverHost: String? = null,
     onChangeServer: (() -> Unit)? = null,
 ) {
@@ -94,10 +92,10 @@ fun LoginScreen(
         }
 
         AuthTextField(
-            value = loginState.email,
-            onValueChange = viewModel::updateLoginEmail,
-            label = stringResource(Res.string.auth_email_label),
-            error = loginState.emailError?.resolve(),
+            value = loginState.username,
+            onValueChange = viewModel::updateLoginUsername,
+            label = stringResource(Res.string.auth_username_label),
+            error = loginState.usernameError?.resolve(),
             keyboardType = KeyboardType.Email,
         )
 
@@ -112,15 +110,6 @@ fun LoginScreen(
             imeAction = ImeAction.Done,
             onImeAction = { viewModel.login() },
         )
-
-        Spacer(modifier = Modifier.height(IndelibleSpacing.step8))
-
-        TextButton(
-            onClick = onNavigateToForgotPassword,
-            modifier = Modifier.align(Alignment.End),
-        ) {
-            Text(stringResource(Res.string.auth_forgot_password))
-        }
 
         Spacer(modifier = Modifier.height(IndelibleSpacing.step8))
 

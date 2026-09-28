@@ -75,7 +75,7 @@ fun ProfileTab(
 
         ProfileHero(
             displayName = user?.displayName ?: stringResource(Res.string.profile_user_fallback),
-            email = user?.email ?: "",
+            
             avatarUrl = user?.avatarUrl,
             avatarBytes = avatarBytes,
             onClick = onNavigateToEdit,
@@ -113,7 +113,7 @@ fun ProfileTab(
 @Composable
 private fun ProfileHero(
     displayName: String,
-    email: String,
+    
     avatarUrl: String?,
     avatarBytes: ByteArray?,
     onClick: () -> Unit,
@@ -142,11 +142,7 @@ private fun ProfileHero(
                 text = displayName,
                 style = MaterialTheme.typography.headlineSmall,
             )
-            Text(
-                text = email,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            
         }
 
         Icon(

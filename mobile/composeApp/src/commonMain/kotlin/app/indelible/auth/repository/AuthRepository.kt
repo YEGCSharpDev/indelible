@@ -7,23 +7,21 @@ import app.indelible.core.network.NativeOAuthTokenResponse
 
 interface AuthRepository {
     suspend fun login(
-        email: String,
+        username: String,
         password: String,
     ): Result<AuthResponse>
 
     suspend fun register(
         name: String,
-        email: String,
+        username: String,
         password: String,
     ): Result<AuthResponse>
 
-    suspend fun forgotPassword(email: String): Result<Unit>
 
     suspend fun logout(): Result<Unit>
 
     suspend fun getSession(): Result<AuthUser>
 
-    suspend fun resendVerification(): Result<Unit>
 
     suspend fun getOAuthProviders(): Result<OAuthProvidersResponse>
 

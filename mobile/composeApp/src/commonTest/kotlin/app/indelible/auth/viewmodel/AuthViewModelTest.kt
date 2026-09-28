@@ -5,7 +5,7 @@ import app.indelible.core.i18n.UiMessage
 import app.indelible.core.network.ApiClient
 import app.indelible.core.storage.InMemoryTokenStorage
 import indelible.composeapp.generated.resources.Res
-import indelible.composeapp.generated.resources.auth_email_required
+import indelible.composeapp.generated.resources.auth_username_required
 import indelible.composeapp.generated.resources.auth_login_invalid_credentials
 import indelible.composeapp.generated.resources.auth_logout_revoke_failed
 import indelible.composeapp.generated.resources.auth_password_required
@@ -104,7 +104,7 @@ class AuthViewModelTest {
             val viewModel = AuthViewModel(ApiAuthRepository(apiClient.authApiService, apiClient.accountApiService), tokenStorage)
             viewModel.authState.first { it is AuthState.Unauthenticated }
 
-            viewModel.updateLoginEmail("user@example.com")
+            viewModel.updateLoginUsername("user@example.com")
             viewModel.updateLoginPassword("password123")
             viewModel.login()
             viewModel.authState.first { it is AuthState.Authenticated }
@@ -137,7 +137,7 @@ class AuthViewModelTest {
             val viewModel = AuthViewModel(ApiAuthRepository(apiClient.authApiService, apiClient.accountApiService), tokenStorage)
             viewModel.authState.first { it is AuthState.Unauthenticated }
 
-            viewModel.updateLoginEmail("user@example.com")
+            viewModel.updateLoginUsername("user@example.com")
             viewModel.updateLoginPassword("wrongpassword")
             viewModel.login()
             viewModel.loginState.first { !it.isLoading && it.serverError != null }
@@ -150,7 +150,7 @@ class AuthViewModelTest {
         }
 
     @Test
-    fun registerSuccessTransitionsToNeedsVerificationAndSavesTokens() =
+    fun registerSuccessTransitionsToNeedsOnboardingAndSavesTokens() =
         runTest {
             val tokenStorage = InMemoryTokenStorage()
             val engine =
@@ -163,7 +163,7 @@ class AuthViewModelTest {
                                         accessToken = "reg-token-456",
                                         refreshToken = "reg-refresh-456",
                                         displayName = "New User",
-                                        emailVerified = false,
+                                        
                                         onboardingCompleted = false,
                                     ),
                                 status = HttpStatusCode.OK,
@@ -178,13 +178,13 @@ class AuthViewModelTest {
             viewModel.authState.first { it is AuthState.Unauthenticated }
 
             viewModel.updateRegisterDisplayName("New User")
-            viewModel.updateRegisterEmail("new@example.com")
+            viewModel.updateRegisterUsername("new@example.com")
             viewModel.updateRegisterPassword("password123")
             viewModel.updateRegisterConfirmPassword("password123")
             viewModel.register()
-            viewModel.authState.first { it is AuthState.NeedsVerification }
+            viewModel.authState.first { it is AuthState.NeedsOnboarding }
 
-            val user = (viewModel.authState.value as AuthState.NeedsVerification).user
+            val user = (viewModel.authState.value as AuthState.NeedsOnboarding).user
             assertEquals("New User", user.displayName)
             assertEquals("reg-token-456", tokenStorage.getToken())
             assertEquals("reg-refresh-456", tokenStorage.getRefreshToken())
@@ -242,7 +242,7 @@ class AuthViewModelTest {
                                         accessToken = "reg-token-setup",
                                         refreshToken = "reg-refresh-setup",
                                         displayName = "First Owner",
-                                        emailVerified = false,
+                                        
                                         onboardingCompleted = false,
                                     ),
                                 status = HttpStatusCode.OK,
@@ -257,11 +257,11 @@ class AuthViewModelTest {
             viewModel.setupRequired.first { it }
 
             viewModel.updateRegisterDisplayName("First Owner")
-            viewModel.updateRegisterEmail("owner@example.com")
+            viewModel.updateRegisterUsername("owner@example.com")
             viewModel.updateRegisterPassword("password123")
             viewModel.updateRegisterConfirmPassword("password123")
             viewModel.register()
-            viewModel.authState.first { it is AuthState.NeedsVerification }
+            viewModel.authState.first { it is AuthState.NeedsOnboarding }
             viewModel.setupRequired.first { !it }
 
             assertFalse(viewModel.signupsEnabled.value)
@@ -422,13 +422,13 @@ class AuthViewModelTest {
             // keeps this immune to the unconditional OAuth-providers fetch on construction.
             viewModel.authState.first { it is AuthState.Unauthenticated }
 
-            viewModel.updateLoginEmail("")
+            viewModel.updateLoginUsername("")
             viewModel.updateLoginPassword("")
             viewModel.login()
             advanceUntilIdle()
 
             assertEquals(0, loginRequests)
-            assertEquals(UiMessage(Res.string.auth_email_required), viewModel.loginState.value.emailError)
+            assertEquals(UiMessage(Res.string.auth_username_required), viewModel.loginState.value.usernameError)
             assertEquals(UiMessage(Res.string.auth_password_required), viewModel.loginState.value.passwordError)
         }
 
@@ -436,15 +436,14 @@ class AuthViewModelTest {
         accessToken: String,
         refreshToken: String,
         displayName: String = "Test User",
-        emailVerified: Boolean = true,
+        username: String = "testuser",
         onboardingCompleted: Boolean = true,
     ) = """
         {
             "id": "usr_01ABCDEF",
             "object": "user",
-            "email": "user@example.com",
+            "username": "$username",
             "display_name": "$displayName",
-            "email_verified": $emailVerified,
             "onboarding_completed": $onboardingCompleted,
             "access_token": "$accessToken",
             "refresh_token": "$refreshToken",
@@ -468,9 +467,8 @@ class AuthViewModelTest {
         {
             "id": "usr_01ABCDEF",
             "object": "user",
-            "email": "user@example.com",
+            "username": "testuser",
             "display_name": "Test User",
-            "email_verified": true,
             "onboarding_completed": true,
             "has_password": true,
             "locale": "en",
@@ -478,10 +476,10 @@ class AuthViewModelTest {
             "timezone": "UTC",
             "created_at": "2024-01-01T00:00:00Z",
             "updated_at": "2024-01-01T00:00:00Z",
-"progress_percent": null,
-"max_progress_percent": null,
-"last_read_at": null,
-"finished_at": null
+            "progress_percent": null,
+            "max_progress_percent": null,
+            "last_read_at": null,
+            "finished_at": null
         }
         """.trimIndent()
 

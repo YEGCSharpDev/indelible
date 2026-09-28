@@ -1,4 +1,5 @@
 <script lang="ts">
+	import CollectionTree from './CollectionTree.svelte';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import { sanitizeColor } from '$lib/utils/color';
@@ -96,7 +97,7 @@
 			</div>
 
 			{#if hasChildren && node.expanded}
-				<svelte:self nodes={node.children} depth={depth + 1} {onToggle} />
+				<CollectionTree nodes={node.children} depth={depth + 1} {onToggle} />
 			{/if}
 		</li>
 	{/each}

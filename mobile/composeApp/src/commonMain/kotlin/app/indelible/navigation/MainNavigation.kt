@@ -93,8 +93,6 @@ fun MainNavigation(
 ) {
     val navController = rememberNavController()
     val authState by authViewModel.authState.collectAsState()
-    val ingestEmail = (authState as? AuthState.Authenticated)?.user?.ingestEmail
-    val ingestLibraryEmail = (authState as? AuthState.Authenticated)?.user?.ingestLibraryEmail
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
@@ -243,8 +241,6 @@ fun MainNavigation(
                     feedManagementViewModel = appContainer.feedManagementViewModel,
                     accountViewModel = appContainer.accountViewModel,
                     accountRepository = appContainer.accountRepository,
-                    ingestEmail = ingestEmail,
-                    ingestLibraryEmail = ingestLibraryEmail,
                     appLanguageSettings = appLanguageSettings,
                 )
             }

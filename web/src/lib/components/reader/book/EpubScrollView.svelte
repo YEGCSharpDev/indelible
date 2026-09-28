@@ -46,7 +46,9 @@
 	})();
 
 	let containerEl = $state<HTMLDivElement | undefined>(undefined);
+	// svelte-ignore state_referenced_locally
 	let currentChapterIndex = $state(initialChapterIndex);
+	// svelte-ignore state_referenced_locally
 	let hasScrolledToInitial = $state(initialChapterIndex <= 0 && initialCharOffset <= 0);
 	let loadedChapterVersion = $state(0);
 	let pendingFragment = $state<string | undefined>(undefined);
@@ -460,6 +462,8 @@
 </script>
 
 <div class="epub-scroll-container" bind:this={containerEl} onscroll={handleScroll}>
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="epub-scroll-content"
 		data-reader-theme={sepiaTheme}
@@ -474,6 +478,7 @@
 		{#each chapterEntries as entry (entry.index)}
 			<div class="epub-chapter-wrapper" data-chapter-index={entry.index} data-chapter-id={entry.id}>
 				<div class="chapter-label"></div>
+				<!-- svelte-ignore a11y_missing_content -->
 				<h1 class="chapter-title"></h1>
 				<div class="book-body"></div>
 				<div class="chapter-placeholder" style:height="{estimateChapterHeight(entry)}px"></div>

@@ -43,9 +43,6 @@ import app.indelible.ui.theme.IndelibleSpacing
 import indelible.composeapp.generated.resources.Res
 import indelible.composeapp.generated.resources.common_back
 import indelible.composeapp.generated.resources.profile_add_library_title
-import indelible.composeapp.generated.resources.profile_email_copied
-import indelible.composeapp.generated.resources.profile_email_ingest
-import indelible.composeapp.generated.resources.profile_email_ingest_body
 import indelible.composeapp.generated.resources.profile_save_library
 import indelible.composeapp.generated.resources.profile_tap_copy
 import indelible.composeapp.generated.resources.profile_url
@@ -56,7 +53,6 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun AddLibraryScreen(
     viewModel: AddLibraryViewModel,
-    ingestLibraryEmail: String?,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -64,9 +60,6 @@ fun AddLibraryScreen(
     var url by remember { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val clipboardManager = LocalClipboardManager.current
-    val emailCopiedMessage = stringResource(Res.string.profile_email_copied)
-
     LaunchedEffect(viewModel) {
         viewModel.reset()
         viewModel.effects.collect { effect ->
@@ -126,53 +119,6 @@ fun AddLibraryScreen(
                     isLoading = uiState.isSubmitting,
                     enabled = url.isNotBlank(),
                 )
-            }
-
-            if (ingestLibraryEmail != null) {
-                Spacer(modifier = Modifier.height(IndelibleSpacing.sectionGap))
-
-                SettingsSection(title = stringResource(Res.string.profile_email_ingest)) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = MaterialTheme.shapes.extraLarge,
-                        colors =
-                            CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            ),
-                        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                    ) {
-                        Column(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        clipboardManager.setText(AnnotatedString(ingestLibraryEmail))
-                                        coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(emailCopiedMessage)
-                                        }
-                                    }.padding(IndelibleSpacing.step16),
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.profile_email_ingest_body),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(modifier = Modifier.height(IndelibleSpacing.step8))
-                            Text(
-                                text = ingestLibraryEmail,
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                            Spacer(modifier = Modifier.height(IndelibleSpacing.step4))
-                            Text(
-                                text = stringResource(Res.string.profile_tap_copy),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
             }
         }
     }

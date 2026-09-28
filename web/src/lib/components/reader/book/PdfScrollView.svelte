@@ -37,7 +37,7 @@
 	}: Props = $props();
 
 	const prefs = getReaderPreferences();
-	const totalPages = source.metadata.totalChapters;
+	let totalPages = $derived(source.metadata.totalChapters);
 
 	const pdfThemeMode: PdfThemeMode = $derived.by(() => {
 		if (
@@ -53,7 +53,9 @@
 	});
 
 	let containerEl = $state<HTMLDivElement | undefined>(undefined);
+	// svelte-ignore state_referenced_locally
 	let currentPage = $state(initialPage);
+	// svelte-ignore state_referenced_locally
 	let hasScrolledToInitial = $state(initialPage <= 0);
 	let scrolledTargetId: string | null = null;
 

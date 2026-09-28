@@ -44,6 +44,8 @@
 	style:transform="translateX(-50%)"
 	onmouseenter={onMouseEnter}
 	onmouseleave={onMouseLeave}
+	role="toolbar"
+	tabindex="-1"
 >
 	{#each colors as color (color.name)}
 		<button

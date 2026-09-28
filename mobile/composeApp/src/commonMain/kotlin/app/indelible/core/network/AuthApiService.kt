@@ -1,18 +1,13 @@
 package app.indelible.core.network
 
-import app.indelible.api.generated.client.ApiV1AuthEmailResendClient
 import app.indelible.api.generated.client.ApiV1AuthLoginClient
 import app.indelible.api.generated.client.ApiV1AuthLogoutClient
-import app.indelible.api.generated.client.ApiV1AuthPasswordForgotClient
-import app.indelible.api.generated.client.ApiV1AuthPasswordResetClient
 import app.indelible.api.generated.client.ApiV1AuthProvidersClient
 import app.indelible.api.generated.client.ApiV1AuthRegisterClient
-import app.indelible.api.generated.models.ForgotPasswordRequest
 import app.indelible.api.generated.models.LoginRequest
 import app.indelible.api.generated.models.OAuthProvidersResponse
 import app.indelible.api.generated.models.RefreshTokenRequest
 import app.indelible.api.generated.models.RegisterRequest
-import app.indelible.api.generated.models.ResetPasswordRequest
 import app.indelible.auth.oauth.NativeOAuthRedirectUri
 import app.indelible.core.model.AuthResponse
 import app.indelible.core.platform.platformClientType
@@ -29,42 +24,24 @@ class AuthApiService(
     private val transport: AuthenticatedApiTransport,
 ) {
     suspend fun login(
-        email: String,
+        username: String,
         password: String,
     ): Result<AuthResponse> =
         transport.publicRequest { client, configuration ->
-            ApiV1AuthLoginClient(client).login(LoginRequest(email, password), configuration)
+            ApiV1AuthLoginClient(client).login(LoginRequest(username = username, password = password), configuration)
         }
 
     suspend fun register(
         name: String,
-        email: String,
+        username: String,
         password: String,
     ): Result<AuthResponse> =
         transport.publicRequest { client, configuration ->
             ApiV1AuthRegisterClient(client).register(
-                RegisterRequest(email = email, password = password, displayName = name),
+                RegisterRequest(username = username, password = password, displayName = name),
                 configuration,
             )
         }
-
-    suspend fun forgotPassword(email: String): Result<Unit> =
-        transport
-            .publicRequest { client, configuration ->
-                ApiV1AuthPasswordForgotClient(client).forgotPassword(ForgotPasswordRequest(email), configuration)
-            }.map { Unit }
-
-    suspend fun resetPassword(
-        token: String,
-        newPassword: String,
-    ): Result<Unit> =
-        transport
-            .publicRequest { client, configuration ->
-                ApiV1AuthPasswordResetClient(client).resetPassword(
-                    ResetPasswordRequest(token = token, newPassword = newPassword),
-                    configuration,
-                )
-            }.map { Unit }
 
     suspend fun logout(): Result<Unit> {
         val refreshToken = transport.refreshToken() ?: return Result.success(Unit)
@@ -72,12 +49,6 @@ class AuthApiService(
             ApiV1AuthLogoutClient(client).logout(RefreshTokenRequest(refreshToken), configuration)
         }
     }
-
-    suspend fun resendVerification(): Result<Unit> =
-        transport
-            .authenticatedRequest { client, configuration ->
-                ApiV1AuthEmailResendClient(client).resendVerification(configuration)
-            }.map { Unit }
 
     suspend fun getOAuthProviders(): Result<OAuthProvidersResponse> =
         transport.publicRequest { client, configuration ->

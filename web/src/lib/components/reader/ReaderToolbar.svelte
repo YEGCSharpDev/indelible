@@ -516,12 +516,12 @@
 		color: var(--warning);
 	}
 
-	.toolbar-btn.tts-active {
+	:global(.toolbar-btn.tts-active) {
 		color: var(--accent);
 		background: var(--fill-selected);
 	}
 
-	.toolbar-btn.tts-active:hover:not(:disabled) {
+	:global(.toolbar-btn.tts-active:hover:not(:disabled)) {
 		background: var(--fill-selected-strong);
 	}
 

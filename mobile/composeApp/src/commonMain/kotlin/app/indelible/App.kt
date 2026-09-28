@@ -62,12 +62,6 @@ fun App(
                             connectServerViewModel = appContainer.connectServerViewModel,
                         )
                     }
-                    is AuthState.NeedsVerification -> {
-                        AuthNavigation(
-                            viewModel = authViewModel,
-                            connectServerViewModel = appContainer.connectServerViewModel,
-                        )
-                    }
                     is AuthState.NeedsOnboarding -> {
                         val onboardingViewModel = appContainer.onboardingViewModel
                         OnboardingFlow(

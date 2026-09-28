@@ -732,7 +732,7 @@
 		border-bottom: 0.5px solid var(--border-primary);
 	}
 
-	.cmd-context-strip svg {
+	:global(.cmd-context-strip svg) {
 		width: 13px;
 		height: 13px;
 		stroke: var(--text-tertiary);

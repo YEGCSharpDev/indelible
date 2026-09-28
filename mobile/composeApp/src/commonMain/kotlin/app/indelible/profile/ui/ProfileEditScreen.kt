@@ -39,7 +39,6 @@ import indelible.composeapp.generated.resources.common_back
 import indelible.composeapp.generated.resources.common_save
 import indelible.composeapp.generated.resources.profile_display_name
 import indelible.composeapp.generated.resources.profile_edit_title
-import indelible.composeapp.generated.resources.profile_email
 import indelible.composeapp.generated.resources.profile_saving
 import indelible.composeapp.generated.resources.profile_update_failed
 import kotlinx.coroutines.launch
@@ -105,16 +104,7 @@ fun ProfileEditScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Spacer(modifier = Modifier.height(IndelibleSpacing.step12))
-
-            OutlinedTextField(
-                value = user?.email ?: "",
-                onValueChange = {},
-                label = { Text(stringResource(Res.string.profile_email)) },
-                singleLine = true,
-                enabled = false,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            
 
             Spacer(modifier = Modifier.height(IndelibleSpacing.step32))
 

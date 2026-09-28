@@ -6,7 +6,6 @@ import type {
 	ReaderFontFamilyDto,
 	ReaderFontSizeDto,
 	ReaderLineHeightDto,
-	ReaderOpenModeDto,
 	SidePanelModeDto,
 	SidebarModeDto,
 	ThemeDto,
@@ -27,7 +26,6 @@ export interface ReadingAppearanceDraft {
 	fontFamily: ReaderFontFamilyDto;
 	fontSize: ReaderFontSizeDto;
 	lineHeight: ReaderLineHeightDto;
-	emailOpenMode: ReaderOpenModeDto;
 	locale: string;
 }
 
@@ -102,7 +100,6 @@ export function draftFromPreferences(
 		fontFamily: data.reader.font_family,
 		fontSize: data.reader.font_size,
 		lineHeight: data.reader.line_height,
-		emailOpenMode: data.reader.email_open_mode ?? 'reader',
 		locale
 	};
 }
@@ -120,7 +117,6 @@ export function readingAppearanceSnapshot(draft: ReadingAppearanceDraft): string
 		fontFamily: draft.fontFamily,
 		fontSize: draft.fontSize,
 		lineHeight: draft.lineHeight,
-		emailOpenMode: draft.emailOpenMode,
 		locale: draft.locale
 	});
 }
@@ -137,8 +133,7 @@ export function readingPreferencesSnapshot(draft: ReadingAppearanceDraft): strin
 		autoAdvance: draft.autoAdvance,
 		fontFamily: draft.fontFamily,
 		fontSize: draft.fontSize,
-		lineHeight: draft.lineHeight,
-		emailOpenMode: draft.emailOpenMode
+		lineHeight: draft.lineHeight
 	});
 }
 
@@ -159,8 +154,7 @@ export function buildPreferencesSaveBody(
 		reader: {
 			font_family: draft.fontFamily,
 			font_size: draft.fontSize,
-			line_height: draft.lineHeight,
-			email_open_mode: draft.emailOpenMode
+			line_height: draft.lineHeight
 		},
 		ai: serverData?.ai ?? { mila_enabled: true, custom_prompt: null }
 	};
