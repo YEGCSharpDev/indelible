@@ -40,14 +40,17 @@ jobs:
       short-sha: ${{ steps.source.outputs.short_sha }}
       version: ${{ steps.source.outputs.version }}
       has-image-manifest: ${{ steps.source.outputs.has_image_manifest }}
+      owner: ${{ steps.source.outputs.owner }}
     steps:
       - name: Resolve ref and release mode
         id: source
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ inputs.release_tag }}
+          REPO_OWNER: ${{ github.repository_owner }}
         run: |
           set -euo pipefail
+          echo "owner=${REPO_OWNER,,}" >> "$GITHUB_OUTPUT"
           if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
             sha="${{ github.event.workflow_run.head_sha }}"
             {
@@ -144,7 +147,7 @@ jobs:
         if: ${{ needs.resolve.outputs.mode == 'release' }}
         id: existing
         env:
-          IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ needs.resolve.outputs.version }}
+          IMAGE: ghcr.io/${{ needs.resolve.outputs.owner }}/${{ matrix.image }}:${{ needs.resolve.outputs.version }}
         run: |
           set -euo pipefail
           if output="$(docker buildx imagetools inspect "$IMAGE" 2>&1)"; then
@@ -164,7 +167,7 @@ jobs:
           context: ${{ steps.image.outputs.context }}
           file: ${{ steps.image.outputs.dockerfile }}
           platforms: ${{ matrix.platform }}
-          outputs: type=image,name=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }},push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name=ghcr.io/${{ needs.resolve.outputs.owner }}/${{ matrix.image }},push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha,scope=${{ matrix.image }}-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=${{ matrix.image }}-${{ matrix.arch }}
 
@@ -208,7 +211,7 @@ jobs:
         if: ${{ needs.resolve.outputs.mode == 'release' }}
         id: existing
         env:
-          IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ needs.resolve.outputs.version }}
+          IMAGE: ghcr.io/${{ needs.resolve.outputs.owner }}/${{ matrix.image }}:${{ needs.resolve.outputs.version }}
         run: |
           set -euo pipefail
           if output="$(docker buildx imagetools inspect "$IMAGE" 2>&1)"; then
@@ -231,7 +234,7 @@ jobs:
       - name: Publish manifest with immutable exact-tag guard
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
+          IMAGE: ghcr.io/${{ needs.resolve.outputs.owner }}/${{ matrix.image }}
           MODE: ${{ needs.resolve.outputs.mode }}
           SHORT_SHA: ${{ needs.resolve.outputs.short-sha }}
           SOURCE_SHA: ${{ needs.resolve.outputs.source-sha }}
