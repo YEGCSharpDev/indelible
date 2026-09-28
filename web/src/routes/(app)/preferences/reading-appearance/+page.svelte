@@ -15,7 +15,6 @@
 		ReaderFontFamilyDto,
 		ReaderFontSizeDto,
 		ReaderLineHeightDto,
-		ReaderOpenModeDto,
 		SidePanelModeDto,
 		SidebarModeDto,
 		ThemeDto,
@@ -58,7 +57,6 @@
 	let fontFamily = $state<ReaderFontFamilyDto>('serif');
 	let fontSize = $state<ReaderFontSizeDto>('medium');
 	let lineHeight = $state<ReaderLineHeightDto>('relaxed');
-	let emailOpenMode = $state<ReaderOpenModeDto>('reader');
 
 	let locale = $state(selectedLocaleValue(auth.user?.locale));
 	let serverLocale = $state(selectedLocaleValue(auth.user?.locale));
@@ -94,7 +92,6 @@
 		const draftFontFamily = fontFamily;
 		const draftFontSize = fontSize;
 		const draftLineHeight = lineHeight;
-		const draftEmailOpenMode = emailOpenMode;
 		const draftLocale = locale;
 
 		return {
@@ -109,7 +106,6 @@
 			fontFamily: draftFontFamily,
 			fontSize: draftFontSize,
 			lineHeight: draftLineHeight,
-			emailOpenMode: draftEmailOpenMode,
 			locale: draftLocale
 		};
 	}
@@ -130,7 +126,6 @@
 		fontFamily = draft.fontFamily;
 		fontSize = draft.fontSize;
 		lineHeight = draft.lineHeight;
-		emailOpenMode = draft.emailOpenMode;
 		locale = draft.locale;
 	}
 
@@ -150,6 +145,18 @@
 			savedPreferencesSnapshot = preferencesSnapshot();
 		});
 		saveTheme(data.theme);
+
+		import('$lib/stores/reader-preferences.svelte').then(({ getReaderPreferences }) => {
+			const prefs = getReaderPreferences();
+			prefs.typeface = data.reader.font_family;
+			if (data.reader.font_size === 'small') prefs.fontSize = 14;
+			else if (data.reader.font_size === 'large') prefs.fontSize = 20;
+			else prefs.fontSize = 18;
+
+			if (data.reader.line_height === 'compact') prefs.lineHeight = 1.4;
+			else if (data.reader.line_height === 'relaxed') prefs.lineHeight = 1.75;
+		});
+
 		lib.applyPreferences(data);
 		appPrefs.setDefaultView(data.layout.default_view);
 	}

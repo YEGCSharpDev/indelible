@@ -8,6 +8,7 @@
 
 	let { initialName = '', onClose, onSaved }: Props = $props();
 
+	// svelte-ignore state_referenced_locally
 	let name = $state(initialName);
 
 	function handleSave() {

@@ -67,7 +67,7 @@
 		z-index: 1000;
 	}
 
-	[data-theme='dark'] .add-popover {
+	:global([data-theme='dark'] .add-popover) {
 		box-shadow:
 			0 8px 40px rgba(0, 0, 0, 0.4),
 			0 0 0 0.5px rgba(255, 255, 255, 0.12);
@@ -110,7 +110,7 @@
 		flex-shrink: 0;
 	}
 
-	.popover-label svg.brand {
+	:global(.popover-label svg.brand) {
 		stroke: none;
 		fill: currentColor;
 	}

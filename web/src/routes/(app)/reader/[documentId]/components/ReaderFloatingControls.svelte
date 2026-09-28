@@ -45,11 +45,13 @@
 		onFocusExit
 	}: Props = $props();
 
-	void documentId;
-	void activeTab;
-	void readableReady;
-	void ttsOpen;
-	void readerArticleBodyEl;
+	$effect(() => {
+		void documentId;
+		void activeTab;
+		void readableReady;
+		void ttsOpen;
+		void readerArticleBodyEl;
+	});
 </script>
 
 {#if showTypography && aaButtonEl}

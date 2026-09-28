@@ -138,6 +138,7 @@
 				</button>
 			</span>
 		{/each}
+		<!-- svelte-ignore a11y_autofocus -->
 		<input
 			bind:this={inputEl}
 			bind:value={inputValue}
@@ -159,6 +160,7 @@
 					type="button"
 					class="suggestion-item"
 					role="option"
+					aria-selected="false"
 					onmousedown={(e) => {
 						e.preventDefault();
 						selectSuggestion(suggestion.name);

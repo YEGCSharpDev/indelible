@@ -23,9 +23,13 @@
 	const store = getCollections();
 	const isEdit = $derived(collection !== null);
 
+	// svelte-ignore state_referenced_locally
 	let name = $state(collection?.name ?? '');
+	// svelte-ignore state_referenced_locally
 	let description = $state(collection?.description ?? '');
+	// svelte-ignore state_referenced_locally
 	let icon = $state(collection?.icon ?? '');
+	// svelte-ignore state_referenced_locally
 	let selectedParentId = $state<string | null>(collection?.parent_id ?? parentId);
 	let saving = $state(false);
 	let error = $state<string | null>(null);
@@ -129,7 +133,6 @@
 					bind:value={name}
 					placeholder={$t('collection_name')}
 					required
-					autofocus
 				/>
 			</div>
 		</div>

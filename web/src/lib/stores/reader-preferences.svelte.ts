@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 
 export type ReaderTheme = 'light' | 'dark' | 'sepia' | 'auto';
-export type ReaderTypeface = 'serif' | 'sans' | 'mono';
+export type ReaderTypeface = 'serif' | 'sans' | 'mono' | 'atkinson';
 export type ReaderTextAlign = 'left' | 'justify';
 
 export interface ReaderPreferences {
@@ -29,7 +29,8 @@ const DEFAULTS: ReaderPreferences = {
 const FONT_STACKS: Record<ReaderTypeface, string> = {
 	serif: "'Lora', Georgia, 'Times New Roman', serif",
 	sans: "'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif",
-	mono: "'Geist Mono', 'SF Mono', 'Fira Code', monospace"
+	mono: "'Geist Mono', 'SF Mono', 'Fira Code', monospace",
+	atkinson: "'Atkinson Hyperlegible', sans-serif"
 };
 
 function loadFromStorage(): ReaderPreferences {

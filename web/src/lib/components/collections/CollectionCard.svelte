@@ -209,6 +209,7 @@
 		font-weight: 400;
 		color: var(--text-secondary);
 		display: -webkit-box;
+		line-clamp: 2;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;

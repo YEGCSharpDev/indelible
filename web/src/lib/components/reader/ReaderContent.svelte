@@ -122,7 +122,9 @@
 
 	const sepiaTheme = $derived(prefs.theme === 'sepia' ? 'sepia' : undefined);
 
-	const sanitizedHtml = $derived(sanitizeReaderHtml(htmlContent));
+	const sanitizedHtml = $derived(
+		sanitizeReaderHtml(htmlContent).replace(/font-family\s*:[^;"']+(;?)/gi, '$1')
+	);
 </script>
 
 <div class="reader-scroll" bind:this={scrollEl} onscroll={handleScroll}>

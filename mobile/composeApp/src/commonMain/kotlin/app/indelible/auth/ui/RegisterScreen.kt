@@ -27,7 +27,7 @@ import indelible.composeapp.generated.resources.auth_create_account
 import indelible.composeapp.generated.resources.auth_create_first_account
 import indelible.composeapp.generated.resources.auth_create_your_account
 import indelible.composeapp.generated.resources.auth_display_name_label
-import indelible.composeapp.generated.resources.auth_email_label
+import indelible.composeapp.generated.resources.auth_username_label
 import indelible.composeapp.generated.resources.auth_password_label
 import indelible.composeapp.generated.resources.common_app_name
 import org.jetbrains.compose.resources.stringResource
@@ -91,10 +91,10 @@ fun RegisterScreen(
             Spacer(modifier = Modifier.height(IndelibleSpacing.step12))
 
             AuthTextField(
-                value = registerState.email,
-                onValueChange = viewModel::updateRegisterEmail,
-                label = stringResource(Res.string.auth_email_label),
-                error = registerState.emailError?.resolve(),
+                value = registerState.username,
+                onValueChange = viewModel::updateRegisterUsername,
+                label = stringResource(Res.string.auth_username_label),
+                error = registerState.usernameError?.resolve(),
                 keyboardType = KeyboardType.Email,
             )
 

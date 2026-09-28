@@ -18,7 +18,6 @@ enum class ContentTypeFilter(
     ARTICLES("article"),
     BOOKS("book"),
     PDFS("pdf"),
-    EMAILS("email"),
     VIDEOS("video"),
     PODCASTS("podcast"),
     ;

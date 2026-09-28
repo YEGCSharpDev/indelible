@@ -24,8 +24,7 @@ function preferences(
 		reader: {
 			font_family: 'serif',
 			font_size: 'medium',
-			line_height: 'relaxed',
-			email_open_mode: 'reader'
+			line_height: 'relaxed'
 		},
 		ai: { mila_enabled: true, custom_prompt: null },
 		...overrides
@@ -50,7 +49,6 @@ describe('reading appearance model', () => {
 				fontFamily: 'serif',
 				fontSize: 'medium',
 				lineHeight: 'relaxed',
-				emailOpenMode: 'reader',
 				locale: 'en-US'
 			})
 		);
@@ -62,9 +60,7 @@ describe('reading appearance model', () => {
 			'en-GB'
 		);
 		draft.theme = 'dark';
-		draft.emailOpenMode = 'original';
 
-		expect(buildPreferencesSaveBody(draft, preferences()).reader.email_open_mode).toBe('original');
 		expect(buildPreferencesSaveBody(draft, preferences()).theme).toBe('dark');
 		expect(buildPreferencesSaveBody(draft, preferences()).ai).toEqual({
 			mila_enabled: true,

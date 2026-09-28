@@ -12,23 +12,21 @@ class ApiAuthRepository(
     private val accountApiService: AccountApiService,
 ) : AuthRepository {
     override suspend fun login(
-        email: String,
+        username: String,
         password: String,
-    ): Result<AuthResponse> = authApiService.login(email, password)
+    ): Result<AuthResponse> = authApiService.login(username, password)
 
     override suspend fun register(
         name: String,
-        email: String,
+        username: String,
         password: String,
-    ): Result<AuthResponse> = authApiService.register(name, email, password)
+    ): Result<AuthResponse> = authApiService.register(name, username, password)
 
-    override suspend fun forgotPassword(email: String): Result<Unit> = authApiService.forgotPassword(email)
 
     override suspend fun logout(): Result<Unit> = authApiService.logout()
 
     override suspend fun getSession(): Result<AuthUser> = accountApiService.getSession()
 
-    override suspend fun resendVerification(): Result<Unit> = authApiService.resendVerification()
 
     override suspend fun getOAuthProviders(): Result<OAuthProvidersResponse> = authApiService.getOAuthProviders()
 

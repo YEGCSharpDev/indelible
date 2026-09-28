@@ -16,7 +16,6 @@
 		onLoadMore: () => void;
 		onSelect: (id: string) => void;
 		onOpen: (result: SearchResultResponse) => void;
-		onSenderClick?: (canonicalAddr: string) => void;
 		onDetail?: (id: string) => void;
 	}
 
@@ -30,7 +29,6 @@
 		onLoadMore,
 		onSelect,
 		onOpen,
-		onSenderClick,
 		onDetail
 	}: Props = $props();
 
@@ -77,7 +75,6 @@
 				selected={selectedId === key}
 				onSelect={() => onSelect(key)}
 				onOpen={() => onOpen(result)}
-				{onSenderClick}
 				onDetail={onDetail ? () => onDetail(key) : undefined}
 			/>
 		{/each}

@@ -104,28 +104,6 @@ class AccountParityTest {
             assertTrue(result.isSuccess)
         }
 
-    @Test
-    fun changeEmailSendsPost() =
-        runTest {
-            val tokenStorage = InMemoryTokenStorage()
-            tokenStorage.saveToken("test-token")
-            tokenStorage.saveExpiresAt(FAR_FUTURE_EXPIRY)
-            var capturedMethod: HttpMethod? = null
-            var capturedPath: String? = null
-            val engine =
-                MockEngine { request ->
-                    capturedMethod = request.method
-                    capturedPath = request.url.encodedPath
-                    respond("", HttpStatusCode.NoContent, jsonHeaders)
-                }
-
-            val apiClient = ApiClient(tokenStorage, engine = engine)
-            val result = apiClient.changeEmail("new@example.com", "password")
-
-            assertEquals(HttpMethod.Post, capturedMethod)
-            assertEquals("/api/v1/me/email", capturedPath)
-            assertTrue(result.isSuccess)
-        }
 
     @Test
     fun changePasswordSendsPost() =
@@ -155,9 +133,8 @@ class AccountParityTest {
         {
             "id": "usr_01ABCDEF",
             "object": "user",
-            "email": "user@example.com",
+            "username": "testuser",
             "display_name": "Test User",
-            "email_verified": true,
             "onboarding_completed": true,
             "has_password": true,
             "locale": "en",
@@ -165,10 +142,10 @@ class AccountParityTest {
             "timezone": "UTC",
             "created_at": "2024-01-01T00:00:00Z",
             "updated_at": "2024-01-01T00:00:00Z",
-"progress_percent": null,
-"max_progress_percent": null,
-"last_read_at": null,
-"finished_at": null
+            "progress_percent": null,
+            "max_progress_percent": null,
+            "last_read_at": null,
+            "finished_at": null
         }
         """.trimIndent()
 

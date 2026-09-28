@@ -75,28 +75,19 @@ class ApiClient(
     val importApiService = ImportApiService(transport)
 
     suspend fun login(
-        email: String,
+        username: String,
         password: String,
-    ): Result<AuthResponse> = authApiService.login(email, password)
+    ): Result<AuthResponse> = authApiService.login(username, password)
 
     suspend fun register(
         name: String,
-        email: String,
+        username: String,
         password: String,
-    ): Result<AuthResponse> = authApiService.register(name, email, password)
-
-    suspend fun forgotPassword(email: String): Result<Unit> = authApiService.forgotPassword(email)
-
-    suspend fun resetPassword(
-        token: String,
-        newPassword: String,
-    ): Result<Unit> = authApiService.resetPassword(token, newPassword)
+    ): Result<AuthResponse> = authApiService.register(name, username, password)
 
     suspend fun logout(): Result<Unit> = authApiService.logout()
 
     suspend fun getSession(): Result<AuthUser> = accountApiService.getSession()
-
-    suspend fun resendVerification(): Result<Unit> = authApiService.resendVerification()
 
     suspend fun getOAuthProviders(): Result<OAuthProvidersResponse> = authApiService.getOAuthProviders()
 
@@ -118,11 +109,6 @@ class ApiClient(
     suspend fun fetchAvatarBytes(avatarUrl: String): Result<ByteArray> = accountApiService.fetchAvatarBytes(avatarUrl)
 
     suspend fun resolveImageRequest(url: String): ResolvedImageRequest = transport.resolveImageRequest(url)
-
-    suspend fun changeEmail(
-        newEmail: String,
-        password: String,
-    ): Result<Unit> = accountApiService.changeEmail(newEmail, password)
 
     suspend fun changePassword(
         currentPassword: String,

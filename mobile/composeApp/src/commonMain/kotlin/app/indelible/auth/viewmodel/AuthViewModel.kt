@@ -29,10 +29,8 @@ import indelible.composeapp.generated.resources.auth_oauth_code_missing
 import indelible.composeapp.generated.resources.auth_oauth_expired
 import indelible.composeapp.generated.resources.auth_oauth_failed
 import indelible.composeapp.generated.resources.auth_oauth_state_mismatch
-import indelible.composeapp.generated.resources.auth_password_reset_failed
 import indelible.composeapp.generated.resources.auth_register_failed
 import indelible.composeapp.generated.resources.auth_session_load_failed
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -80,8 +78,6 @@ class AuthViewModel(
     private val _registerState = MutableStateFlow(RegisterState())
     val registerState: StateFlow<RegisterState> = _registerState.asStateFlow()
 
-    private val _forgotPasswordState = MutableStateFlow(ForgotPasswordState())
-    val forgotPasswordState: StateFlow<ForgotPasswordState> = _forgotPasswordState.asStateFlow()
 
     private val _oauthProviders = MutableStateFlow<List<OAuthProviderUi>>(emptyList())
     val oauthProviders: StateFlow<List<OAuthProviderUi>> = _oauthProviders.asStateFlow()
@@ -117,8 +113,8 @@ class AuthViewModel(
         }
     }
 
-    fun updateLoginEmail(email: String) {
-        _loginState.value = _loginState.value.copy(email = email, emailError = null)
+    fun updateLoginUsername(username: String) {
+        _loginState.value = _loginState.value.copy(username = username, usernameError = null)
     }
 
     fun updateLoginPassword(password: String) {
@@ -133,7 +129,7 @@ class AuthViewModel(
         viewModelScope.launch {
             _loginState.value = _loginState.value.copy(isLoading = true, serverError = null)
             repository
-                .login(validated.email, validated.password)
+                .login(validated.username, validated.password)
                 .onSuccess { response ->
                     response.accessToken?.let { tokenStorage.saveToken(it) }
                     response.refreshToken?.let { tokenStorage.saveRefreshToken(it) }
@@ -295,8 +291,8 @@ class AuthViewModel(
             )
     }
 
-    fun updateRegisterEmail(email: String) {
-        _registerState.value = _registerState.value.copy(email = email, emailError = null)
+    fun updateRegisterUsername(username: String) {
+        _registerState.value = _registerState.value.copy(username = username, usernameError = null)
     }
 
     fun updateRegisterPassword(password: String) {
@@ -327,7 +323,7 @@ class AuthViewModel(
                     serverError = null,
                 )
             repository
-                .register(validated.displayName, validated.email, validated.password)
+                .register(validated.displayName, validated.username, validated.password)
                 .onSuccess { response ->
                     response.accessToken?.let { tokenStorage.saveToken(it) }
                     response.refreshToken?.let { tokenStorage.saveRefreshToken(it) }
@@ -344,70 +340,13 @@ class AuthViewModel(
         }
     }
 
-    fun updateForgotPasswordEmail(email: String) {
-        _forgotPasswordState.value =
-            _forgotPasswordState.value.copy(
-                email = email,
-                emailError = null,
-            )
-    }
+    
 
-    fun forgotPassword() {
-        val state = _forgotPasswordState.value
-        val emailErr = LoginState.validateEmail(state.email)
-        if (emailErr != null) {
-            _forgotPasswordState.value = state.copy(emailError = emailErr)
-            return
-        }
+    
 
-        viewModelScope.launch {
-            _forgotPasswordState.value =
-                state.copy(
-                    isLoading = true,
-                    serverError = null,
-                )
-            repository
-                .forgotPassword(state.email)
-                .onSuccess {
-                    _forgotPasswordState.value =
-                        _forgotPasswordState.value.copy(
-                            isLoading = false,
-                            isSubmitted = true,
-                        )
-                }.onFailure {
-                    _forgotPasswordState.value =
-                        _forgotPasswordState.value.copy(
-                            isLoading = false,
-                            serverError = UiMessage(Res.string.auth_password_reset_failed),
-                        )
-                }
-        }
-    }
+    
 
-    fun resendVerification(onResult: (Boolean) -> Unit = {}) {
-        viewModelScope.launch {
-            repository
-                .resendVerification()
-                .onSuccess { onResult(true) }
-                .onFailure { onResult(false) }
-        }
-    }
-
-    fun pollVerificationStatus() {
-        viewModelScope.launch {
-            while (true) {
-                delay(VERIFICATION_POLL_INTERVAL_MS)
-                repository
-                    .getSession()
-                    .onSuccess { user ->
-                        if (user.emailVerified) {
-                            handleAuthenticatedUser(user)
-                            return@launch
-                        }
-                    }
-            }
-        }
-    }
+    
 
     fun logout() {
         viewModelScope.launch {
@@ -436,9 +375,7 @@ class AuthViewModel(
         _registerState.value = RegisterState()
     }
 
-    fun resetForgotPasswordState() {
-        _forgotPasswordState.value = ForgotPasswordState()
-    }
+    
 
     fun updateProfile(
         displayName: String,
@@ -460,7 +397,6 @@ class AuthViewModel(
         val wasSetupRequired = _setupRequired.value
         _authState.value =
             when {
-                !user.emailVerified -> AuthState.NeedsVerification(user)
                 !user.onboardingCompleted -> AuthState.NeedsOnboarding(user)
                 else -> AuthState.Authenticated(user)
             }
@@ -491,7 +427,6 @@ class AuthViewModel(
         _avatarBytes.value = null
         _loginState.value = LoginState()
         _registerState.value = RegisterState()
-        _forgotPasswordState.value = ForgotPasswordState()
     }
 
     private fun loginFailureMessage(error: Throwable): UiMessage =
@@ -503,6 +438,5 @@ class AuthViewModel(
 
     companion object {
         private const val UNAUTHORIZED_STATUS = 401
-        private const val VERIFICATION_POLL_INTERVAL_MS = 5000L
     }
 }

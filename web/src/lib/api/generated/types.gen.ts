@@ -751,19 +751,17 @@ export type ImportUploadResponse = {
 };
 
 /**
- * Provider-shaped configuration payload. Uses serde's tagged enum so the
- * generated OpenAPI schema produces a concrete discriminated union instead
- * of a bare object — mobile/web codegen can model it as a sealed class/union.
+ * Catch-all for providers that don't have first-class structured config
+ * on this surface yet (currently Logseq, BrowserExtension, Miniflux, Custom). Kept as one
+ * variant so generated mobile/web codegen doesn't ship empty
+ * `LogseqConfig` / `BrowserExtensionConfig` types that can never be
+ * instantiated. When a provider gains structured config, add a dedicated
+ * variant and route to it from `from_domain`.
  */
-export type IntegrationConnectionConfigDto =
-	| {
-			address: string;
-			provider: 'email_ingest';
-	  }
-	| {
-			provider: 'other';
-			provider_name: string;
-	  };
+export type IntegrationConnectionConfigDto = {
+	provider: 'other';
+	provider_name: string;
+};
 
 export type IntegrationConnectionDto = {
 	config: IntegrationConnectionConfigDto;
@@ -1091,7 +1089,6 @@ export type NotificationsSettingsResponse = {
 	daily_review_reminder_enabled: boolean;
 	daily_review_reminder_time: string;
 	feed_updates: boolean;
-	marketing_emails: boolean;
 	new_highlights_sync: boolean;
 	updated_at: string;
 	weekly_digest_enabled: boolean;
@@ -1248,8 +1245,6 @@ export type ProfileResponse = {
 	display_name: string;
 	has_password: boolean;
 	id: string;
-	ingest_email?: string | null;
-	ingest_library_email?: string | null;
 	locale: string | null;
 	object: string;
 	onboarding_completed: boolean;
@@ -1292,13 +1287,11 @@ export type ReadAheadResponse = {
 	prepared: number;
 };
 
-export type ReaderFontFamilyDto = 'serif' | 'sans' | 'mono';
+export type ReaderFontFamilyDto = 'serif' | 'sans' | 'mono' | 'atkinson';
 
 export type ReaderFontSizeDto = 'small' | 'medium' | 'large';
 
 export type ReaderLineHeightDto = 'compact' | 'relaxed';
-
-export type ReaderOpenModeDto = 'reader' | 'original';
 
 export type ReaderSaveRequest = {
 	author?: string | null;
@@ -1313,7 +1306,6 @@ export type ReaderSaveRequest = {
 };
 
 export type ReaderSettingsDto = {
-	email_open_mode: ReaderOpenModeDto;
 	font_family: ReaderFontFamilyDto;
 	font_size: ReaderFontSizeDto;
 	line_height: ReaderLineHeightDto;
@@ -1491,8 +1483,6 @@ export type SearchResultResponse = {
 	saved_at: string;
 	score: number;
 	section?: null | SearchSectionResponse;
-	sender?: null | SearchEmbeddedSenderResponse;
-	sender_id?: string | null;
 	snippet: string;
 	/**
 	 * Set for `feed_preview` results: the source entry behind the delivery (provenance).

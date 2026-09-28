@@ -40,7 +40,6 @@ export function toPlaceholderEntry(result: SearchResultResponse): DocumentListEn
 		summary: null,
 		progress_percent: null,
 		last_read_at: null,
-		sender: result.sender ?? null,
 		triage_state: 'later',
 		is_favorite: false,
 		is_shortlisted: false,

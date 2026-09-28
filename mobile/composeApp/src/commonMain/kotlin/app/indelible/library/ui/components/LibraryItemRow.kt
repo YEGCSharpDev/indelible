@@ -44,7 +44,6 @@ import app.indelible.ui.theme.IndelibleTheme
 import coil3.compose.AsyncImage
 import indelible.composeapp.generated.resources.Res
 import indelible.composeapp.generated.resources.library_content_books
-import indelible.composeapp.generated.resources.library_content_emails
 import indelible.composeapp.generated.resources.library_content_pdfs
 import indelible.composeapp.generated.resources.library_content_podcasts
 import indelible.composeapp.generated.resources.library_content_videos
@@ -368,7 +367,6 @@ private fun progressLabel(
 private fun itemTypeLabelRes(itemType: String): StringResource? =
     when (itemType) {
         "book" -> Res.string.library_content_books
-        "email" -> Res.string.library_content_emails
         "pdf" -> Res.string.library_content_pdfs
         "podcast" -> Res.string.library_content_podcasts
         "video" -> Res.string.library_content_videos

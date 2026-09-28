@@ -1324,6 +1324,7 @@
 	"prefs_reading_email_open_hint": "Open newsletters in our reader for a clean read, or use the original HTML to keep the sender's layout.",
 	"prefs_reading_email_open_mode": "Email open mode",
 	"prefs_reading_floating_overlay": "Floating overlay",
+	"prefs_reading_font_atkinson": "Atkinson",
 	"prefs_reading_font_family": "Font family",
 	"prefs_reading_font_family_hint": "The typeface used for article body text in the reader.",
 	"prefs_reading_font_mono": "Mono",

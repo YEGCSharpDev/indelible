@@ -49,6 +49,8 @@
     <string name="auth_sign_in">Se connecter</string>
     <string name="auth_sign_in_prompt">Connectez-vous à votre compte</string>
     <string name="auth_sign_up_prompt">Vous n’avez pas de compte ? S’inscrire</string>
+    <string name="auth_username_label">Nom d’utilisateur</string>
+    <string name="auth_username_required">Le nom d’utilisateur est requis</string>
     <string name="auth_verification_body">Ouvrez le lien reçu par e-mail pour vérifier votre compte. Cette page se mettra automatiquement à jour après la vérification.</string>
     <string name="auth_verification_sent_to">Nous avons envoyé un lien de vérification à :</string>
     <plurals name="collections_count">
@@ -456,6 +458,8 @@
     <string name="prefs_default_view_library">Bibliothèque</string>
     <string name="prefs_default_view_search">Recherche</string>
     <string name="prefs_font">Police</string>
+    <string name="prefs_font_atkinson">Atkinson Hyperlegible</string>
+    <string name="prefs_font_atkinson_description">Atkinson · Hyperlegible</string>
     <string name="prefs_font_geist">Geist</string>
     <string name="prefs_font_geist_description">Geist · Sans empattements</string>
     <string name="prefs_font_lora">Lora</string>

@@ -31,7 +31,6 @@ import indelible.composeapp.generated.resources.Res
 import indelible.composeapp.generated.resources.library_content_all
 import indelible.composeapp.generated.resources.library_content_articles
 import indelible.composeapp.generated.resources.library_content_books
-import indelible.composeapp.generated.resources.library_content_emails
 import indelible.composeapp.generated.resources.library_content_pdfs
 import indelible.composeapp.generated.resources.library_content_podcasts
 import indelible.composeapp.generated.resources.library_content_videos
@@ -140,7 +139,6 @@ private val ContentTypeFilter.labelRes: StringResource
             ContentTypeFilter.ARTICLES -> Res.string.library_content_articles
             ContentTypeFilter.BOOKS -> Res.string.library_content_books
             ContentTypeFilter.PDFS -> Res.string.library_content_pdfs
-            ContentTypeFilter.EMAILS -> Res.string.library_content_emails
             ContentTypeFilter.VIDEOS -> Res.string.library_content_videos
             ContentTypeFilter.PODCASTS -> Res.string.library_content_podcasts
         }

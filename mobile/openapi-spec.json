@@ -39,20 +39,6 @@
         ],
         "type": "object"
       },
-      "AliasDestinationDto": {
-        "enum": [
-          "feed",
-          "library"
-        ],
-        "type": "string"
-      },
-      "AliasStatusDto": {
-        "enum": [
-          "active",
-          "retired"
-        ],
-        "type": "string"
-      },
       "ApiPermissionDto": {
         "enum": [
           "library:read",
@@ -282,12 +268,6 @@
           "display_name": {
             "type": "string"
           },
-          "email": {
-            "type": "string"
-          },
-          "email_verified": {
-            "type": "boolean"
-          },
           "expires_at": {
             "format": "int64",
             "type": [
@@ -309,14 +289,16 @@
               "string",
               "null"
             ]
+          },
+          "username": {
+            "type": "string"
           }
         },
         "required": [
           "id",
           "object",
-          "email",
+          "username",
           "display_name",
-          "email_verified",
           "onboarding_completed"
         ],
         "type": "object"
@@ -377,21 +359,6 @@
         },
         "required": [
           "authorize_url"
-        ],
-        "type": "object"
-      },
-      "ChangeEmailRequest": {
-        "properties": {
-          "new_email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "new_email",
-          "password"
         ],
         "type": "object"
       },
@@ -594,24 +561,6 @@
         ],
         "type": "object"
       },
-      "CreateEmailAliasRequest": {
-        "properties": {
-          "destination": {
-            "$ref": "#/components/schemas/AliasDestinationDto"
-          },
-          "is_default": {
-            "type": "boolean"
-          },
-          "local_part": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "destination",
-          "local_part"
-        ],
-        "type": "object"
-      },
       "CreateHighlightBody": {
         "properties": {
           "color": {
@@ -767,13 +716,6 @@
           "s5xx",
           "failed",
           "pending"
-        ],
-        "type": "string"
-      },
-      "DestinationDto": {
-        "enum": [
-          "feed",
-          "library"
         ],
         "type": "string"
       },
@@ -1114,133 +1056,6 @@
           "high"
         ],
         "type": "string"
-      },
-      "EmailAliasResponse": {
-        "properties": {
-          "address": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "created_at": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "destination": {
-            "$ref": "#/components/schemas/AliasDestinationDto"
-          },
-          "id": {
-            "type": "string"
-          },
-          "is_default": {
-            "type": "boolean"
-          },
-          "local_part": {
-            "type": "string"
-          },
-          "object": {
-            "type": "string"
-          },
-          "retire_at": {
-            "format": "date-time",
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "retired_at": {
-            "format": "date-time",
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "status": {
-            "$ref": "#/components/schemas/AliasStatusDto"
-          }
-        },
-        "required": [
-          "id",
-          "object",
-          "destination",
-          "local_part",
-          "status",
-          "is_default",
-          "created_at"
-        ],
-        "type": "object"
-      },
-      "EmailSenderResponse": {
-        "properties": {
-          "blocked": {
-            "type": "boolean"
-          },
-          "blocked_at": {
-            "format": "date-time",
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "canonical_addr": {
-            "type": "string"
-          },
-          "delivery_count": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "display_name": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "first_seen_at": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          },
-          "last_seen_at": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "list_id": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "object": {
-            "type": "string"
-          },
-          "render_default": {
-            "$ref": "#/components/schemas/RenderDefaultDto"
-          },
-          "routing_default": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/DestinationDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "object",
-          "canonical_addr",
-          "render_default",
-          "blocked",
-          "first_seen_at",
-          "last_seen_at",
-          "delivery_count"
-        ],
-        "type": "object"
       },
       "EmptyTrashResponse": {
         "description": "Result of emptying the Library trash: how many entries were permanently purged.",
@@ -1907,16 +1722,16 @@
           "display_name": {
             "type": "string"
           },
-          "email": {
+          "id": {
             "type": "string"
           },
-          "id": {
+          "username": {
             "type": "string"
           }
         },
         "required": [
           "id",
-          "email",
+          "username",
           "display_name"
         ],
         "type": "object"
@@ -2348,17 +2163,6 @@
             "type": "array"
           }
         ]
-      },
-      "ForgotPasswordRequest": {
-        "properties": {
-          "email": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "email"
-        ],
-        "type": "object"
       },
       "FullArchiveRequest": {
         "properties": {
@@ -3070,25 +2874,7 @@
         "description": "Provider-shaped configuration payload. Uses serde's tagged enum so the\ngenerated OpenAPI schema produces a concrete discriminated union instead\nof a bare object — mobile/web codegen can model it as a sealed class/union.",
         "oneOf": [
           {
-            "properties": {
-              "address": {
-                "type": "string"
-              },
-              "provider": {
-                "enum": [
-                  "email_ingest"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "address",
-              "provider"
-            ],
-            "type": "object"
-          },
-          {
-            "description": "Catch-all for providers that don't have first-class structured config\non this surface yet (currently Logseq, BrowserExtension). Kept as one\nvariant so generated mobile/web codegen doesn't ship empty\n`LogseqConfig` / `BrowserExtensionConfig` types that can never be\ninstantiated. When a provider gains structured config, add a dedicated\nvariant and route to it from `from_domain`.",
+            "description": "Catch-all for providers that don't have first-class structured config\non this surface yet (currently Logseq, BrowserExtension, Miniflux, Custom). Kept as one\nvariant so generated mobile/web codegen doesn't ship empty\n`LogseqConfig` / `BrowserExtensionConfig` types that can never be\ninstantiated. When a provider gains structured config, add a dedicated\nvariant and route to it from `from_domain`.",
             "properties": {
               "provider": {
                 "enum": [
@@ -3558,68 +3344,6 @@
         ],
         "type": "string"
       },
-      "ListEmailAliasesResponse": {
-        "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/EmailAliasResponse"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "data"
-        ],
-        "type": "object"
-      },
-      "ListEmailSendersParams": {
-        "properties": {
-          "limit": {
-            "format": "int64",
-            "type": [
-              "integer",
-              "null"
-            ]
-          },
-          "offset": {
-            "format": "int64",
-            "type": [
-              "integer",
-              "null"
-            ]
-          }
-        },
-        "type": "object"
-      },
-      "ListEmailSendersResponse": {
-        "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/EmailSenderResponse"
-            },
-            "type": "array"
-          },
-          "limit": {
-            "format": "int64",
-            "type": "integer"
-          },
-          "offset": {
-            "format": "int64",
-            "type": "integer"
-          },
-          "total": {
-            "format": "int64",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "data",
-          "total",
-          "offset",
-          "limit"
-        ],
-        "type": "object"
-      },
       "ListEntitiesParams": {
         "properties": {
           "cursor": {
@@ -3970,15 +3694,15 @@
       },
       "LoginRequest": {
         "properties": {
-          "email": {
+          "password": {
             "type": "string"
           },
-          "password": {
+          "username": {
             "type": "string"
           }
         },
         "required": [
-          "email",
+          "username",
           "password"
         ],
         "type": "object"
@@ -4126,9 +3850,6 @@
           "feed_updates": {
             "type": "boolean"
           },
-          "marketing_emails": {
-            "type": "boolean"
-          },
           "new_highlights_sync": {
             "type": "boolean"
           },
@@ -4146,7 +3867,6 @@
           "weekly_digest_enabled",
           "new_highlights_sync",
           "feed_updates",
-          "marketing_emails",
           "updated_at"
         ],
         "type": "object"
@@ -4655,29 +4375,11 @@
           "display_name": {
             "type": "string"
           },
-          "email": {
-            "type": "string"
-          },
-          "email_verified": {
-            "type": "boolean"
-          },
           "has_password": {
             "type": "boolean"
           },
           "id": {
             "type": "string"
-          },
-          "ingest_email": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "ingest_library_email": {
-            "type": [
-              "string",
-              "null"
-            ]
           },
           "locale": {
             "type": [
@@ -4700,17 +4402,19 @@
           "updated_at": {
             "format": "date-time",
             "type": "string"
+          },
+          "username": {
+            "type": "string"
           }
         },
         "required": [
           "id",
           "object",
-          "email",
+          "username",
           "display_name",
           "locale",
           "timezone",
           "theme",
-          "email_verified",
           "onboarding_completed",
           "has_password",
           "created_at",
@@ -4804,7 +4508,8 @@
         "enum": [
           "serif",
           "sans",
-          "mono"
+          "mono",
+          "atkinson"
         ],
         "type": "string"
       },
@@ -4820,13 +4525,6 @@
         "enum": [
           "compact",
           "relaxed"
-        ],
-        "type": "string"
-      },
-      "ReaderOpenModeDto": {
-        "enum": [
-          "reader",
-          "original"
         ],
         "type": "string"
       },
@@ -4889,9 +4587,6 @@
       },
       "ReaderSettingsDto": {
         "properties": {
-          "email_open_mode": {
-            "$ref": "#/components/schemas/ReaderOpenModeDto"
-          },
           "font_family": {
             "$ref": "#/components/schemas/ReaderFontFamilyDto"
           },
@@ -4905,8 +4600,7 @@
         "required": [
           "font_family",
           "font_size",
-          "line_height",
-          "email_open_mode"
+          "line_height"
         ],
         "type": "object"
       },
@@ -5273,26 +4967,19 @@
           "display_name": {
             "type": "string"
           },
-          "email": {
+          "password": {
             "type": "string"
           },
-          "password": {
+          "username": {
             "type": "string"
           }
         },
         "required": [
-          "email",
+          "username",
           "password",
           "display_name"
         ],
         "type": "object"
-      },
-      "RenderDefaultDto": {
-        "enum": [
-          "reader",
-          "original"
-        ],
-        "type": "string"
       },
       "RequiredNullableDuration": {
         "default": 7776000,
@@ -5301,21 +4988,6 @@
           "integer",
           "null"
         ]
-      },
-      "ResetPasswordRequest": {
-        "properties": {
-          "new_password": {
-            "type": "string"
-          },
-          "token": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "token",
-          "new_password"
-        ],
-        "type": "object"
       },
       "SaveFromDeliveryBody": {
         "description": "Save a feed delivery into the Library.",
@@ -5550,22 +5222,6 @@
               {
                 "$ref": "#/components/schemas/SearchSectionResponse"
               }
-            ]
-          },
-          "sender": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/SearchEmbeddedSenderResponse"
-              }
-            ]
-          },
-          "sender_id": {
-            "type": [
-              "string",
-              "null"
             ]
           },
           "snippet": {
@@ -6074,30 +5730,6 @@
         ],
         "type": "string"
       },
-      "UnsubscribeEmailSenderResponse": {
-        "properties": {
-          "blocked_at": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "job_id": {
-            "type": "string"
-          },
-          "object": {
-            "type": "string"
-          },
-          "sender_id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "object",
-          "sender_id",
-          "job_id",
-          "blocked_at"
-        ],
-        "type": "object"
-      },
       "UpdateCollectionBody": {
         "properties": {
           "color": {
@@ -6163,37 +5795,6 @@
         "required": [
           "progress_percent"
         ],
-        "type": "object"
-      },
-      "UpdateEmailSenderRequest": {
-        "properties": {
-          "blocked": {
-            "type": [
-              "boolean",
-              "null"
-            ]
-          },
-          "render_default": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/RenderDefaultDto"
-              }
-            ]
-          },
-          "routing_default": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/DestinationDto"
-              }
-            ]
-          }
-        },
         "type": "object"
       },
       "UpdateEntityBody": {
@@ -6429,17 +6030,6 @@
         },
         "required": [
           "body"
-        ],
-        "type": "object"
-      },
-      "VerifyEmailRequest": {
-        "properties": {
-          "token": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "token"
         ],
         "type": "object"
       },
@@ -6788,78 +6378,6 @@
         ],
         "tags": [
           "Asset Proxy"
-        ]
-      }
-    },
-    "/api/v1/auth/email/resend": {
-      "post": {
-        "operationId": "resend_verification",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageResponse"
-                }
-              }
-            },
-            "description": "Verification email sent (or already verified)"
-          },
-          "401": {
-            "description": "Authentication required"
-          },
-          "403": {
-            "description": "Account session required"
-          },
-          "429": {
-            "description": "Rate limited"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Resend the email verification link.",
-        "tags": [
-          "Auth"
-        ]
-      }
-    },
-    "/api/v1/auth/email/verify": {
-      "post": {
-        "operationId": "verify_email",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/VerifyEmailRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            },
-            "description": "Email verified"
-          },
-          "400": {
-            "description": "Invalid or expired token"
-          },
-          "422": {
-            "description": "Validation error"
-          }
-        },
-        "summary": "Verify email address using a token.",
-        "tags": [
-          "Auth"
         ]
       }
     },
@@ -7332,77 +6850,6 @@
           }
         },
         "summary": "Start an OAuth authorization flow.",
-        "tags": [
-          "Auth"
-        ]
-      }
-    },
-    "/api/v1/auth/password/forgot": {
-      "post": {
-        "operationId": "forgot_password",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ForgotPasswordRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageResponse"
-                }
-              }
-            },
-            "description": "If the email exists, a reset link has been sent"
-          },
-          "422": {
-            "description": "Validation error"
-          }
-        },
-        "summary": "Request a password reset email.",
-        "tags": [
-          "Auth"
-        ]
-      }
-    },
-    "/api/v1/auth/password/reset": {
-      "post": {
-        "operationId": "reset_password",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ResetPasswordRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            },
-            "description": "Password reset successful"
-          },
-          "400": {
-            "description": "Invalid or expired token"
-          },
-          "422": {
-            "description": "Validation error"
-          }
-        },
-        "summary": "Complete a password reset using a token.",
         "tags": [
           "Auth"
         ]
@@ -8771,316 +8218,6 @@
         ],
         "x-indelible-permissions": [
           "library:read"
-        ]
-      }
-    },
-    "/api/v1/email-aliases": {
-      "get": {
-        "operationId": "list_email_aliases",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ListEmailAliasesResponse"
-                }
-              }
-            },
-            "description": "All aliases for the authenticated user"
-          },
-          "401": {
-            "description": "Authentication required"
-          },
-          "503": {
-            "description": "Email alias operations not configured"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "tags": [
-          "Email Aliases"
-        ],
-        "x-indelible-permissions": [
-          "feeds:read"
-        ]
-      },
-      "post": {
-        "operationId": "create_email_alias",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateEmailAliasRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmailAliasResponse"
-                }
-              }
-            },
-            "description": "Alias created"
-          },
-          "401": {
-            "description": "Authentication required"
-          },
-          "409": {
-            "description": "Local part already taken on this destination"
-          },
-          "422": {
-            "description": "Validation error"
-          },
-          "503": {
-            "description": "Email alias operations not configured"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "tags": [
-          "Email Aliases"
-        ],
-        "x-indelible-permissions": [
-          "feeds:write"
-        ]
-      }
-    },
-    "/api/v1/email-aliases/{id}": {
-      "delete": {
-        "operationId": "delete_email_alias",
-        "parameters": [
-          {
-            "description": "Email alias ID with als_ prefix",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Alias retired"
-          },
-          "401": {
-            "description": "Authentication required"
-          },
-          "404": {
-            "description": "Email alias not found"
-          },
-          "503": {
-            "description": "Email alias operations not configured"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "tags": [
-          "Email Aliases"
-        ],
-        "x-indelible-permissions": [
-          "feeds:write"
-        ]
-      }
-    },
-    "/api/v1/email-senders": {
-      "get": {
-        "operationId": "list_email_senders",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "offset",
-            "required": false,
-            "schema": {
-              "format": "int64",
-              "type": [
-                "integer",
-                "null"
-              ]
-            }
-          },
-          {
-            "in": "query",
-            "name": "limit",
-            "required": false,
-            "schema": {
-              "format": "int64",
-              "type": [
-                "integer",
-                "null"
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ListEmailSendersResponse"
-                }
-              }
-            },
-            "description": "Paginated list of email senders"
-          },
-          "401": {
-            "description": "Authentication required"
-          },
-          "503": {
-            "description": "Email sender operations not configured"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "tags": [
-          "Email Senders"
-        ],
-        "x-indelible-permissions": [
-          "feeds:read"
-        ]
-      }
-    },
-    "/api/v1/email-senders/{id}": {
-      "patch": {
-        "operationId": "update_email_sender",
-        "parameters": [
-          {
-            "description": "Email sender ID with snd_ prefix",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateEmailSenderRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EmailSenderResponse"
-                }
-              }
-            },
-            "description": "Email sender updated"
-          },
-          "401": {
-            "description": "Authentication required"
-          },
-          "404": {
-            "description": "Email sender not found"
-          },
-          "422": {
-            "description": "Validation error"
-          },
-          "503": {
-            "description": "Email sender operations not configured"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "tags": [
-          "Email Senders"
-        ],
-        "x-indelible-permissions": [
-          "feeds:write"
-        ]
-      }
-    },
-    "/api/v1/email-senders/{id}/unsubscribe": {
-      "post": {
-        "operationId": "unsubscribe_email_sender",
-        "parameters": [
-          {
-            "description": "Email sender ID with snd_ prefix",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UnsubscribeEmailSenderResponse"
-                }
-              }
-            },
-            "description": "Local block applied + unsubscribe job enqueued"
-          },
-          "401": {
-            "description": "Authentication required"
-          },
-          "404": {
-            "description": "Email sender not found"
-          },
-          "503": {
-            "description": "Email sender operations not configured"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          },
-          {
-            "api_token": []
-          }
-        ],
-        "tags": [
-          "Email Senders"
-        ],
-        "x-indelible-permissions": [
-          "feeds:write"
         ]
       }
     },
@@ -12829,43 +11966,6 @@
           },
           "503": {
             "description": "Storage not configured"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Account"
-        ]
-      }
-    },
-    "/api/v1/me/email": {
-      "post": {
-        "operationId": "change_email",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChangeEmailRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "401": {
-            "description": "Authentication required"
-          },
-          "403": {
-            "description": "Verified user access JWT from a supported client and verified email required"
-          },
-          "422": {
-            "description": "Validation error"
-          },
-          "503": {
-            "description": "Changing an email address needs an outbound mail transport, which is not configured"
           }
         },
         "security": [

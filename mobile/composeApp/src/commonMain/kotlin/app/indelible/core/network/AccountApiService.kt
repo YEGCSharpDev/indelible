@@ -1,9 +1,7 @@
 package app.indelible.core.network
 
 import app.indelible.api.generated.client.ApiV1MeClient
-import app.indelible.api.generated.client.ApiV1MeEmailClient
 import app.indelible.api.generated.client.ApiV1MePasswordClient
-import app.indelible.api.generated.models.ChangeEmailRequest
 import app.indelible.api.generated.models.ChangePasswordRequest
 import app.indelible.api.generated.models.DeleteAccountRequest
 import app.indelible.api.generated.models.UpdateProfileRequest
@@ -41,15 +39,10 @@ class AccountApiService(
 
     suspend fun deleteAccount(confirmation: String): Result<Unit> =
         transport.authenticatedRequest { client, configuration ->
-            ApiV1MeClient(client).deleteAccount(DeleteAccountRequest(confirmation), configuration)
-        }
-
-    suspend fun changeEmail(
-        newEmail: String,
-        password: String,
-    ): Result<Unit> =
-        transport.authenticatedRequest { client, configuration ->
-            ApiV1MeEmailClient(client).changeEmail(ChangeEmailRequest(newEmail, password), configuration)
+            ApiV1MeClient(client).deleteAccount(
+                DeleteAccountRequest(confirmation),
+                configuration,
+            )
         }
 
     suspend fun changePassword(

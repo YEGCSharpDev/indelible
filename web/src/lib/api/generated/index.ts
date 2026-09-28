@@ -746,7 +746,6 @@ export type {
 	ReaderFontFamilyDto,
 	ReaderFontSizeDto,
 	ReaderLineHeightDto,
-	ReaderOpenModeDto,
 	ReaderSaveRequest,
 	ReaderSettingsDto,
 	ReadingStatsWidget,

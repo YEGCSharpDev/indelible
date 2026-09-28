@@ -93,6 +93,7 @@ fn parse_reader_font_family(value: &str) -> ReaderFontFamily {
     match value {
         "sans" => ReaderFontFamily::Sans,
         "mono" => ReaderFontFamily::Mono,
+        "atkinson" => ReaderFontFamily::Atkinson,
         _ => ReaderFontFamily::Serif,
     }
 }
@@ -250,6 +251,7 @@ impl UserPreferencesRepository for PgUserPreferencesRepository {
             ReaderFontFamily::Serif => "serif",
             ReaderFontFamily::Sans => "sans",
             ReaderFontFamily::Mono => "mono",
+            ReaderFontFamily::Atkinson => "atkinson",
         };
         let reader_font_size = match settings.reader.font_size {
             ReaderFontSize::Small => "small",

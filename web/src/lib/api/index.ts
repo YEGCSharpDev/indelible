@@ -138,7 +138,6 @@ export type {
 	ReaderFontFamilyDto,
 	ReaderFontSizeDto,
 	ReaderLineHeightDto,
-	ReaderOpenModeDto,
 	RealtimeEventResponse,
 	RequiredNullableDuration,
 	SearchEmbeddedSenderResponse,

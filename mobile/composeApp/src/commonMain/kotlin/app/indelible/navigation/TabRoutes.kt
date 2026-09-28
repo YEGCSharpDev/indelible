@@ -60,7 +60,7 @@ fun NavGraphBuilder.tabRoutes(
         val avatarBytes by authViewModel.avatarBytes.collectAsState()
         HomeScreen(
             viewModel = homeViewModel,
-            userDisplayName = authUser?.displayName?.takeIf { it.isNotBlank() } ?: authUser?.email,
+            userDisplayName = authUser?.displayName?.takeIf { it.isNotBlank() } ?: "",
             onMenuClick = openDrawer,
             onSearchClick = {
                 navController.navigate(TabItem.SEARCH.route) {
@@ -103,7 +103,7 @@ fun NavGraphBuilder.tabRoutes(
             },
             collections = sidebarReady?.collections ?: emptyList(),
             smartLists = sidebarReady?.smartLists ?: emptyList(),
-            userDisplayName = authUser?.displayName?.takeIf { it.isNotBlank() } ?: authUser?.email,
+            userDisplayName = authUser?.displayName?.takeIf { it.isNotBlank() } ?: "",
             avatarUrl = authUser?.avatarUrl,
             avatarBytes = avatarBytes,
         )
@@ -130,7 +130,7 @@ fun NavGraphBuilder.tabRoutes(
             onManageSources = {
                 navController.navigate(MainRoutes.PROFILE_FEED_MANAGEMENT)
             },
-            userDisplayName = authUser?.displayName?.takeIf { it.isNotBlank() } ?: authUser?.email,
+            userDisplayName = authUser?.displayName?.takeIf { it.isNotBlank() } ?: "",
             avatarUrl = authUser?.avatarUrl,
             avatarBytes = avatarBytes,
         )

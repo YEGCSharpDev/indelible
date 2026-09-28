@@ -11,10 +11,6 @@ sealed class AuthState {
         val user: AuthUser,
     ) : AuthState()
 
-    data class NeedsVerification(
-        val user: AuthUser,
-    ) : AuthState()
-
     data class NeedsOnboarding(
         val user: AuthUser,
     ) : AuthState()

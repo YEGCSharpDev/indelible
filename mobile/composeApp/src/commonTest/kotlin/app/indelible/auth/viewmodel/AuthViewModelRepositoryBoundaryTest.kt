@@ -20,23 +20,19 @@ class AuthViewModelRepositoryBoundaryTest {
 
 private class FakeAuthRepository : AuthRepository {
     override suspend fun login(
-        email: String,
+        username: String,
         password: String,
     ): Result<AuthResponse> = unused()
 
     override suspend fun register(
         name: String,
-        email: String,
+        username: String,
         password: String,
     ): Result<AuthResponse> = unused()
-
-    override suspend fun forgotPassword(email: String): Result<Unit> = Result.success(Unit)
 
     override suspend fun logout(): Result<Unit> = Result.success(Unit)
 
     override suspend fun getSession(): Result<AuthUser> = unused()
-
-    override suspend fun resendVerification(): Result<Unit> = Result.success(Unit)
 
     override suspend fun getOAuthProviders(): Result<OAuthProvidersResponse> = unused()
 

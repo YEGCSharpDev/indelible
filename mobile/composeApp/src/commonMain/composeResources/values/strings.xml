@@ -49,6 +49,8 @@
     <string name="auth_sign_in">Sign in</string>
     <string name="auth_sign_in_prompt">Sign in to your account</string>
     <string name="auth_sign_up_prompt">Don’t have an account? Register</string>
+    <string name="auth_username_label">Username</string>
+    <string name="auth_username_required">Username is required</string>
     <string name="auth_verification_body">Open the link in the email to verify your account. This page will update automatically once verified.</string>
     <string name="auth_verification_sent_to">We sent a verification link to:</string>
     <plurals name="collections_count">
@@ -456,6 +458,8 @@
     <string name="prefs_default_view_library">Library</string>
     <string name="prefs_default_view_search">Search</string>
     <string name="prefs_font">Font</string>
+    <string name="prefs_font_atkinson">Atkinson Hyperlegible</string>
+    <string name="prefs_font_atkinson_description">Atkinson · Hyperlegible</string>
     <string name="prefs_font_geist">Geist</string>
     <string name="prefs_font_geist_description">Geist · Sans serif</string>
     <string name="prefs_font_lora">Lora</string>

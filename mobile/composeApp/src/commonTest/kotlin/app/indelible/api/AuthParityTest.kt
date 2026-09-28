@@ -93,66 +93,7 @@ class AuthParityTest {
             assertEquals("/api/v1/auth/logout", capturedPath)
         }
 
-    @Test
-    fun forgotPasswordSendsPost() =
-        runTest {
-            val tokenStorage = InMemoryTokenStorage()
-            var capturedMethod: HttpMethod? = null
-            var capturedPath: String? = null
-            val engine =
-                MockEngine { request ->
-                    capturedMethod = request.method
-                    capturedPath = request.url.encodedPath
-                    respond("""{"message":"Reset link sent"}""", HttpStatusCode.OK, jsonHeaders)
-                }
 
-            val apiClient = ApiClient(tokenStorage, engine = engine)
-            val result = apiClient.forgotPassword("user@example.com")
-
-            assertEquals(HttpMethod.Post, capturedMethod)
-            assertEquals("/api/v1/auth/password/forgot", capturedPath)
-            assertTrue(result.isSuccess)
-        }
-
-    @Test
-    fun resetPasswordSendsPost() =
-        runTest {
-            val tokenStorage = InMemoryTokenStorage()
-            var capturedMethod: HttpMethod? = null
-            var capturedPath: String? = null
-            val engine =
-                MockEngine { request ->
-                    capturedMethod = request.method
-                    capturedPath = request.url.encodedPath
-                    respond(authResponseJson(), HttpStatusCode.OK, jsonHeaders)
-                }
-
-            val apiClient = ApiClient(tokenStorage, engine = engine)
-            val result = apiClient.resetPassword("reset-token", "new-password")
-
-            assertEquals(HttpMethod.Post, capturedMethod)
-            assertEquals("/api/v1/auth/password/reset", capturedPath)
-            assertTrue(result.isSuccess)
-        }
-
-    @Test
-    fun resendVerificationSendsPost() =
-        runTest {
-            val tokenStorage = InMemoryTokenStorage()
-            tokenStorage.saveToken("test-token")
-            tokenStorage.saveExpiresAt(FAR_FUTURE_EXPIRY)
-            var capturedPath: String? = null
-            val engine =
-                MockEngine { request ->
-                    capturedPath = request.url.encodedPath
-                    respond("", HttpStatusCode.NoContent, jsonHeaders)
-                }
-
-            val apiClient = ApiClient(tokenStorage, engine = engine)
-            apiClient.resendVerification()
-
-            assertEquals("/api/v1/auth/email/resend", capturedPath)
-        }
 
     @Test
     fun getOAuthProvidersReturnsProviders() =
@@ -179,9 +120,8 @@ class AuthParityTest {
         {
             "id": "usr_01ABC",
             "object": "user",
-            "email": "user@example.com",
+            "username": "testuser",
             "display_name": "Test User",
-            "email_verified": true,
             "onboarding_completed": true,
             "access_token": "tok_123",
             "refresh_token": "indr_123",

@@ -8,6 +8,7 @@
 	}
 
 	let { label, defaultExpanded = true, children }: Props = $props();
+	// svelte-ignore state_referenced_locally
 	let expanded = $state(defaultExpanded);
 
 	function toggle() {

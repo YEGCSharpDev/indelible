@@ -44,12 +44,12 @@ internal fun LibraryDrawerHost(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val drawerScope = rememberCoroutineScope()
     val authUser = (authState as? AuthState.Authenticated)?.user
-    val email = authUser?.email.orEmpty()
+    
     val realName = authUser?.displayName?.takeIf { it.isNotBlank() }
-    val displayName = realName ?: email
+    val displayName = realName ?: ""
     // Subtitle only carries the email when the header title is a real name; otherwise the
     // title already falls back to the email and a duplicate line would be noise.
-    val sidebarSubtitle = if (realName != null) email else ""
+    val sidebarSubtitle = ""
     val avatarBytes by authViewModel.avatarBytes.collectAsState()
     val contentTypeFilter by libraryViewModel.contentTypeFilter.collectAsState()
     val sidebarState by sidebarViewModel.uiState.collectAsState()

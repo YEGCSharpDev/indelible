@@ -276,7 +276,7 @@
 		overflow: hidden;
 	}
 
-	[data-theme='dark'] .cmd-card {
+	:global([data-theme='dark'] .cmd-card) {
 		box-shadow:
 			0 24px 80px rgba(0, 0, 0, 0.55),
 			0 0 0 0.5px rgba(255, 255, 255, 0.08);

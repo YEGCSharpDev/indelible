@@ -47,7 +47,8 @@
 	const typefaces: { value: ReaderTypeface; label: string; preview: string }[] = [
 		{ value: 'serif', label: 'Lora', preview: "'Lora', Georgia, serif" },
 		{ value: 'sans', label: 'Geist', preview: "'Geist', -apple-system, sans-serif" },
-		{ value: 'mono', label: 'Mono', preview: "'Geist Mono', 'SF Mono', monospace" }
+		{ value: 'mono', label: 'Mono', preview: "'Geist Mono', 'SF Mono', monospace" },
+		{ value: 'atkinson', label: 'Atkinson', preview: "'Atkinson Hyperlegible', sans-serif" }
 	];
 
 	function handlePointerDown(e: PointerEvent) {

@@ -29,11 +29,15 @@
 	}
 
 	// Snapshot captures the prop at mount time — intentional for form field initialization.
-	const snap = $state.snapshot(item);
-	const libraryEntryId = snap.library_entry_id;
+	let snap = $derived($state.snapshot(item));
+	let libraryEntryId = $derived(snap.library_entry_id);
+	// svelte-ignore state_referenced_locally
 	let title = $state(snap.title);
+	// svelte-ignore state_referenced_locally
 	let author = $state(snap.author ?? '');
+	// svelte-ignore state_referenced_locally
 	let publishedAt = $state(toDateInputValue(snap.published_at));
+	// svelte-ignore state_referenced_locally
 	let excerpt = $state(snap.excerpt ?? '');
 
 	let tags = $state<string[]>([]);

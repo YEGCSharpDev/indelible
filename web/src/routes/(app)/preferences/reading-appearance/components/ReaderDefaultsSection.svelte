@@ -75,6 +75,19 @@
 					<div class="glyph">Aa</div>
 					<div class="tag">{$t('prefs_reading_font_mono')}</div>
 				</button>
+				<button
+					type="button"
+					class="font-tile"
+					data-font="atkinson"
+					class:selected={fontFamily === 'atkinson'}
+					role="radio"
+					aria-checked={fontFamily === 'atkinson'}
+					aria-label={$t('prefs_reading_font_atkinson')}
+					onclick={() => onFontFamilyChange('atkinson')}
+				>
+					<div class="glyph">Aa</div>
+					<div class="tag">{$t('prefs_reading_font_atkinson')}</div>
+				</button>
 			</div>
 		</div>
 		<div class="row">
@@ -193,7 +206,7 @@
 
 	.tile-row {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(4, 1fr);
 		gap: 10px;
 		width: 100%;
 	}
@@ -241,6 +254,9 @@
 	.font-tile[data-font='mono'] .glyph {
 		font-family: 'SF Mono', 'Fira Code', Menlo, ui-monospace, monospace;
 		font-size: 28px;
+	}
+	.font-tile[data-font='atkinson'] .glyph {
+		font-family: 'Atkinson Hyperlegible', sans-serif;
 	}
 
 	.tag {

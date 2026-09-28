@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -38,7 +37,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,10 +45,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.indelible.core.i18n.resolveString
 import app.indelible.core.platform.rememberFilePicker
@@ -64,8 +59,6 @@ import app.indelible.ui.theme.IndelibleShape
 import app.indelible.ui.theme.IndelibleSpacing
 import indelible.composeapp.generated.resources.Res
 import indelible.composeapp.generated.resources.common_back
-import indelible.composeapp.generated.resources.feed_action_copied
-import indelible.composeapp.generated.resources.feed_action_copy
 import indelible.composeapp.generated.resources.feed_add_newsletter_body
 import indelible.composeapp.generated.resources.feed_add_newsletter_title
 import indelible.composeapp.generated.resources.feed_add_opml_hint
@@ -74,31 +67,22 @@ import indelible.composeapp.generated.resources.feed_add_opml_title
 import indelible.composeapp.generated.resources.feed_add_subscribe_title
 import indelible.composeapp.generated.resources.feed_add_title
 import indelible.composeapp.generated.resources.feed_add_url_label
-import indelible.composeapp.generated.resources.feed_email_copied
-import indelible.composeapp.generated.resources.feed_label
 import indelible.composeapp.generated.resources.feed_subscribe
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 private const val DASHED_BORDER_DASH = 10f
 private const val DASHED_BORDER_GAP = 7f
-private const val COPY_FEEDBACK_DELAY_MS = 2000L
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddFeedScreen(
     viewModel: AddFeedViewModel,
-    ingestEmail: String?,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var rssUrl by remember { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
-    val clipboardManager = LocalClipboardManager.current
-    val emailCopiedMessage = stringResource(Res.string.feed_email_copied)
-
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
@@ -217,18 +201,7 @@ fun AddFeedScreen(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        if (ingestEmail != null) {
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                            NewsletterIngestRow(
-                                address = ingestEmail,
-                                onCopy = {
-                                    clipboardManager.setText(AnnotatedString(ingestEmail))
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar(emailCopiedMessage)
-                                    }
-                                },
-                            )
-                        }
+                    
                     }
                 }
             }
@@ -300,60 +273,3 @@ private fun OpmlDropZone(
     }
 }
 
-@Composable
-private fun NewsletterIngestRow(
-    address: String,
-    onCopy: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    var copied by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(IndelibleSpacing.step10),
-    ) {
-        Text(
-            text = stringResource(Res.string.feed_label),
-            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.width(IndelibleSpacing.step48),
-        )
-        Text(
-            text = address,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Surface(
-            onClick = {
-                onCopy()
-                scope.launch {
-                    copied = true
-                    kotlinx.coroutines.delay(COPY_FEEDBACK_DELAY_MS)
-                    copied = false
-                }
-            },
-            modifier = Modifier.height(IndelibleSpacing.step28),
-            shape = IndelibleShape.full,
-            color = MaterialTheme.colorScheme.surface,
-            border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline),
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = IndelibleSpacing.step10),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text =
-                        stringResource(
-                            if (copied) Res.string.feed_action_copied else Res.string.feed_action_copy,
-                        ),
-                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                )
-            }
-        }
-    }
-}
